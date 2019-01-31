@@ -1,0 +1,240 @@
+package migration
+
+import (
+	"fmt"
+	"github.com/jinzhu/gorm"
+	"reflect"
+	"strings"
+	"totoval-framework/cmd"
+	"totoval-framework/model"
+)
+
+// contains all the migrators
+var migratorList []Migrator
+
+func AddMigrator(migrator Migrator) {
+	migratorList = append(migratorList, migrator)
+	fmt.Println(migratorList)
+}
+
+type Migrator interface {
+	Up(db *gorm.DB)
+	Down(db *gorm.DB)
+	MigratorIdentifier
+}
+type MigratorIdentifier interface {
+	Name(*Migrator) string
+}
+type MigratorIdentify struct{}
+
+func (m *MigratorIdentify) Name(migrator *Migrator) string {
+	tmp := strings.Split(reflect.TypeOf(*migrator).String(), ".")
+	return tmp[len(tmp)-1]
+}
+func newMigrator(name string) (Migrator) {
+	for _, migrator := range migratorList {
+		if name == migrator.Name(&migrator) {
+			return migrator
+		}
+	}
+	return nil
+}
+
+type Migration struct {
+	ID        uint   `gorm:"column:id;primary_key;auto_increment;"`
+	Migration string `gorm:"column:migration;type:varchar(255)"`
+	Batch     uint   `gorm:"column:batch;"`
+}
+
+// 建立migration表
+func (m *Migration) up(db *gorm.DB) {
+	tx := db.Begin()
+	{
+		tx.CreateTable(&m)
+	}
+	tx.Commit()
+}
+func (m *Migration) Name() string {
+	return m.Migration
+}
+
+type MigrationUtils struct {
+	db    *gorm.DB
+	chLog chan interface{}
+	Migration
+}
+
+func (m *MigrationUtils) Init(chLog chan interface{}) {
+	m.setLog(chLog)
+	m.setDB()
+}
+
+func (m *MigrationUtils) setDB() {
+	m.db = model.DB()
+}
+func (m *MigrationUtils) setLog(ch chan interface{}) {
+	m.chLog = ch
+}
+
+// 项目初始化
+func (m *MigrationUtils) SetUp() {
+	defer m.closeLog()
+	m.log(cmd.CODE_WARNING, "initializing:migration table")
+
+	m.Migration.up(m.db)
+
+	m.log(cmd.CODE_SUCCESS, "initialized:migration table")
+}
+
+// 所有migrate过的任务列表
+func (m *MigrationUtils) migrationList() (migrationList []Migration) {
+	m.db.Find(&migrationList)
+	return
+}
+
+// 计算需要migrate的任务
+func (m *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
+	for _, migrator := range migratorList {
+		found := false
+		for _, migration := range m.migrationList() {
+			if migrator.Name(&migrator) == migration.Migration {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			_migratorList = append(_migratorList, migrator)
+		}
+	}
+	return
+}
+
+func (m *MigrationUtils) currentBatch() uint {
+	migration := &Migration{}
+	if !m.db.Order("batch desc").First(&migration).RecordNotFound() {
+		return migration.Batch
+	}
+	return 0
+}
+func (m *MigrationUtils) addMigration(migratorName string, batch uint) bool {
+	migration := Migration{Migration: migratorName, Batch: batch}
+	if nil != m.db.Create(&migration).Error {
+		return false
+	}
+	return true
+}
+func (m *MigrationUtils) needRollbackMigrationList(batch uint) (migrationList []Migration) {
+	m.db.Where("batch = ?", batch).Find(&migrationList)
+	return
+}
+func (m *MigrationUtils) delMigration(migration *Migration) bool {
+	if nil != m.db.Delete(migration).Error {
+		return false
+	}
+	return true
+}
+func (m *MigrationUtils) errorRollback(tx *gorm.DB) {
+	if err := recover(); err != nil {
+		if _err, ok := err.(error); ok {
+			m.log(cmd.CODE_WARNING, "error:"+_err.Error())
+		}
+		tx.Rollback()
+	}
+}
+
+func (m *MigrationUtils) log(code interface{}, message string) {
+	if _code, ok := code.(cmd.Attribute); ok {
+		m.chLog <- cmd.TermLog{
+			Code:    _code,
+			Message: message,
+		}
+	}
+}
+func (m *MigrationUtils) closeLog() {
+	m.chLog <- nil
+}
+
+func (m *MigrationUtils) Migrate() {
+	defer m.closeLog()
+	tx := m.db.Begin()
+	{
+		defer m.errorRollback(tx)
+
+		batch := m.currentBatch() + 1
+		for _, migrator := range m.needMigrateList() {
+			migrationName := migrator.Name(&migrator)
+
+			m.log(cmd.CODE_WARNING, "migrating:"+migrationName)
+
+			migrator.Up(m.db)
+
+			// add migration
+			if !m.addMigration(migrationName, batch) {
+				panic("migration deleted failed!")
+			}
+
+			m.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
+		}
+	}
+	tx.Commit()
+}
+func (m *MigrationUtils) Fresh() {
+	defer m.closeLog()
+
+}
+func (m *MigrationUtils) Install() {
+	defer m.closeLog()
+	//   --database[=DATABASE]  The database connection to use
+	//@todo
+	//  Create the migration repository
+}
+func (m *MigrationUtils) Refresh() {
+	defer m.closeLog()
+
+}
+func (m *MigrationUtils) Reset() {
+	defer m.closeLog()
+
+}
+func (m *MigrationUtils) Rollback() {
+	defer m.closeLog()
+	tx := m.db.Begin()
+	{
+		defer m.errorRollback(tx)
+
+		for _, migration := range m.needRollbackMigrationList(m.currentBatch()) {
+			m.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
+
+			migrator := newMigrator(migration.Name())
+			if nil == migrator {
+				panic("migration has not been defined yet!")
+			}
+			migrator.Down(m.db)
+			if !m.delMigration(&migration) {
+				panic("migration deleted failed!")
+			}
+
+			m.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
+		}
+	}
+	tx.Commit()
+}
+func (m *MigrationUtils) Status() {
+	defer m.closeLog()
+	//+------+--------------------------------------------------------------+-------+
+	//| Ran? | Migration                                                    | Batch |
+	//+------+--------------------------------------------------------------+-------+
+	//| Yes  | 2014_10_12_000000_create_users_table                         | 3     |
+	//| Yes  | 2014_10_12_100000_create_password_resets_table               | 1     |
+	//| Yes  | 2016_06_01_000001_create_oauth_auth_codes_table              | 1     |
+	//| Yes  | 2016_06_01_000002_create_oauth_access_tokens_table           | 1     |
+	//| Yes  | 2016_06_01_000003_create_oauth_refresh_tokens_table          | 1     |
+	//| Yes  | 2016_06_01_000004_create_oauth_clients_table                 | 1     |
+	//| Yes  | 2016_06_01_000005_create_oauth_personal_access_clients_table | 1     |
+	//| Yes  | 2019_01_10_081308_create_user_verification_table             | 2     |
+	//| Yes  | 2019_01_10_165704_create_data_area_table                     | 2     |
+	//| No   | 2019_01_22_112905_create_customer_wechat_table               |       |
+	//| No   | 2019_01_22_112909_create_customer_table                      |       |
+	//+------+--------------------------------------------------------------+-------+
+}
