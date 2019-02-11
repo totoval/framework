@@ -127,6 +127,29 @@ func (m *MigrationUtils) Migrate() {
 	}
 	tx.Commit()
 }
+func (m *MigrationUtils) Rollback() {
+	defer m.closeLog()
+	tx := m.db.Begin()
+	{
+		defer m.errorRollback(tx)
+
+		for _, migration := range m.needRollbackMigrationList(m.currentBatch()) {
+			m.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
+
+			migrator := newMigrator(migration.Name())
+			if migrator == nil {
+				panic("migration has not been defined yet!")
+			}
+			migrator.Down(m.db)
+			if !m.delMigration(&migration) {
+				panic("migration deleted failed!")
+			}
+
+			m.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
+		}
+	}
+	tx.Commit()
+}
 func (m *MigrationUtils) Fresh() {
 	defer m.closeLog()
 
@@ -144,29 +167,6 @@ func (m *MigrationUtils) Refresh() {
 func (m *MigrationUtils) Reset() {
 	defer m.closeLog()
 
-}
-func (m *MigrationUtils) Rollback() {
-	defer m.closeLog()
-	tx := m.db.Begin()
-	{
-		defer m.errorRollback(tx)
-
-		for _, migration := range m.needRollbackMigrationList(m.currentBatch()) {
-			m.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
-
-			migrator := newMigrator(migration.Name())
-			if nil == migrator {
-				panic("migration has not been defined yet!")
-			}
-			migrator.Down(m.db)
-			if !m.delMigration(&migration) {
-				panic("migration deleted failed!")
-			}
-
-			m.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
-		}
-	}
-	tx.Commit()
 }
 func (m *MigrationUtils) Status() {
 	defer m.closeLog()
