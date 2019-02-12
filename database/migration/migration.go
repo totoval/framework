@@ -2,6 +2,7 @@ package migration
 
 import (
 	"github.com/jinzhu/gorm"
+	"totoval-framework/config"
 )
 
 type Migration struct {
@@ -18,6 +19,15 @@ func (m *Migration) up(db *gorm.DB) {
 	}
 	tx.Commit()
 }
+
+func (m *Migration) TableName() string {
+	tableName, ok := config.Get("database.migrations").(string);
+	if !ok {
+		panic("migrations table name parse error")
+	}
+	return tableName
+}
+
 func (m *Migration) Name() string {
 	return m.Migration
 }
