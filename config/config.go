@@ -41,3 +41,5 @@ func Get(path string, defaultValue ...interface{}) interface{} {
 	}
 	return v.Get(path)
 }
+
+//@todo get string
