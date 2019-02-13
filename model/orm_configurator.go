@@ -1,6 +1,6 @@
 package model
 
-type Orm interface {
+type OrmConfigurator interface {
 	ConnectionArgs() string
 	Driver() string
 	Prefix() string

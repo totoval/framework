@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"totoval-framework/config"
 )
@@ -9,17 +10,18 @@ import _ "github.com/jinzhu/gorm/dialects/mysql"
 var db *gorm.DB
 
 func init() {
-	var orm Orm
+	var orm OrmConfigurator
 	orm, db = setConnection("default")
 	ormConfig(orm)
 }
 
 
-func setConnection(conn string) (orm Orm, _db *gorm.DB) {
+func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 	// get database connection name
 	_conn := conn
 	if conn == "default" {
 		var _ok bool
+		fmt.Println("database." + conn, config.Get("database." + conn))
 		_conn, _ok = config.Get("database." + conn).(string)
 		if !_ok {
 			panic("database connection parse error")
@@ -54,9 +56,12 @@ func DB() *gorm.DB {
 	return db
 }
 
-func ormConfig(orm Orm) {
+func ormConfig(orm OrmConfigurator) {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return orm.Prefix()+ "_" + defaultTableName
+		if orm.Prefix() != "" {
+			return orm.Prefix() + "_" + defaultTableName
+		}
+		return defaultTableName
 	}
 }
 
