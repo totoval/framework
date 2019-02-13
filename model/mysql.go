@@ -47,7 +47,7 @@ func (_mys *mysql) collation() string {
 	return _mys.config("collation")
 }
 func (_mys *mysql) config(key string) string {
-	if value, ok := config.Get("database."+ _mys.connection() + "." + key).(string); ok {
+	if value, ok := config.Get("database.connections."+ _mys.connection() + "." + key).(string); ok {
 		return value
 	}
 	panic("database "+key+" parse error")
