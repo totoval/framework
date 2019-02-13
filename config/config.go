@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
@@ -42,4 +43,24 @@ func Get(path string, defaultValue ...interface{}) interface{} {
 	return v.Get(path)
 }
 
-//@todo get string
+func GetString(path string, defaultValue ...interface{}) string {
+	var value interface{}
+	if len(defaultValue) > 0 {
+		value = Get(path, defaultValue[0])
+	}else{
+		value = Get(path)
+	}
+
+	return cast.ToString(value)
+}
+func GetInt(path string, defaultValue ...interface{}) int {
+
+	var value interface{}
+	if len(defaultValue) > 0 {
+		value = Get(path, defaultValue[0])
+	}else{
+		value = Get(path)
+	}
+
+	return cast.ToInt(value)
+}
