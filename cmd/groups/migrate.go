@@ -2,7 +2,7 @@ package groups
 
 import (
 	"github.com/urfave/cli"
-	"totoval-framework/database/migration"
+	"framework/database/migration"
 )
 
 type MigrateCommand struct {

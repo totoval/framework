@@ -1,6 +1,6 @@
 package model
 
-import "totoval-framework/config"
+import "framework/config"
 
 type mysql struct {
 	conn string
