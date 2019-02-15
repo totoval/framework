@@ -2,8 +2,8 @@ package migration
 
 import (
 	"github.com/jinzhu/gorm"
-	"framework/cmd"
-	"framework/model"
+	"github.com/totoval/framework/cmd"
+	"github.com/totoval/framework/model"
 )
 
 type MigrationUtils struct {

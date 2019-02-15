@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
-	"framework/config"
+	"github.com/totoval/framework/config"
 )
 import _ "github.com/jinzhu/gorm/dialects/mysql"
 
