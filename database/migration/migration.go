@@ -2,7 +2,7 @@ package migration
 
 import (
 	"github.com/jinzhu/gorm"
-	"totoval-framework/config"
+	"framework/config"
 )
 
 type Migration struct {
