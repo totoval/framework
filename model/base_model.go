@@ -47,7 +47,9 @@ func structToMap(data interface{}) (result map[string]interface{}) {
 	return
 }
 
-func FillDefault(data map[string]interface{}, defaultData interface{}) (interface{}, error) {
+func FillDefault(data interface{}, defaultData interface{}) (interface{}, error) {
+	dataType := reflect.TypeOf(data)
+	dataValue := reflect.ValueOf(data)
 	defaultDataType := reflect.TypeOf(defaultData)
 	defaultDataValue := reflect.ValueOf(defaultData)
 
@@ -60,9 +62,9 @@ func FillDefault(data map[string]interface{}, defaultData interface{}) (interfac
 
 		// fill data
 		isFilled := false
-		for key, value := range data {
-			if newDataType.Field(i).Name == key {
-				newDataValue.Field(i).Set(reflect.ValueOf(value))
+		for j := 0; j < dataType.NumField(); j++ {
+			if newDataType.Field(i).Type == dataType.Field(j).Type && newDataType.Field(i).Name == dataType.Field(j).Name {
+				newDataValue.Field(i).Set(dataValue.Field(j))
 				isFilled = true
 				break
 			}
@@ -73,7 +75,7 @@ func FillDefault(data map[string]interface{}, defaultData interface{}) (interfac
 
 		// fill default
 		for j := 0; j < defaultDataType.NumField(); j++ {
-			if newDataType.Field(i).Name == defaultDataType.Field(j).Name {
+			if newDataType.Field(i).Type == defaultDataType.Field(j).Type &&newDataType.Field(i).Name == defaultDataType.Field(j).Name {
 				newDataValue.Field(i).Set(defaultDataValue.Field(j))
 				break
 			}
@@ -81,14 +83,14 @@ func FillDefault(data map[string]interface{}, defaultData interface{}) (interfac
 
 	}
 
-	return newDataValue.Addr().Interface(), nill
+	return newDataValue.Addr().Interface(), nil
 }
 
 func Create(data interface{}, result interface{}) error {
-	dataMap := structToMap(data)
+	//dataMap := structToMap(data)
 
 	defaultData := result.(Modeller)
-	inputData, err := FillDefault(dataMap, defaultData.Default())
+	inputData, err := FillDefault(data, defaultData.Default())
 	if err != nil {
 		return err
 	}
