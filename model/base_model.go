@@ -183,7 +183,7 @@ func Save(out interface{}, modify interface{}) error {
 
 // out must be a struct pointer
 func First(out interface{}) (error) {
-	if err := db.First(out).Error; err != nil {
+	if err := db.Where(out).First(out).Error; err != nil {
 		return err
 	}
 	return nil
