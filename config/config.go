@@ -64,3 +64,14 @@ func GetInt(path string, defaultValue ...interface{}) int {
 
 	return cast.ToInt(value)
 }
+func GetBool(path string, defaultValue ...interface{}) bool {
+
+	var value interface{}
+	if len(defaultValue) > 0 {
+		value = Get(path, defaultValue[0])
+	}else{
+		value = Get(path)
+	}
+
+	return cast.ToBool(value)
+}

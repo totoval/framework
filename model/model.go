@@ -40,6 +40,11 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 		panic("failed to connect database")
 	}
 
+	// debug mode
+	if config.GetBool("app.debug") {
+		_db = _db.Debug().LogMode(true)
+	}
+
 	//defer _db.Close()
 	return orm, _db
 }
