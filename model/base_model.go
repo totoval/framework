@@ -60,7 +60,7 @@ func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 			return nil, errors.New("model value cannot be filled")
 		}
 
-		// fill data
+		// fill original data
 		isFilled := false
 		for j := 0; j < dataType.NumField(); j++ {
 			if newDataType.Field(i).Type == dataType.Field(j).Type && newDataType.Field(i).Name == dataType.Field(j).Name {
@@ -73,12 +73,36 @@ func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 			continue
 		}
 
-		// fill default
+
+
+		// fill input data
 		for j := 0; j < fillType.NumField(); j++ {
-			if newDataType.Field(i).Type == fillType.Field(j).Type &&newDataType.Field(i).Name == fillType.Field(j).Name {
-				newDataValue.Field(i).Set(fillValue.Field(j))
-				break
+
+			// if kind is ptr
+			if fillValue.Field(j).Kind() == reflect.Ptr {
+
+				// if not set, then do not fill
+				if fillValue.Field(j).IsNil() {
+					continue
+				}
+
+				// fill data
+				if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
+					newDataValue.Field(i).Set(fillValue.Field(j))
+					break
+				}
+			}else{
+				// if kind is value fill
+				//@todo WARN we have not check zero value for update, so if the type is `string`, and its' value is `""`(not set @fill), we'll override the correct value!!!!
+				// fill data
+				if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
+					newDataValue.Field(i).Set(fillValue.Field(j))
+					break
+				}
 			}
+
+			println("#################################################################")
+
 		}
 
 	}
@@ -143,6 +167,7 @@ func Save(out interface{}, modify interface{}) error {
 		return err
 	}
 
+
 	// validate data
 	if err := validator.New().Struct(inData); err != nil {
 		//// this check is only needed when your code could produce
@@ -173,7 +198,7 @@ func Save(out interface{}, modify interface{}) error {
 	}
 
 	// save record
-	if err := db.Save(&inData).Error; err != nil {
+	if err := db.Where(out).Save(inData).Error; err != nil {
 		return err
 	}
 
