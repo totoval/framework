@@ -7,6 +7,8 @@ type RouteGrouper interface {
 }
 type RouteVersioner interface {
 	Register(router *gin.Engine)
+	noAuth(group *gin.RouterGroup)
+	auth(group *gin.RouterGroup)
 }
 
 func RegisterRouteGroup(g RouteGrouper, group *gin.RouterGroup) {
