@@ -47,14 +47,14 @@ func structToMap(data interface{}) (result map[string]interface{}) {
 	return
 }
 
-func FillDefault(data interface{}, defaultData interface{}) (interface{}, error) {
-	dataType := reflect.TypeOf(data)
-	dataValue := reflect.ValueOf(data)
-	defaultDataType := reflect.TypeOf(defaultData)
-	defaultDataValue := reflect.ValueOf(defaultData)
+func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
+	dataType := reflect.TypeOf(data).Elem()
+	dataValue := reflect.ValueOf(data).Elem()
+	fillType := reflect.TypeOf(fill)
+	fillValue := reflect.ValueOf(fill)
 
-	newDataType := reflect.TypeOf(defaultData)
-	newDataValue := reflect.New(reflect.TypeOf(defaultData)).Elem()
+	newDataType := reflect.TypeOf(fill)
+	newDataValue := reflect.New(reflect.TypeOf(fill)).Elem()
 	for i := 0; i < newDataType.NumField(); i++ {
 		if !newDataValue.Field(i).IsValid() || !newDataValue.Field(i).CanSet() {
 			return nil, errors.New("model value cannot be filled")
@@ -69,14 +69,14 @@ func FillDefault(data interface{}, defaultData interface{}) (interface{}, error)
 				break
 			}
 		}
-		if isFilled {
+		if !mustFill && isFilled {
 			continue
 		}
 
 		// fill default
-		for j := 0; j < defaultDataType.NumField(); j++ {
-			if newDataType.Field(i).Type == defaultDataType.Field(j).Type &&newDataType.Field(i).Name == defaultDataType.Field(j).Name {
-				newDataValue.Field(i).Set(defaultDataValue.Field(j))
+		for j := 0; j < fillType.NumField(); j++ {
+			if newDataType.Field(i).Type == fillType.Field(j).Type &&newDataType.Field(i).Name == fillType.Field(j).Name {
+				newDataValue.Field(i).Set(fillValue.Field(j))
 				break
 			}
 		}
@@ -86,16 +86,19 @@ func FillDefault(data interface{}, defaultData interface{}) (interface{}, error)
 	return newDataValue.Addr().Interface(), nil
 }
 
-func Create(data interface{}, result interface{}) error {
+// out must be a struct pointer
+func Create(out interface{}) error {
 	//dataMap := structToMap(data)
 
-	defaultData := result.(Modeller)
-	inputData, err := FillDefault(data, defaultData.Default())
+	// fill default data
+	defaultData := out.(Modeller)
+	inData, err := FillStruct(out, defaultData.Default(), false)
 	if err != nil {
 		return err
 	}
 
-	if err := validator.New().Struct(inputData); err != nil {
+	// validate data
+	if err := validator.New().Struct(inData); err != nil {
 		//// this check is only needed when your code could produce
 		//// an invalid value for validation such as interface with nil
 		//// value most including myself do not usually have code like this.
@@ -123,25 +126,69 @@ func Create(data interface{}, result interface{}) error {
 		return err
 	}
 
-	if err := db.Create(inputData).Error; err != nil {
+	// create record
+	if err := db.Create(inData).Error; err != nil {
 		return err
 	}
 
-	result = inputData
+	out = &inData
 	return nil
 }
 
-//func Save(data interface{}, result interface{}) error {
-//
-//}
+// out must be a struct pointer
+func Save(out interface{}, modify interface{}) error {
+	// modify data
+	inData, err := FillStruct(out, modify, true)
+	if err != nil {
+		return err
+	}
 
-func (m *BaseModel) Save() { //     public function saveObj(array $data_arr, int $id = null, bool $with_trashed = false)
+	// validate data
+	if err := validator.New().Struct(inData); err != nil {
+		//// this check is only needed when your code could produce
+		//// an invalid value for validation such as interface with nil
+		//// value most including myself do not usually have code like this.
+		//if _, ok := err.(*validator.InvalidValidationError); ok {
+		//	fmt.Println(err)
+		//	return
+		//}
+		//
+		//for _, err := range err.(validator.ValidationErrors) {
+		//
+		//	fmt.Println(err.Namespace())
+		//	fmt.Println(err.Field())
+		//	fmt.Println(err.StructNamespace()) // can differ when a custom TagNameFunc is registered or
+		//	fmt.Println(err.StructField())     // by passing alt name to ReportError like below
+		//	fmt.Println(err.Tag())
+		//	fmt.Println(err.ActualTag())
+		//	fmt.Println(err.Kind())
+		//	fmt.Println(err.Type())
+		//	fmt.Println(err.Value())
+		//	fmt.Println(err.Param())
+		//	fmt.Println()
+		//}
+		//
+		//// from here you can create your own error messages in whatever language you wish
+		return err
+	}
 
+	// save record
+	if err := db.Save(&inData).Error; err != nil {
+		return err
+	}
+
+	out = inData
+	return nil
 }
 
-func (m *BaseModel) GetObjByID() { //     public function getObjByID(int $id, bool $with_trashed = false)
-
+// out must be a struct pointer
+func First(out interface{}) (error) {
+	if err := db.First(out).Error; err != nil {
+		return err
+	}
+	return nil
 }
+
 
 func (m *BaseModel) DeleteObj() { // public function deleteObj(int $id = null, bool $force_delete = false): bool
 
