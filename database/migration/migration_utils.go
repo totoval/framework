@@ -66,7 +66,7 @@ func (m *MigrationUtils) currentBatch() uint {
 	return 0
 }
 func (m *MigrationUtils) addMigration(migratorName string, batch uint) bool {
-	migration := Migration{Migration: migratorName, Batch: batch}
+	migration := &Migration{Migration: migratorName, Batch: batch}
 	if nil != m.db.Create(&migration).Error {
 		return false
 	}
@@ -84,10 +84,12 @@ func (m *MigrationUtils) delMigration(migration *Migration) bool {
 }
 func (m *MigrationUtils) errorRollback(tx *gorm.DB) {
 	if err := recover(); err != nil {
+		tx.Rollback()
 		if _err, ok := err.(error); ok {
 			m.log(cmd.CODE_WARNING, "error:"+_err.Error())
+		}else{
+			m.log(cmd.CODE_WARNING, "error:"+err.(string))
 		}
-		tx.Rollback()
 	}
 }
 
@@ -119,9 +121,8 @@ func (m *MigrationUtils) Migrate() {
 
 			// add migration
 			if !m.addMigration(migrationName, batch) {
-				panic("migration deleted failed!")
+				panic("migration added failed!")
 			}
-
 			m.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
 		}
 	}

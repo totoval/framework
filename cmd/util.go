@@ -22,4 +22,6 @@ const (
 	CODE_WARNING color.Attribute = color.FgYellow
 	CODE_INFO color.Attribute = color.FgBlue
 	CODE_ERROR color.Attribute = color.FgRed
+
+	MESSAGE_FINISHED = "Finished!"
 )

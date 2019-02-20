@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"gopkg.in/go-playground/validator.v9"
+
 	"reflect"
 )
 
@@ -100,8 +101,6 @@ func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 					break
 				}
 			}
-
-			println("#################################################################")
 
 		}
 
