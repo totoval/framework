@@ -77,7 +77,7 @@ func (m *MigrationUtils) needRollbackMigrationList(batch uint) (migrationList []
 	return
 }
 func (m *MigrationUtils) delMigration(migration *Migration) bool {
-	if nil != m.db.Delete(migration).Error {
+	if nil != m.db.Delete(&migration).Error {
 		return false
 	}
 	return true
