@@ -8,7 +8,7 @@ import _ "github.com/jinzhu/gorm/dialects/mysql"
 
 var db *gorm.DB
 
-func init() {
+func Initialize() {
 	var orm OrmConfigurator
 	orm, db = setConnection("default")
 	ormConfig(orm)
