@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"github.com/jinzhu/copier"
 	"gopkg.in/go-playground/validator.v9"
 
 	"reflect"
@@ -154,7 +155,7 @@ func Create(out interface{}) error {
 		return err
 	}
 
-	out = &inData
+	copier.Copy(out, inData)
 	return nil
 }
 
@@ -201,7 +202,7 @@ func Save(out interface{}, modify interface{}) error {
 		return err
 	}
 
-	out = inData
+	copier.Copy(out, inData)
 	return nil
 }
 
