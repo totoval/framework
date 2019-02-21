@@ -3,7 +3,9 @@ package model
 import (
 	"errors"
 	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
 	"gopkg.in/go-playground/validator.v9"
+	"strings"
 
 	"reflect"
 )
@@ -206,17 +208,61 @@ func Save(out interface{}, modify interface{}) error {
 	return nil
 }
 
+func SaveByID(id interface{}, out interface{}, modify interface{}) error {
+	//@todo First(), get primarykey through tag, then save
+	return Save(out, modify)
+}
+
 // out must be a struct pointer
-func First(out interface{}) (error) {
-	if err := db.Where(out).First(out).Error; err != nil {
+func First(out interface{}, withTrashed bool) (error) {
+	_db := db
+	if withTrashed {
+		_db = _db.Unscoped()
+	}
+	if err := _db.Where(out).First(out).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
+func Delete(in interface{}, force bool) (error) {
+	_db := db
+	if force {
+		_db = _db.Unscoped()
+	}
+	if err := _db.Delete(in).Error; err != nil {
+		return err
+	}
+	return nil
+}
 
-func (m *BaseModel) DeleteObj() { // public function deleteObj(int $id = null, bool $force_delete = false): bool
+func deleteKeyName(in interface{}) (string, error) {
+	dataType, ok := reflect.TypeOf(in).Elem().FieldByName("DeletedAt")
+	if !ok {
+		return "", errors.New("cannot get DeletedAt key name type")
+	}
 
+	gormTag := dataType.Tag.Get("gorm")
+	for _, gormTagType := range strings.Split(gormTag, ";") {
+		tmp := strings.Split(gormTagType, ":")
+		key := tmp[0]
+		value := tmp[1]
+		if key == "column" {
+			return value, nil
+		}
+	}
+	return "", errors.New("cannot get DeletedAt key name")
+}
+
+func Restore(in interface{}) (error) {
+	deleteKeyName, err := deleteKeyName(in)
+	if err != nil {
+		return err
+	}
+	if err := db.Unscoped().Model(in).Update(deleteKeyName, gorm.Expr("NULL")).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *BaseModel) RestoreObj() { //     public function restoreObj(int $id = null): bool
