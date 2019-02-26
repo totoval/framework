@@ -117,7 +117,9 @@ func (m *MigrationUtils) Migrate() {
 
 			m.log(cmd.CODE_WARNING, "migrating:"+migrationName)
 
-			migrator.Up(m.db)
+			if err := migrator.Up(m.db).Error; err != nil {
+				panic(err)
+			}
 
 			// add migration
 			if !m.addMigration(migrationName, batch) {
@@ -141,7 +143,11 @@ func (m *MigrationUtils) Rollback() {
 			if migrator == nil {
 				panic("migration has not been defined yet!")
 			}
-			migrator.Down(m.db)
+
+			if err := migrator.Down(m.db).Error; err != nil {
+				panic(err)
+			}
+
 			if !m.delMigration(&migration) {
 				panic("migration deleted failed!")
 			}

@@ -5,8 +5,8 @@ import (
 )
 
 type Migrator interface {
-	Up(db *gorm.DB)
-	Down(db *gorm.DB)
+	Up(db *gorm.DB) (*gorm.DB)
+	Down(db *gorm.DB) (*gorm.DB)
 	MigratorIdentifier
 }
 
