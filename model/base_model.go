@@ -116,23 +116,20 @@ func Transaction(f func(), attempts uint) {
 	if attempts <= 0 { attempts = 1 }
 	var currentAttempt uint
 	currentAttempt = 1
-	//for currentAttempt = 1; currentAttempt <= attempts; currentAttempt++ {
-		tx := db.Begin()
-		defer func(tx *gorm.DB) {
-			if err := recover(); err != nil {
-				var __err error
-				if _err, ok := err.(error); ok {
-					__err = _err
-				}else{
-					__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
-				}
-				handleTransactionException(tx, f, __err, currentAttempt, attempts)
+	tx := db.Begin()
+	defer func(tx *gorm.DB) {
+		if err := recover(); err != nil {
+			var __err error
+			if _err, ok := err.(error); ok {
+				__err = _err
+			}else{
+				__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
 			}
-		}(tx)
-		f()
-		tx.Commit()
-		return
-	//}
+			handleTransactionException(tx, f, __err, currentAttempt, attempts)
+		}
+	}(tx)
+	f()
+	tx.Commit()
 }
 func handleTransactionException(tx *gorm.DB, f func(), err error, currentAttempt uint, maxAttempts uint){
 	tx.Rollback()
