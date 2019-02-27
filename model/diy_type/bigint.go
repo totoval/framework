@@ -33,14 +33,16 @@ func (bi *BigInt) Scan(src interface{}) error {
 }
 
 func (bi *BigInt) scanBytes(src []byte) error {
-	var ok bool
-	_, ok = bi.SetString(string(src), 10)
+	return bi.CreateFromString(string(src), 10)
+}
+
+func (bi *BigInt) CreateFromString(s string, base int) error {
+	_, ok := bi.SetString(s, base)
 	if !ok {
-		return errors.New("scan bigint bytes failed: "+string(src))
+		return errors.New("create bigint from string failed: "+ s)
 	}
 	return nil
 }
-
 
 func (bi *BigInt) Add(a BigInt, b BigInt) {
 	bi.BI.Add(&a.BI, &b.BI)

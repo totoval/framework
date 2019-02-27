@@ -47,10 +47,7 @@ func (bf *BigFloat) Scan(src interface{}) error {
 }
 
 func (bf *BigFloat) scanBytes(src []byte) error {
-	if err := bf.CreateFromString(string(src), ToNearestEven); err != nil {
-		return err
-	}
-	return nil
+	return bf.CreateFromString(string(src), ToNearestEven)
 }
 func (bf *BigFloat) String() string {
 	//helpers.Dump(bf.BF.Prec(), bf.BF.MinPrec())
@@ -80,8 +77,6 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 	} else {
 		return errors.New("can't convert " + s + " to decimal")
 	}
-
-	helpers.Dump(bf.normalCount, bf.decimalCount)
 
 	// string to BigFloat
 	_bf, _, err := big.ParseFloat(s, 10, bf.normalCount*2+bf.decimalCount*2+8, mode)
