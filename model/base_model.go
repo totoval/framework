@@ -112,6 +112,37 @@ func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 	return newDataValue.Addr().Interface(), nil
 }
 
+func Transaction(f func(), attempts uint) {
+	if attempts <= 0 { attempts = 1 }
+	var currentAttempt uint
+	currentAttempt = 1
+	//for currentAttempt = 1; currentAttempt <= attempts; currentAttempt++ {
+		tx := db.Begin()
+		defer func(tx *gorm.DB) {
+			if err := recover(); err != nil {
+				var __err error
+				if _err, ok := err.(error); ok {
+					__err = _err
+				}else{
+					__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
+				}
+				handleTransactionException(tx, f, __err, currentAttempt, attempts)
+			}
+		}(tx)
+		f()
+		tx.Commit()
+		return
+	//}
+}
+func handleTransactionException(tx *gorm.DB, f func(), err error, currentAttempt uint, maxAttempts uint){
+	tx.Rollback()
+	if currentAttempt < maxAttempts {
+		Transaction(f, maxAttempts - currentAttempt)
+	}
+
+	panic(err)
+}
+
 // out must be a struct pointer
 func Create(out interface{}) error {
 	//dataMap := structToMap(data)
