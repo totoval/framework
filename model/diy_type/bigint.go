@@ -8,9 +8,13 @@ import (
 	"math/big"
 )
 
-type BI = big.Int
+type _bi = big.Int
 type BigInt struct {
-	BI
+	_bi
+}
+
+func (bi *BigInt) BI() _bi {
+	return bi._bi
 }
 
 func (bi BigInt) Value() (driver.Value, error) {
@@ -45,22 +49,22 @@ func (bi *BigInt) CreateFromString(s string, base int) error {
 }
 
 func (bi *BigInt) Add(a BigInt, b BigInt) {
-	bi.BI.Add(&a.BI, &b.BI)
+	bi._bi.Add(&a._bi, &b._bi)
 }
 func (bi *BigInt) Sub(a BigInt, b BigInt) {
-	bi.BI.Sub(&a.BI, &b.BI)
+	bi._bi.Sub(&a._bi, &b._bi)
 }
 func (bi *BigInt) Mul(a BigInt, b BigInt) {
-	bi.BI.Mul(&a.BI, &b.BI)
+	bi._bi.Mul(&a._bi, &b._bi)
 }
 func (bi *BigInt) Div(a BigInt, b BigInt) {
-	bi.BI.Quo(&a.BI, &b.BI)
+	bi._bi.Quo(&a._bi, &b._bi)
 }
 func (bi *BigInt) Abs(a BigInt) {
-	bi.BI.Abs(&a.BI)
+	bi._bi.Abs(&a._bi)
 }
 func (bi *BigInt) Cmp (a BigInt) int {
-	return bi.BI.Cmp(&a.BI)
+	return bi._bi.Cmp(&a._bi)
 }
 
 //
