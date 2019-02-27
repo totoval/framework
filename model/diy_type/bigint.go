@@ -36,7 +36,7 @@ func (bi *BigInt) scanBytes(src []byte) error {
 	var ok bool
 	_, ok = bi.SetString(string(src), 10)
 	if !ok {
-		return errors.New("scan bigint bytes failed")
+		return errors.New("scan bigint bytes failed: "+string(src))
 	}
 	return nil
 }

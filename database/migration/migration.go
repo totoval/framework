@@ -21,8 +21,12 @@ func (m *Migration) up(db *gorm.DB) {
 }
 
 func (m *Migration) TableName() string {
-	tableName, ok := config.Get("database.migrations").(string);
-	if !ok {
+	//tableName, ok := config.Get("database.migrations").(string);
+	//if !ok {
+	//	panic("migrations table name parse error")
+	//}
+	tableName := config.GetString("database.migrations")
+	if tableName == ""{
 		panic("migrations table name parse error")
 	}
 	return tableName

@@ -18,9 +18,13 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 	// get database connection name
 	_conn := conn
 	if conn == "default" {
-		var _ok bool
-		_conn, _ok = config.Get("database." + conn).(string)
-		if !_ok {
+		//var _ok bool
+		//_conn, _ok = config.Get("database." + conn).(string)
+		//if !_ok {
+		//	panic("database connection parse error")
+		//}
+		_conn= config.GetString("database." + conn)
+		if _conn == ""{
 			panic("database connection parse error")
 		}
 	}
@@ -40,10 +44,18 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 		panic("failed to connect database")
 	}
 
+	err = _db.DB().Ping()
+	if err != nil {
+		panic("failed to connect database by ping")
+	}
+
 	// debug mode
 	if config.GetBool("app.debug") {
 		_db = _db.Debug().LogMode(true)
 	}
+
+	_db.DB().SetMaxIdleConns(10)
+	_db.DB().SetMaxOpenConns(100)
 
 	//defer _db.Close()
 	return orm, _db
