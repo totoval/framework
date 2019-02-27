@@ -54,8 +54,8 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 		_db = _db.Debug().LogMode(true)
 	}
 
-	_db.DB().SetMaxIdleConns(10)
-	_db.DB().SetMaxOpenConns(100)
+	_db.DB().SetMaxIdleConns(config.GetInt("database.max_idle_connections"))
+	_db.DB().SetMaxOpenConns(config.GetInt("database.max_open_connections"))
 
 	//defer _db.Close()
 	return orm, _db
