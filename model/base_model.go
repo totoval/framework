@@ -51,7 +51,7 @@ func structToMap(data interface{}) (result map[string]interface{}) {
 	return
 }
 
-func FillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
+func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
 	dataType := reflect.TypeOf(data).Elem()
 	dataValue := reflect.ValueOf(data).Elem()
 	fillType := reflect.TypeOf(fill)
@@ -146,7 +146,7 @@ func Create(out interface{}) error {
 
 	// fill default data
 	defaultData := out.(Modeller)
-	inData, err := FillStruct(out, defaultData.Default(), false)
+	inData, err := fillStruct(out, defaultData.Default(), false)
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func Create(out interface{}) error {
 // out must be a struct pointer
 func Save(out interface{}, modify interface{}) error {
 	// modify data
-	inData, err := FillStruct(out, modify, true)
+	inData, err := fillStruct(out, modify, true)
 	if err != nil {
 		return err
 	}
@@ -293,25 +293,130 @@ func Restore(in interface{}) (error) {
 	return nil
 }
 
-func (m *BaseModel) RestoreObj() { //     public function restoreObj(int $id = null): bool
+//func Count(filterArr [][]interface{}) (uint64, error){
+//	return mapFilter()
+//}
 
+type sortDirection byte
+func (sd sortDirection) String() string {
+	switch sd {
+	case ASC:
+		return "asc"
+	case DESC:
+		return "desc"
+	}
+	panic(errors.New("type sortDirection parsed error"))
+}
+type Sort struct {
+	Key string
+	Direction sortDirection
+}
+const (
+	ASC sortDirection = iota
+	DESC
+)
+func Q(filterArr [][]interface{}, sortArr[]Sort, limit int, withTrashed bool) *gorm.DB {
+	_db := mapFilter(db, filterArr)
+
+	for _, value := range sortArr {
+		_db = _db.Order(value.Key + " " + value.Direction.String())
+	}
+
+	if limit != 0 {
+		_db = _db.Limit(limit)
+	}
+
+	if withTrashed {
+		_db = _db.Unscoped()
+	}
+
+	return _db
 }
 
-func (m *BaseModel) CountObjArr() { //     public function countObjArr(?array $filter_arr = [], bool $with_trashed = false): int
+func mapFilter(_db *gorm.DB, filterArr [][]interface{}) *gorm.DB {
+	for _, filter := range filterArr {
 
+		if len(filter) > 3 {
+			// error too many params
+			panic(errors.New("too many params for sql filter"))
+		}
+
+		switch len(filter) {
+		case 2:
+
+			// xxx is_null || xxx is_not_null
+			switch filter[1].(string) {
+			case "is_null":
+				_db = _db.Where(filter[0].(string) + " is null")
+				break
+			case "is_not_null":
+				_db = _db.Where(filter[0].(string) + " is not null")
+				break
+			default:
+				// error
+				panic(errors.New("cannot parse sql by filter"))
+			}
+
+			break
+		case 3:
+
+			// xxx in/not_in array || xxx between array || xxx like><!= yyy
+			switch filter[1].(string) {
+			case "between":
+				f, ok := filter[2].([]interface{})
+				if !ok || len(f) != 2 {
+					panic(errors.New("cannot parse array conditions for BETWEEN"))
+				}
+				_db = _db.Where(filter[0].(string) + " between ? and ?", f[0], f[1])
+				break
+			case "in":
+				f, ok := filter[2].([]interface{})
+				if !ok{
+					// error cannot parse array conditions for in
+					panic(errors.New("cannot parse array conditions for IN"))
+				}
+				_db = _db.Where(filter[0].(string) + " in (?)", f)
+				break
+			case "not_in":
+				f, ok := filter[2].([]interface{})
+				if !ok{
+					// error cannot parse array conditions for not in
+					panic(errors.New("cannot parse array conditions for NOT IN"))
+				}
+				_db = _db.Where(filter[0].(string) + " not in (?)", f)
+				break
+			default:
+				// xxx like><!= yyy
+				_db = _db.Where(filter[0].(string) + " " + filter[1].(string) + " ?", filter[2])
+			}
+
+			break
+
+		default:
+			panic(errors.New("wrong arguments passed to sql filter"))
+		}
+	}
+
+	return _db
 }
 
-func (m *BaseModel) DoFilterSortLimit() { //     protected function doFilterSortLimit(?array $filter_arr = [], ?array $sort_arr = null, ?int $limit = null, bool $with_trashed = false)
-
+func Count(filterArr [][]interface{}, withTrashed bool) (count uint, err error) {
+	err = Q(filterArr, []Sort{}, 0, withTrashed).Count(&count).Error
+	return count, err
 }
 
-func (m *BaseModel) IsExistObjByID() { //     public function isExistObjByID(int $id, bool $with_trashed = false): bool
-
+func Exist(in Modeller, withTrashed bool) (exist bool) {
+	err := First(&in, withTrashed)
+	if err == nil{
+		return true
+	}
+	return false
 }
-func (m *BaseModel) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
 
-}
-
-func (m *BaseModel) readOnlyGuardian() { //     private function readOnlyGuardian()
-
-}
+//func (m *BaseModel) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
+//
+//}
+//
+//func (m *BaseModel) readOnlyGuardian() { //     private function readOnlyGuardian()
+//
+//}
