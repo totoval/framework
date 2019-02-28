@@ -26,7 +26,6 @@ type BigFloat struct {
 	decimalCount uint
 }
 
-
 func (bf *BigFloat) BF() _bf {
 	return bf._bf
 }
@@ -91,10 +90,10 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 	return err
 }
 
-func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat){
+func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 	if a.decimalCount > b.decimalCount {
 		bf.decimalCount = a.decimalCount
-	}else{
+	} else {
 		bf.decimalCount = b.decimalCount
 	}
 }
@@ -118,7 +117,7 @@ func (bf *BigFloat) Div(a BigFloat, b BigFloat) {
 func (bf *BigFloat) Abs(a BigFloat) {
 	bf._bf.Abs(&a._bf)
 }
-func (bf *BigFloat) Cmp (a BigFloat) int {
+func (bf *BigFloat) Cmp(a BigFloat) int {
 	return bf._bf.Cmp(&a._bf)
 }
 

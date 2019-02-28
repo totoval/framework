@@ -15,7 +15,7 @@ func InSlice(needle interface{}, slice []interface{}) bool {
 	return false
 }
 
-func Dump(v ...interface{}){
+func Dump(v ...interface{}) {
 	fmt.Println("########### Totoval Dump ###########")
 	for _, value := range v {
 		spew.Dump(value)
@@ -23,7 +23,7 @@ func Dump(v ...interface{}){
 	fmt.Println("########### Totoval Dump ###########")
 }
 
-func DD(v ...interface{}){
+func DD(v ...interface{}) {
 	fmt.Println("########### Totoval DD ###########")
 	for _, value := range v {
 		spew.Dump(value)

@@ -51,12 +51,12 @@ func (_mys *mysql) config(key string) string {
 	//	return value
 	//}
 	//panic("database "+key+" parse error")
-	value := config.GetString("database.connections."+ _mys.connection() + "." + key)
-	if value == ""{
-		panic("database "+key+" parse error")
+	value := config.GetString("database.connections." + _mys.connection() + "." + key)
+	if value == "" {
+		panic("database " + key + " parse error")
 	}
 	return value
 }
 func (_mys *mysql) ConnectionArgs() string {
-	return _mys.username()+":"+_mys.password()+"@"+"tcp("+_mys.host()+":"+_mys.port()+")/"+_mys.database()+"?charset="+_mys.charset()+"&parseTime=True&loc=Local"
+	return _mys.username() + ":" + _mys.password() + "@" + "tcp(" + _mys.host() + ":" + _mys.port() + ")/" + _mys.database() + "?charset=" + _mys.charset() + "&parseTime=True&loc=Local"
 }

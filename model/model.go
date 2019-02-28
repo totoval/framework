@@ -23,8 +23,8 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 		//if !_ok {
 		//	panic("database connection parse error")
 		//}
-		_conn= config.GetString("database." + conn)
-		if _conn == ""{
+		_conn = config.GetString("database." + conn)
+		if _conn == "" {
 			panic("database connection parse error")
 		}
 	}

@@ -87,8 +87,8 @@ func (m *MigrationUtils) errorRollback(tx *gorm.DB) {
 		tx.Rollback()
 		if _err, ok := err.(error); ok {
 			m.log(cmd.CODE_WARNING, "error:"+_err.Error())
-		}else{
-			m.log(cmd.CODE_WARNING, "error:"+err.(string))  //@todo err.(string) may be down when `panic(123)`
+		} else {
+			m.log(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
 		}
 	}
 }

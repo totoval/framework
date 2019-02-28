@@ -26,7 +26,7 @@ func (m *Migration) TableName() string {
 	//	panic("migrations table name parse error")
 	//}
 	tableName := config.GetString("database.migrations")
-	if tableName == ""{
+	if tableName == "" {
 		panic("migrations table name parse error")
 	}
 	return tableName
@@ -35,4 +35,3 @@ func (m *Migration) TableName() string {
 func (m *Migration) Name() string {
 	return m.Migration
 }
-

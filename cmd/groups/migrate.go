@@ -1,13 +1,13 @@
 package groups
 
 import (
-	"github.com/urfave/cli"
 	"github.com/totoval/framework/database/migration"
+	"github.com/urfave/cli"
 )
 
 type MigrateCommand struct {
 	MigratorInitializer func()
-	ChLog chan interface{}
+	ChLog               chan interface{}
 }
 
 func (mc *MigrateCommand) MigrationInit() (command cli.Command) {

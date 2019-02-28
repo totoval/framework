@@ -2,21 +2,40 @@ package model
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/go-playground/validator.v9"
-	"strings"
-
 	"reflect"
+	"strings"
 )
 
-type BaseModel struct {}
+type _db = gorm.DB
+type Model struct {
+	_db
+}
+
+func (bm *Model) Paginate(c *gin.Context, perPage uint) {
+
+
+
+	// validate paginate params
+	type Paginate struct {
+		Page string `json:"page" binding:"numeric,gt=0"`
+	}
+	var paginate Paginate
+	if err := c.ShouldBindJSON(&paginate); err != nil {
+		panic(errors.New("cannot parse paginate params"))
+	}
+
+}
 
 type Modeller interface {
 	Default() interface{}
-	GetObjArr()         //@todo     public function getObjArr(?array $filter_arr = [], ?array $sort_arr = null, ?int $limit = null, bool $with_trashed = false): Collection;
-	GetObjArrPaginate() //@todo     public function getObjArrPaginate(int $per_page, ?array $filter_arr = [], ?array $sort_arr = null, bool $with_trashed = false): LengthAwarePaginator;
+	ObjArr(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool) []interface{} //@todo     public function getObjArr(?array $filter_arr = [], ?array $sort_arr = null, ?int $limit = null, bool $with_trashed = false): Collection;
+	ObjArrPaginate(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool)       //@todo     public function getObjArrPaginate(int $per_page, ?array $filter_arr = [], ?array $sort_arr = null, bool $with_trashed = false): LengthAwarePaginator;
 }
+
 func structToMap(data interface{}) (result map[string]interface{}) {
 	result = map[string]interface{}{}
 
@@ -77,8 +96,6 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 			continue
 		}
 
-
-
 		// fill input data
 		for j := 0; j < fillType.NumField(); j++ {
 
@@ -95,7 +112,7 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 					newDataValue.Field(i).Set(fillValue.Field(j))
 					break
 				}
-			}else{
+			} else {
 				// if kind is value fill
 				//@todo WARN we have not check zero value for update, so if the type is `string`, and its' value is `""`(not set @fill), we'll override the correct value!!!!
 				// fill data
@@ -113,7 +130,9 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 }
 
 func Transaction(f func(), attempts uint) {
-	if attempts <= 0 { attempts = 1 }
+	if attempts <= 0 {
+		attempts = 1
+	}
 	var currentAttempt uint
 	currentAttempt = 1
 	tx := db.Begin()
@@ -122,7 +141,7 @@ func Transaction(f func(), attempts uint) {
 			var __err error
 			if _err, ok := err.(error); ok {
 				__err = _err
-			}else{
+			} else {
 				__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
 			}
 			handleTransactionException(tx, f, __err, currentAttempt, attempts)
@@ -131,10 +150,10 @@ func Transaction(f func(), attempts uint) {
 	f()
 	tx.Commit()
 }
-func handleTransactionException(tx *gorm.DB, f func(), err error, currentAttempt uint, maxAttempts uint){
+func handleTransactionException(tx *gorm.DB, f func(), err error, currentAttempt uint, maxAttempts uint) {
 	tx.Rollback()
 	if currentAttempt < maxAttempts {
-		Transaction(f, maxAttempts - currentAttempt)
+		Transaction(f, maxAttempts-currentAttempt)
 	}
 
 	panic(err)
@@ -196,7 +215,6 @@ func Save(out interface{}, modify interface{}) error {
 	if err != nil {
 		return err
 	}
-
 
 	// validate data
 	if err := validator.New().Struct(inData); err != nil {
@@ -298,6 +316,7 @@ func Restore(in interface{}) (error) {
 //}
 
 type sortDirection byte
+
 func (sd sortDirection) String() string {
 	switch sd {
 	case ASC:
@@ -307,15 +326,18 @@ func (sd sortDirection) String() string {
 	}
 	panic(errors.New("type sortDirection parsed error"))
 }
+
 type Sort struct {
-	Key string
+	Key       string
 	Direction sortDirection
 }
+
 const (
 	ASC sortDirection = iota
 	DESC
 )
-func Q(filterArr [][]interface{}, sortArr[]Sort, limit int, withTrashed bool) *gorm.DB {
+
+func Q(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
 	_db := mapFilter(db, filterArr)
 
 	for _, value := range sortArr {
@@ -367,27 +389,27 @@ func mapFilter(_db *gorm.DB, filterArr [][]interface{}) *gorm.DB {
 				if !ok || len(f) != 2 {
 					panic(errors.New("cannot parse array conditions for BETWEEN"))
 				}
-				_db = _db.Where(filter[0].(string) + " between ? and ?", f[0], f[1])
+				_db = _db.Where(filter[0].(string)+" between ? and ?", f[0], f[1])
 				break
 			case "in":
 				f, ok := filter[2].([]interface{})
-				if !ok{
+				if !ok {
 					// error cannot parse array conditions for in
 					panic(errors.New("cannot parse array conditions for IN"))
 				}
-				_db = _db.Where(filter[0].(string) + " in (?)", f)
+				_db = _db.Where(filter[0].(string)+" in (?)", f)
 				break
 			case "not_in":
 				f, ok := filter[2].([]interface{})
-				if !ok{
+				if !ok {
 					// error cannot parse array conditions for not in
 					panic(errors.New("cannot parse array conditions for NOT IN"))
 				}
-				_db = _db.Where(filter[0].(string) + " not in (?)", f)
+				_db = _db.Where(filter[0].(string)+" not in (?)", f)
 				break
 			default:
 				// xxx like><!= yyy
-				_db = _db.Where(filter[0].(string) + " " + filter[1].(string) + " ?", filter[2])
+				_db = _db.Where(filter[0].(string)+" "+filter[1].(string)+" ?", filter[2])
 			}
 
 			break
@@ -407,16 +429,16 @@ func Count(filterArr [][]interface{}, withTrashed bool) (count uint, err error) 
 
 func Exist(in Modeller, withTrashed bool) (exist bool) {
 	err := First(&in, withTrashed)
-	if err == nil{
+	if err == nil {
 		return true
 	}
 	return false
 }
 
-//func (m *BaseModel) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
+//func (m *Model) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
 //
 //}
 //
-//func (m *BaseModel) readOnlyGuardian() { //     private function readOnlyGuardian()
+//func (m *Model) readOnlyGuardian() { //     private function readOnlyGuardian()
 //
 //}

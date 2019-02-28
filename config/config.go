@@ -29,7 +29,7 @@ func Env(envName string, defaultValue ...interface{}) interface{} {
 	return Get(envName)
 }
 
-func Add(name string, configuration map[string]interface{}){
+func Add(name string, configuration map[string]interface{}) {
 	v.Set(name, configuration)
 }
 
@@ -47,7 +47,7 @@ func GetString(path string, defaultValue ...interface{}) string {
 	var value interface{}
 	if len(defaultValue) > 0 {
 		value = Get(path, defaultValue[0])
-	}else{
+	} else {
 		value = Get(path)
 	}
 
@@ -58,7 +58,7 @@ func GetInt(path string, defaultValue ...interface{}) int {
 	var value interface{}
 	if len(defaultValue) > 0 {
 		value = Get(path, defaultValue[0])
-	}else{
+	} else {
 		value = Get(path)
 	}
 
@@ -69,7 +69,7 @@ func GetBool(path string, defaultValue ...interface{}) bool {
 	var value interface{}
 	if len(defaultValue) > 0 {
 		value = Get(path, defaultValue[0])
-	}else{
+	} else {
 		value = Get(path)
 	}
 

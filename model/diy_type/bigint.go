@@ -43,7 +43,7 @@ func (bi *BigInt) scanBytes(src []byte) error {
 func (bi *BigInt) CreateFromString(s string, base int) error {
 	_, ok := bi.SetString(s, base)
 	if !ok {
-		return errors.New("create bigint from string failed: "+ s)
+		return errors.New("create bigint from string failed: " + s)
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ func (bi *BigInt) Div(a BigInt, b BigInt) {
 func (bi *BigInt) Abs(a BigInt) {
 	bi._bi.Abs(&a._bi)
 }
-func (bi *BigInt) Cmp (a BigInt) int {
+func (bi *BigInt) Cmp(a BigInt) int {
 	return bi._bi.Cmp(&a._bi)
 }
 
