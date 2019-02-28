@@ -66,6 +66,9 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 	if err != nil{
 		return pagination, err
 	}
+	if page <= 0{
+		page = 1
+	}
 	paginate.Page = uint(page)
 
 	// perpage
@@ -74,18 +77,18 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 	// current page num
 	pagination.currentPageNum = paginate.Page
 
-	//// calc total item count
-	//count := gorm.DB(*bm)
-	//if err = count.Count(&out).Error; err != nil{
-	//	return pagination, err
-	//}
+	// calc total item count
+	count := gorm.DB(*bm)
+	if err = count.Model(model).Count(&pagination.totalItemCount).Error; err != nil{
+		return pagination, err
+	}
 
 	// calc total page num
 	pagination.totalPageNum = uint(math.Ceil(float64(pagination.totalItemCount) / float64(perPage)))
 
 	// get data
 	data := gorm.DB(*bm)
-	if err = data.Offset(perPage * paginate.Page).Limit(perPage).Find(model).Error; err != nil{
+	if err = data.Offset(perPage * (paginate.Page-1)).Limit(perPage).Find(model).Error; err != nil{
 		return pagination, err
 	}
 	pagination.itemArr = model
