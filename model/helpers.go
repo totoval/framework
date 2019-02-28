@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/go-playground/validator.v9"
@@ -10,31 +9,27 @@ import (
 	"strings"
 )
 
-type _db = gorm.DB
-type Model struct {
-	_db
-}
+type sortDirection byte
 
-func (bm *Model) Paginate(c *gin.Context, perPage uint) {
-
-
-
-	// validate paginate params
-	type Paginate struct {
-		Page string `json:"page" binding:"numeric,gt=0"`
+func (sd sortDirection) String() string {
+	switch sd {
+	case ASC:
+		return "asc"
+	case DESC:
+		return "desc"
 	}
-	var paginate Paginate
-	if err := c.ShouldBindJSON(&paginate); err != nil {
-		panic(errors.New("cannot parse paginate params"))
-	}
-
+	panic(errors.New("type sortDirection parsed error"))
 }
 
-type Modeller interface {
-	Default() interface{}
-	ObjArr(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool) []interface{} //@todo     public function getObjArr(?array $filter_arr = [], ?array $sort_arr = null, ?int $limit = null, bool $with_trashed = false): Collection;
-	ObjArrPaginate(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool)       //@todo     public function getObjArrPaginate(int $per_page, ?array $filter_arr = [], ?array $sort_arr = null, bool $with_trashed = false): LengthAwarePaginator;
+type Sort struct {
+	Key       string
+	Direction sortDirection
 }
+
+const (
+	ASC sortDirection = iota
+	DESC
+)
 
 func structToMap(data interface{}) (result map[string]interface{}) {
 	result = map[string]interface{}{}
@@ -311,33 +306,7 @@ func Restore(in interface{}) (error) {
 	return nil
 }
 
-//func Count(filterArr [][]interface{}) (uint64, error){
-//	return mapFilter()
-//}
-
-type sortDirection byte
-
-func (sd sortDirection) String() string {
-	switch sd {
-	case ASC:
-		return "asc"
-	case DESC:
-		return "desc"
-	}
-	panic(errors.New("type sortDirection parsed error"))
-}
-
-type Sort struct {
-	Key       string
-	Direction sortDirection
-}
-
-const (
-	ASC sortDirection = iota
-	DESC
-)
-
-func Q(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
+func Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
 	_db := mapFilter(db, filterArr)
 
 	for _, value := range sortArr {
@@ -355,74 +324,69 @@ func Q(filterArr [][]interface{}, sortArr []Sort, limit int, withTrashed bool) *
 	return _db
 }
 
-func mapFilter(_db *gorm.DB, filterArr [][]interface{}) *gorm.DB {
+type Filter struct {
+	Key string
+	Op string
+	Val interface{}
+}
+func mapFilter(_db *gorm.DB, filterArr []Filter) *gorm.DB {
 	for _, filter := range filterArr {
 
-		if len(filter) > 3 {
-			// error too many params
-			panic(errors.New("too many params for sql filter"))
-		}
+		//if len(filter) > 3 {
+		//	// error too many params
+		//	panic(errors.New("too many params for sql filter"))
+		//}
 
-		switch len(filter) {
-		case 2:
-
-			// xxx is_null || xxx is_not_null
-			switch filter[1].(string) {
-			case "is_null":
-				_db = _db.Where(filter[0].(string) + " is null")
-				break
-			case "is_not_null":
-				_db = _db.Where(filter[0].(string) + " is not null")
-				break
-			default:
-				// error
-				panic(errors.New("cannot parse sql by filter"))
-			}
-
-			break
-		case 3:
-
-			// xxx in/not_in array || xxx between array || xxx like><!= yyy
-			switch filter[1].(string) {
-			case "between":
-				f, ok := filter[2].([]interface{})
-				if !ok || len(f) != 2 {
-					panic(errors.New("cannot parse array conditions for BETWEEN"))
-				}
-				_db = _db.Where(filter[0].(string)+" between ? and ?", f[0], f[1])
-				break
-			case "in":
-				f, ok := filter[2].([]interface{})
-				if !ok {
-					// error cannot parse array conditions for in
-					panic(errors.New("cannot parse array conditions for IN"))
-				}
-				_db = _db.Where(filter[0].(string)+" in (?)", f)
-				break
-			case "not_in":
-				f, ok := filter[2].([]interface{})
-				if !ok {
-					// error cannot parse array conditions for not in
-					panic(errors.New("cannot parse array conditions for NOT IN"))
-				}
-				_db = _db.Where(filter[0].(string)+" not in (?)", f)
-				break
-			default:
-				// xxx like><!= yyy
-				_db = _db.Where(filter[0].(string)+" "+filter[1].(string)+" ?", filter[2])
-			}
-
+		switch filter.Op {
+		// xxx is_null
+		case "is_null":
+			_db = _db.Where(filter.Key + " is null")
 			break
 
+		// xxx is_not_null
+		case "is_not_null":
+			_db = _db.Where(filter.Key + " is not null")
+			break
+
+		// xxx in array
+		case "in":
+			f, ok := filter.Val.([]interface{})
+			if !ok {
+				// error cannot parse array conditions for in
+				panic(errors.New("cannot parse array conditions for IN"))
+			}
+			_db = _db.Where(filter.Key+" in (?)", f)
+			break
+
+		// xxx not in array
+		case "not_in":
+			f, ok := filter.Val.([]interface{})
+			if !ok {
+				// error cannot parse array conditions for in
+				panic(errors.New("cannot parse array conditions for NOT IN"))
+			}
+			_db = _db.Where(filter.Key+" not in (?)", f)
+			break
+
+		// xxx between array
+		case "between":
+			f, ok := filter.Val.([]interface{})
+			if !ok || len(f) != 2 {
+				panic(errors.New("cannot parse array conditions for BETWEEN"))
+			}
+			_db = _db.Where(filter.Key + " between ? and ?", f[0], f[1])
+			break
+
+		// xxx like><!= yyy
 		default:
-			panic(errors.New("wrong arguments passed to sql filter"))
+			_db = _db.Where(filter.Key + " " + filter.Op + " ?", filter.Val)
 		}
 	}
 
 	return _db
 }
 
-func Count(filterArr [][]interface{}, withTrashed bool) (count uint, err error) {
+func Count(filterArr []Filter, withTrashed bool) (count uint, err error) {
 	err = Q(filterArr, []Sort{}, 0, withTrashed).Count(&count).Error
 	return count, err
 }
@@ -434,11 +398,3 @@ func Exist(in Modeller, withTrashed bool) (exist bool) {
 	}
 	return false
 }
-
-//func (m *Model) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
-//
-//}
-//
-//func (m *Model) readOnlyGuardian() { //     private function readOnlyGuardian()
-//
-//}
