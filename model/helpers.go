@@ -386,8 +386,8 @@ func mapFilter(_db *gorm.DB, filterArr []Filter) *gorm.DB {
 	return _db
 }
 
-func Count(filterArr []Filter, withTrashed bool) (count uint, err error) {
-	err = Q(filterArr, []Sort{}, 0, withTrashed).Count(&count).Error
+func Count(in Modeller, filterArr []Filter, withTrashed bool) (count uint, err error) {
+	err = Q(filterArr, []Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
 	return count, err
 }
 
