@@ -392,7 +392,7 @@ func Count(in Modeller, filterArr []Filter, withTrashed bool) (count uint, err e
 }
 
 func Exist(in Modeller, withTrashed bool) (exist bool) {
-	err := First(&in, withTrashed)
+	err := First(in, withTrashed)
 	if err == nil {
 		return true
 	}
