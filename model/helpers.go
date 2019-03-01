@@ -310,7 +310,7 @@ func Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) *gorm.DB
 	_db := mapFilter(db, filterArr)
 
 	for _, value := range sortArr {
-		_db = _db.Order(value.Key + " " + value.Direction.String())
+		_db = _db.Order(value.Key + " " + value.Direction.String()) //@todo need to be test
 	}
 
 	if limit != 0 {
