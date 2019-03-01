@@ -62,12 +62,9 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 	//	return pagination, err
 	//}
 
-	page, err := strconv.ParseUint(c.Query("page"), 10, 32)
+	page, err := strconv.ParseUint(c.DefaultQuery("page", "1"), 10, 32)
 	if err != nil{
 		return pagination, err
-	}
-	if page <= 0{
-		page = 1
 	}
 	paginate.Page = uint(page)
 
