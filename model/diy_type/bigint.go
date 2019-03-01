@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"github.com/totoval/framework/helpers"
 	"math/big"
 )
 
@@ -30,10 +29,8 @@ func (bi *BigInt) Scan(src interface{}) error {
 		bi = nil
 		return nil
 	default:
-		helpers.DD(src)
+		return fmt.Errorf("pq: cannot convert %T to BigInt", src)
 	}
-
-	return fmt.Errorf("pq: cannot convert %T to BoolArray", src)
 }
 
 func (bi *BigInt) scanBytes(src []byte) error {

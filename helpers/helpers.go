@@ -3,7 +3,11 @@ package helpers
 import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/gin-gonic/gin"
+	"github.com/totoval/framework/utils/jwt"
+	"net/http"
 	"os"
+	"unicode/utf8"
 )
 
 func InSlice(needle interface{}, slice []interface{}) bool {
@@ -30,4 +34,16 @@ func DD(v ...interface{}) {
 	}
 	fmt.Println("########### Totoval DD ###########")
 	os.Exit(1)
+}
+
+func AuthClaimsID(c *gin.Context) uint {
+	claims, exist := c.Get("claims")
+	Dump(claims)
+	if !exist {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not login"})
+		return 0
+	}
+
+	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
+	return uint(r)
 }
