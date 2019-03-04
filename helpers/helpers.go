@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
+	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/resources/lang"
 	"github.com/totoval/framework/utils/jwt"
 	"net/http"
 	"os"
@@ -38,7 +40,6 @@ func DD(v ...interface{}) {
 
 func AuthClaimsID(c *gin.Context) uint {
 	claims, exist := c.Get("claims")
-	Dump(claims)
 	if !exist {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not login"})
 		return 0
@@ -46,4 +47,9 @@ func AuthClaimsID(c *gin.Context) uint {
 
 	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
 	return uint(r)
+}
+
+func L(messageID string) string {
+	langName := config.GetString("app.locale", config.GetString("app.fallback_locale", "en"))
+	return lang.Translate(messageID, langName)
 }
