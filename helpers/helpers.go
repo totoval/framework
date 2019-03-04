@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
-	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/resources/lang"
 	"github.com/totoval/framework/utils/jwt"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"unicode/utf8"
 )
 
-func InSlice(needle interface{}, slice []interface{}) bool {
-	for _, value := range slice {
+func InSlice(needle interface{}, slice interface{}) bool {
+	for _, value := range slice.([]interface{}) {
 		if value == needle {
 			return true
 		}
@@ -49,7 +48,11 @@ func AuthClaimsID(c *gin.Context) uint {
 	return uint(r)
 }
 
-func L(messageID string) string {
-	langName := config.GetString("app.locale", config.GetString("app.fallback_locale", "en"))
-	return lang.Translate(messageID, langName)
+
+func L(c *gin.Context, messageID string, locale ...string) string {
+	l := lang.Locale(c)
+	if len(locale) > 0{
+		l = locale[0]
+	}
+	return lang.Translate(messageID, l)
 }
