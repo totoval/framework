@@ -1,8 +1,8 @@
 package jwt
 
 import (
-	"gopkg.in/dgrijalva/jwt-go.v3"
 	"errors"
+	"gopkg.in/dgrijalva/jwt-go.v3"
 	"time"
 )
 
@@ -32,9 +32,15 @@ func NewJWT(signKey string) *JWT {
 	}
 }
 func (j *JWT) CreateToken(id string, name string) (string, error) {
+	now := time.Now()
 	claims := UserClaims{
-		ID: id,
-		Name: name,
+		id,
+		name,
+		jwt.StandardClaims {
+			ExpiresAt: now.Add(ExpiredTime).Unix(),
+			Issuer: "totoval",
+			IssuedAt: now.Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.SigningKey)
@@ -78,8 +84,10 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	}
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
 		jwt.TimeFunc = time.Now
-		claims.StandardClaims.ExpiresAt = time.Now().Add(ExpiredTime).Unix()
+		//claims.StandardClaims.ExpiresAt = time.Now().Add(ExpiredTime).Unix()
 		return j.CreateToken(claims.ID, claims.Name)
 	}
 	return "", TokenInvalid
 }
+
+//@todo RevokeToken
