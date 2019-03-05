@@ -73,7 +73,7 @@ func hasLocale(locale string)bool{
 	return false
 }
 
-func Translate(messageID string, langName string) string {
-	return LocalizerMap[langName].MustLocalize(&i18n.LocalizeConfig{MessageID: messageID/*"auth.register.failed_existed"*/})
+func Translate(messageID string, data map[string]interface{}, langName string) string {
+	return LocalizerMap[langName].MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData:data})
 }
 

@@ -52,12 +52,12 @@ func AuthClaimsID(c *gin.Context) uint {
 }
 
 
-func L(c *gin.Context, messageID string, locale ...string) string {
+func L(c *gin.Context, messageID string, data map[string]interface{}, locale ...string) string {
 	l := lang.Locale(c)
 	if len(locale) > 0{
 		l = locale[0]
 	}
-	return lang.Translate(messageID, l)
+	return lang.Translate(messageID, data, l)
 }
 
 func Encrypt(secret string){
