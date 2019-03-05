@@ -52,11 +52,19 @@ func AuthClaimsID(c *gin.Context) uint {
 }
 
 
-func L(c *gin.Context, messageID string, data map[string]interface{}, locale ...string) string {
+func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	l := lang.Locale(c)
-	if len(locale) > 0{
-		l = locale[0]
+	data := make(map[string]interface{})
+	switch len(dataNlocale) {
+	case 1:
+		data = dataNlocale[0].(map[string]interface{})
+		break
+	case 2:
+		l = dataNlocale[1].(string)
+		break
+	default:
 	}
+
 	return lang.Translate(messageID, data, l)
 }
 
