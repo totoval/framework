@@ -4,10 +4,10 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"gopkg.in/go-playground/validator.v9"
 	"math"
 	"reflect"
 	"strconv"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type Model gorm.DB
@@ -56,7 +56,7 @@ func (p *Pagination) PerPage() uint {
 func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagination Pagination, err error) {
 	// validate paginate params
 	p := c.DefaultQuery("page", "1")
-	if err := validator.New().Var(p, `validate:"numeric,gt=0"`); err != nil {
+	if err := validator.New().Var(p, "numeric,gt=0"); err != nil {
 		//// this check is only needed when your code could produce
 		//// an invalid value for validation such as interface with nil
 		//// value most including myself do not usually have code like this.
