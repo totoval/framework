@@ -2,12 +2,15 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/coreos/etcd/pkg/stringutil"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/totoval/framework/resources/lang"
 	"github.com/totoval/framework/utils/jwt"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 	"unicode/utf8"
 )
 
@@ -55,4 +58,21 @@ func L(c *gin.Context, messageID string, locale ...string) string {
 		l = locale[0]
 	}
 	return lang.Translate(messageID, l)
+}
+
+func Encrypt(secret string){
+	//@todo
+}
+
+func Decrypt(){
+	//@todo
+}
+
+func RandNumber(min uint, max uint) uint {
+	rand.Seed(time.Now().Unix())
+	randNum := uint(rand.Intn(int(max - min)))
+	return randNum + min
+}
+func RandString(len uint) string {
+	return stringutil.RandomStrings(len, 1)[0]
 }
