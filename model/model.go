@@ -7,6 +7,7 @@ import (
 	"math"
 	"reflect"
 	"strconv"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Model gorm.DB
@@ -54,25 +55,46 @@ func (p *Pagination) PerPage() uint {
 // Model(*Q(&User{}, data, []Sort{}, 1, false)).Paginate(c, perPage)
 func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagination Pagination, err error) {
 	// validate paginate params
-	type Page struct {
-		Page uint `form:"page" json:"page" binding:"numeric,gt=0"`
+	p := c.DefaultQuery("page", "1")
+	if err := validator.New().Var(p, `validate:"numeric,gt=0"`); err != nil {
+		//// this check is only needed when your code could produce
+		//// an invalid value for validation such as interface with nil
+		//// value most including myself do not usually have code like this.
+		//if _, ok := err.(*validator.InvalidValidationError); ok {
+		//	fmt.Println(err)
+		//	return
+		//}
+		//
+		//for _, err := range err.(validator.ValidationErrors) {
+		//
+		//	fmt.Println(err.Namespace())
+		//	fmt.Println(err.Field())
+		//	fmt.Println(err.StructNamespace()) // can differ when a custom TagNameFunc is registered or
+		//	fmt.Println(err.StructField())     // by passing alt name to ReportError like below
+		//	fmt.Println(err.Tag())
+		//	fmt.Println(err.ActualTag())
+		//	fmt.Println(err.Kind())
+		//	fmt.Println(err.Type())
+		//	fmt.Println(err.Value())
+		//	fmt.Println(err.Param())
+		//	fmt.Println()
+		//}
+		//
+		//// from here you can create your own error messages in whatever language you wish
+		return pagination, err
 	}
-	var paginate Page
-	//if err := c.BindQuery(&paginate); err != nil {
-	//	return pagination, err
-	//}
 
-	page, err := strconv.ParseUint(c.DefaultQuery("page", "1"), 10, 32)
+	_p, err := strconv.ParseUint(p, 10, 32)
 	if err != nil{
 		return pagination, err
 	}
-	paginate.Page = uint(page)
+	page := uint(_p)
 
 	// perpage
 	pagination.perPage = perPage
 
 	// current page num
-	pagination.currentPageNum = paginate.Page
+	pagination.currentPageNum = page
 
 	// calc total item count
 	count := gorm.DB(*bm)
@@ -85,7 +107,7 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 
 	// get data
 	data := gorm.DB(*bm)
-	if err = data.Offset(perPage * (paginate.Page-1)).Limit(perPage).Find(model).Error; err != nil{
+	if err = data.Offset(perPage * (page-1)).Limit(perPage).Find(model).Error; err != nil{
 		return pagination, err
 	}
 	pagination.itemArr = model
