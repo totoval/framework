@@ -2,18 +2,22 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 )
 
 type Controller interface {
-	Validate(c *gin.Context, validator interface{}) bool
+	Validate(c *gin.Context, _validator interface{}) bool
 }
 
 type BaseController struct{}
 
-func (bc *BaseController) Validate(c *gin.Context, validator interface{}) bool {
-	if err := c.ShouldBindJSON(&validator); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (bc *BaseController) Validate(c *gin.Context, _validator interface{}) bool {
+	if err := c.ShouldBindJSON(_validator); err != nil {
+
+		_ = err.(validator.ValidationErrors)
+		//@todo translate
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return false
 	}
 
