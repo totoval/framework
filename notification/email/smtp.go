@@ -110,16 +110,16 @@ func (s *_smtp) BuildMessageHeader() string {
 	return header
 }
 
-func NewSMTP(host string, port string, username string, password string, encryption string) *Email {
-	return &Email{
-		driver: &_smtp{
-			host:       host,
-			port:       port,
-			username:   username,
-			password:   password,
-			encryption: encryption,
-		},
-	}
+func NewSMTP(host string, port string, username string, password string, encryption string) notification.Notifier {
+	notifier := &notification.Notify{}
+	notifier.SetDriver(&_smtp{
+		host:       host,
+		port:       port,
+		username:   username,
+		password:   password,
+		encryption: encryption,
+	})
+	return notifier
 }
 
 func example() {
