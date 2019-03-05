@@ -5,7 +5,7 @@ type Notifier interface {
 }
 
 type Driver interface {
-	Fire() bool
+	Fire() error
 	SetMessager(message Messager)
 	Messager
 }

@@ -21,7 +21,7 @@ type _smtp struct {
 func (s *_smtp) SetMessager(message notification.Messager) {
 	s.Messager = message
 }
-func (s *_smtp) Fire() bool {
+func (s *_smtp) Fire() error {
 	server := s.host + ":" + s.port
 
 	messageBody := s.BuildMessageHeader()
@@ -44,54 +44,54 @@ func (s *_smtp) Fire() bool {
 			ServerName:         server,
 		})
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		client, err = smtp.NewClient(conn, server)
 		break
 	default:
-		panic(errors.New("encryption not support"))
+		return errors.New("encryption not support")
 	}
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer client.Quit()
 
 	// step 1: Use Auth
 	if err = client.Auth(auth); err != nil {
-		panic(err)
+		return err
 	}
 
 	// step 2: add all from and to
 	if err = client.Mail(s.From()); err != nil {
-		panic(err)
+		return err
 	}
 	receivers := append(s.To(), s.Cc()...)
 	receivers = append(receivers, s.Bcc()...)
 	for _, k := range receivers {
 		if err = client.Rcpt(k); err != nil {
-			panic(err)
+			return err
 		}
 	}
 
 	// Data
 	w, err := client.Data()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer w.Close()
 
 	_, err = w.Write([]byte(messageBody))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = w.Close()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	return true
+	return nil
 }
 
 func (s *_smtp) BuildMessageHeader() string {
