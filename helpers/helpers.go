@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/coreos/etcd/pkg/stringutil"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/totoval/framework/resources/lang"
@@ -76,11 +75,35 @@ func Decrypt(){
 	//@todo
 }
 
-func RandNumber(min uint, max uint) uint {
-	rand.Seed(time.Now().Unix())
-	randNum := uint(rand.Intn(int(max - min)))
-	return randNum + min
+
+const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const numberBytes = "0123456789"
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+func RandNumber(length uint) string {
+	return random(int(length), numberBytes)
 }
-func RandString(len uint) string {
-	return stringutil.RandomStrings(len, 1)[0]
+func RandString(length uint) string {
+	return random(int(length), letterBytes)
+}
+func random(n int, bytes string)string{
+
+	src := rand.NewSource(time.Now().UnixNano())
+	b := make([]byte, n)
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(bytes) {
+			b[i] = bytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return string(b)
 }
