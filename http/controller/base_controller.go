@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 )
@@ -13,7 +14,7 @@ type Controller interface {
 type BaseController struct{}
 
 func (bc *BaseController) Validate(c *gin.Context, _validator interface{}) bool {
-	if err := c.ShouldBindJSON(_validator); err != nil {
+	if err := c.ShouldBindBodyWith(_validator, binding.JSON); err != nil {
 
 		_ = err.(validator.ValidationErrors)
 		//@todo translate
