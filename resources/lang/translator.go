@@ -13,8 +13,8 @@ func Initialize(){
 	UniversalTranslator = ut.New(_en, _en)
 }
 
-func AddLocale(translator locales.Translator){
-	UniversalTranslator.AddTranslator(translator, true)
+func AddLocale(translator locales.Translator) error {
+	return UniversalTranslator.AddTranslator(translator, true)
 }
 
 func Translator(translator string) (ut.Translator, bool) {
