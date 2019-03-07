@@ -18,7 +18,7 @@
 - [x] Random String Helper
 - [x] Locale Middleware
 - [x] Gin Validator Upgrade to v9
-- [ ] Password Encryption
+- [x] Password Encryption
 - [ ] Model Getter/Setter
 - [x] User Email Validation via Notification
 - [ ] Error Handler
