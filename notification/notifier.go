@@ -1,7 +1,7 @@
 package notification
 
 type Notifier interface {
-	Prepare (prepareFunc func() (Messager)) Driver
+	Prepare (prepareFunc func(m Messager) (Messager)) Driver
 }
 
 type Driver interface {
