@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"github.com/totoval/framework/helpers"
+	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"time"
 )
@@ -64,7 +64,7 @@ func (j *JWT) ParseToken(tokenString string) (*UserClaims, error) {
 			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
 				return nil, TokenNotValidYet
 			} else {
-				helpers.Dump(ve)
+				spew.Dump(ve)
 				return nil, TokenInvalid
 			}
 		}
