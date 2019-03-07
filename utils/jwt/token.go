@@ -33,6 +33,7 @@ func NewJWT(signKey string) *JWT {
 	}
 }
 func (j *JWT) CreateToken(id string, name string) (string, error) {
+	jwt.TimeFunc = time.Now
 	now := time.Now()
 	claims := UserClaims{
 		id,
@@ -85,7 +86,6 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
-		jwt.TimeFunc = time.Now
 		//claims.StandardClaims.ExpiresAt = time.Now().Add(ExpiredTime).Unix()
 		return j.CreateToken(claims.ID, claims.Name)
 	}
