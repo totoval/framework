@@ -38,6 +38,9 @@ func initializeLangFiles(dirName string, langFileFormat string, langUnmarshalFun
 		panic(err)
 	}
 	for _, value := range fileArr {
+		if value.IsDir() {
+			continue
+		}
 		bundle.MustLoadMessageFile(dirName + value.Name())
 		langName := strings.Replace(value.Name(), "."+langFileFormat, "", 1) // if file name = "test.json.json", there may be a bug
 		LocalizerMap[langName] = i18n.NewLocalizer(bundle, langName)
