@@ -24,11 +24,11 @@ func AuthRequired() gin.HandlerFunc {
 			if err == jwt.TokenExpired {
 				if token, err = j.RefreshToken(token); err == nil {
 					c.Header("Authorization", "Bear "+token)
-					c.JSON(http.StatusOK, gin.H{"error": 0, "message": "refresh token", "token": token})
+					c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
 					return
 				}
 			}
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": 1, "message": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 		c.Set("claims", claims)
