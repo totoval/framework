@@ -45,6 +45,10 @@ func (bi *BigInt) CreateFromString(s string, base int) error {
 	return nil
 }
 
+func (bi *BigInt) MarshalJSON() ([]byte, error) {
+	return []byte(bi.String()), nil
+}
+
 func (bi *BigInt) Add(a BigInt, b BigInt) {
 	bi._bi.Add(&a._bi, &b._bi)
 }

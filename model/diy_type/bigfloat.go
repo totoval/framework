@@ -88,6 +88,10 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 	return err
 }
 
+func (bf *BigFloat) MarshalJSON() ([]byte, error) {
+	return []byte(bf.String()), nil
+}
+
 func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 	if a.decimalCount > b.decimalCount {
 		bf.decimalCount = a.decimalCount
