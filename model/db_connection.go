@@ -7,11 +7,14 @@ import (
 import _ "github.com/jinzhu/gorm/dialects/mysql"
 
 var db *gorm.DB
+var H Helper
+var orm OrmConfigurator
 
 func Initialize() {
-	var orm OrmConfigurator
 	orm, db = setConnection("default")
 	ormConfig(orm)
+	H = Helper{}
+	H.SetDB(db)
 }
 
 func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
@@ -72,6 +75,6 @@ func DB() *gorm.DB {
 
 func ormConfig(orm OrmConfigurator) {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return orm.Prefix() + defaultTableName
+		return Prefix() + defaultTableName
 	}
 }
