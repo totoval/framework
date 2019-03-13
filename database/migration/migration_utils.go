@@ -1,25 +1,20 @@
 package migration
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/totoval/framework/cmd"
 	"github.com/totoval/framework/model"
 )
 
 type MigrationUtils struct {
-	db    *gorm.DB
 	chLog chan interface{}
 	Migration
+	model.BaseModel
 }
 
 func (m *MigrationUtils) Init(chLog chan interface{}) {
 	m.setLog(chLog)
-	m.setDB()
 }
 
-func (m *MigrationUtils) setDB() {
-	m.db = model.DB()
-}
 func (m *MigrationUtils) setLog(ch chan interface{}) {
 	m.chLog = ch
 }
@@ -29,14 +24,14 @@ func (m *MigrationUtils) SetUp() {
 	defer m.closeLog()
 	m.log(cmd.CODE_WARNING, "initializing:migration table")
 
-	m.Migration.up(m.db)
+	m.Migration.up(m.DB())
 
 	m.log(cmd.CODE_SUCCESS, "initialized:migration table")
 }
 
 // 所有migrate过的任务列表
 func (m *MigrationUtils) migrationList() (migrationList []Migration) {
-	m.db.Find(&migrationList)
+	m.DB().Find(&migrationList)
 	return
 }
 
@@ -60,31 +55,30 @@ func (m *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
 
 func (m *MigrationUtils) currentBatch() uint {
 	migration := &Migration{}
-	if !m.db.Order("batch desc").First(&migration).RecordNotFound() {
+	if !m.DB().Order("batch desc").First(&migration).RecordNotFound() {
 		return migration.Batch
 	}
 	return 0
 }
 func (m *MigrationUtils) addMigration(migratorName string, batch uint) bool {
 	migration := &Migration{Migration: migratorName, Batch: batch}
-	if nil != m.db.Create(&migration).Error {
+	if nil != m.DB().Create(&migration).Error {
 		return false
 	}
 	return true
 }
 func (m *MigrationUtils) needRollbackMigrationList(batch uint) (migrationList []Migration) {
-	m.db.Where("batch = ?", batch).Find(&migrationList)
+	m.DB().Where("batch = ?", batch).Find(&migrationList)
 	return
 }
 func (m *MigrationUtils) delMigration(migration *Migration) bool {
-	if nil != m.db.Delete(&migration).Error {
+	if nil != m.DB().Delete(&migration).Error {
 		return false
 	}
 	return true
 }
-func (m *MigrationUtils) errorRollback(tx *gorm.DB) {
+func (m *MigrationUtils) errorRollback() {
 	if err := recover(); err != nil {
-		tx.Rollback()
 		if _err, ok := err.(error); ok {
 			m.log(cmd.CODE_WARNING, "error:"+_err.Error())
 		} else {
@@ -107,17 +101,18 @@ func (m *MigrationUtils) closeLog() {
 
 func (m *MigrationUtils) Migrate() {
 	defer m.closeLog()
-	tx := m.db.Begin()
-	{
-		defer m.errorRollback(tx)
+	defer m.errorRollback()
 
+	model.Transaction(func(h *model.Helper) {
+		m.SetTX(h.DB())
 		batch := m.currentBatch() + 1
+
 		for _, migrator := range m.needMigrateList() {
 			migrationName := migrator.Name(&migrator)
 
 			m.log(cmd.CODE_WARNING, "migrating:"+migrationName)
 
-			if err := migrator.Up(m.db).Error; err != nil {
+			if err := migrator.Up(m.DB()).Error; err != nil {
 				panic(err)
 			}
 
@@ -127,15 +122,14 @@ func (m *MigrationUtils) Migrate() {
 			}
 			m.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
 		}
-	}
-	tx.Commit()
+	}, 1)
 }
 func (m *MigrationUtils) Rollback() {
 	defer m.closeLog()
-	tx := m.db.Begin()
-	{
-		defer m.errorRollback(tx)
+	defer m.errorRollback()
 
+	model.Transaction(func(h *model.Helper) {
+		m.SetTX(h.DB())
 		for _, migration := range m.needRollbackMigrationList(m.currentBatch()) {
 			m.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
 
@@ -144,7 +138,7 @@ func (m *MigrationUtils) Rollback() {
 				panic("migration has not been defined yet!")
 			}
 
-			if err := migrator.Down(m.db).Error; err != nil {
+			if err := migrator.Down(m.DB()).Error; err != nil {
 				panic(err)
 			}
 
@@ -154,8 +148,7 @@ func (m *MigrationUtils) Rollback() {
 
 			m.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
 		}
-	}
-	tx.Commit()
+	}, 1)
 }
 func (m *MigrationUtils) Fresh() {
 	defer m.closeLog()

@@ -73,6 +73,10 @@ func DB() *gorm.DB {
 	return db
 }
 
+func Prefix() string {
+	return orm.Prefix()
+}
+
 func ormConfig(orm OrmConfigurator) {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 		return Prefix() + defaultTableName

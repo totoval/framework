@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+type Helper struct {
+	BaseModel
+}
+
 type sortDirection byte
 
 func (sd sortDirection) String() string {
@@ -30,40 +34,6 @@ const (
 	ASC sortDirection = iota
 	DESC
 )
-
-func structToMap(data interface{}) (result map[string]interface{}) {
-	result = map[string]interface{}{}
-
-	dataType := reflect.TypeOf(data)
-	dataValue := reflect.ValueOf(data)
-
-	for i := 0; i < dataType.NumField(); i++ {
-		dataField := dataType.Field(i)
-		dataFieldValue := dataValue.Field(i)
-
-		switch dataFieldValue.Kind() {
-		case reflect.Bool:
-			result[dataField.Name] = dataFieldValue.Bool()
-			break
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			result[dataField.Name] = dataFieldValue.Int()
-			break
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			result[dataField.Name] = dataFieldValue.Uint()
-			break
-		case reflect.String:
-			result[dataField.Name] = dataFieldValue.String()
-			break
-		case reflect.Slice: //TODO...
-		case reflect.Map: //TODO...
-		case reflect.Struct: //TODO...
-		default:
-			panic("struct value cannot be slice, map or struct")
-		}
-	}
-
-	return
-}
 
 func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
 	dataType := reflect.TypeOf(data).Elem()
@@ -124,38 +94,8 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 	return newDataValue.Addr().Interface(), nil
 }
 
-func Transaction(f func(), attempts uint) {
-	if attempts <= 0 {
-		attempts = 1
-	}
-	var currentAttempt uint
-	currentAttempt = 1
-	tx := db.Begin()
-	defer func(tx *gorm.DB) {
-		if err := recover(); err != nil {
-			var __err error
-			if _err, ok := err.(error); ok {
-				__err = _err
-			} else {
-				__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
-			}
-			handleTransactionException(tx, f, __err, currentAttempt, attempts)
-		}
-	}(tx)
-	f()
-	tx.Commit()
-}
-func handleTransactionException(tx *gorm.DB, f func(), err error, currentAttempt uint, maxAttempts uint) {
-	tx.Rollback()
-	if currentAttempt < maxAttempts {
-		Transaction(f, maxAttempts-currentAttempt)
-	}
-
-	panic(err)
-}
-
 // out must be a struct pointer
-func Create(out interface{}) error {
+func (h *Helper)Create(out interface{}) error {
 	//dataMap := structToMap(data)
 
 	// fill default data
@@ -195,7 +135,7 @@ func Create(out interface{}) error {
 	}
 
 	// create record
-	if err := db.Create(inData).Error; err != nil {
+	if err := h.DB().Create(inData).Error; err != nil {
 		return err
 	}
 
@@ -204,7 +144,7 @@ func Create(out interface{}) error {
 }
 
 // out must be a struct pointer
-func Save(out interface{}, modify interface{}) error {
+func (h *Helper)Save(out interface{}, modify interface{}) error {
 	// modify data
 	inData, err := fillStruct(out, modify, true)
 	if err != nil {
@@ -241,7 +181,7 @@ func Save(out interface{}, modify interface{}) error {
 	}
 
 	// save record
-	if err := db.Where(out).Save(inData).Error; err != nil {
+	if err := h.DB().Where(out).Save(inData).Error; err != nil {
 		return err
 	}
 
@@ -249,14 +189,14 @@ func Save(out interface{}, modify interface{}) error {
 	return nil
 }
 
-func SaveByID(id interface{}, out interface{}, modify interface{}) error {
+func (h *Helper)SaveByID(id interface{}, out interface{}, modify interface{}) error {
 	//@todo First(), get primarykey through tag, then save
-	return Save(out, modify)
+	return h.Save(out, modify)
 }
 
 // out must be a struct pointer
-func First(out interface{}, withTrashed bool) (error) {
-	_db := db
+func (h *Helper)First(out interface{}, withTrashed bool) (error) {
+	_db := h.DB()
 	if withTrashed {
 		_db = _db.Unscoped()
 	}
@@ -266,8 +206,8 @@ func First(out interface{}, withTrashed bool) (error) {
 	return nil
 }
 
-func Delete(in interface{}, force bool) (error) {
-	_db := db
+func (h *Helper)Delete(in interface{}, force bool) (error) {
+	_db := h.DB()
 	if force {
 		_db = _db.Unscoped()
 	}
@@ -295,19 +235,19 @@ func deleteKeyName(in interface{}) (string, error) {
 	return "", errors.New("cannot get DeletedAt key name")
 }
 
-func Restore(in interface{}) (error) {
+func (h *Helper)Restore(in interface{}) (error) {
 	deleteKeyName, err := deleteKeyName(in)
 	if err != nil {
 		return err
 	}
-	if err := db.Unscoped().Model(in).Update(deleteKeyName, gorm.Expr("NULL")).Error; err != nil {
+	if err := h.DB().Unscoped().Model(in).Update(deleteKeyName, gorm.Expr("NULL")).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
-	_db := mapFilter(db, filterArr)
+func (h *Helper)Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
+	_db := mapFilter(h.DB(), filterArr)
 
 	for _, value := range sortArr {
 		_db = _db.Order(value.Key + " " + value.Direction.String()) //@todo need to be test
@@ -386,13 +326,13 @@ func mapFilter(_db *gorm.DB, filterArr []Filter) *gorm.DB {
 	return _db
 }
 
-func Count(in Modeller, filterArr []Filter, withTrashed bool) (count uint, err error) {
-	err = Q(filterArr, []Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
+func (h *Helper)Count(in Modeller, filterArr []Filter, withTrashed bool) (count uint, err error) {
+	err = h.Q(filterArr, []Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
 	return count, err
 }
 
-func Exist(in Modeller, withTrashed bool) (exist bool) {
-	err := First(in, withTrashed)
+func (h *Helper)Exist(in Modeller, withTrashed bool) (exist bool) {
+	err := h.First(in, withTrashed)
 	if err == nil {
 		return true
 	}
