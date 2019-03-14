@@ -5,12 +5,9 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/totoval/framework/resources/lang"
-	"github.com/totoval/framework/utils/jwt"
 	"math/rand"
-	"net/http"
 	"os"
 	"time"
-	"unicode/utf8"
 )
 
 func InSlice(needle interface{}, slice interface{}) bool {
@@ -38,18 +35,6 @@ func DD(v ...interface{}) {
 	fmt.Println("########### Totoval DD ###########")
 	os.Exit(1)
 }
-
-func AuthClaimsID(c *gin.Context) uint {
-	claims, exist := c.Get("claims")
-	if !exist {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not login"})
-		return 0
-	}
-
-	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
-	return uint(r)
-}
-
 
 func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	l := lang.Locale(c)
