@@ -123,12 +123,6 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 	return pagination, nil
 }
 
-type Modeller interface {
-	BaseModeller
-	Default() interface{}
-	ObjArr(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) (interface{}, error)
-	ObjArrPaginate(c *gin.Context, perPage uint, filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) (pagination Pagination, err error)
-}
 
 
 //func (m *Model) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)

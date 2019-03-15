@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/totoval/framework/helpers"
+	"github.com/totoval/framework/helpers/debug"
 	"io/ioutil"
 )
 
@@ -19,7 +19,7 @@ func RequestLogger() gin.HandlerFunc {
 			fmt.Println(err.Error())
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // 关键点
-		helpers.Dump(string(requestData))
+		debug.Dump(string(requestData))
 
 		// collect response data
 		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -30,7 +30,7 @@ func RequestLogger() gin.HandlerFunc {
 
 		// after request
 		// print response data
-		helpers.Dump(responseWriter.body.String())
+		debug.Dump(responseWriter.body.String())
 
 		// access the status we are sending
 	}

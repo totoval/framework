@@ -30,7 +30,7 @@ func (bf *BigFloat) BF() _bf {
 }
 
 func (bf BigFloat) Value() (driver.Value, error) {
-	//helpers.Dump(bf._bf.Prec(), bf.Text('f', 100), bf.String())
+	//debug.Dump(bf._bf.Prec(), bf.Text('f', 100), bf.String())
 	return []byte(bf.String()), nil
 }
 func (bf *BigFloat) Scan(src interface{}) error {
@@ -52,7 +52,7 @@ func (bf *BigFloat) scanBytes(src []byte) error {
 	return bf.CreateFromString(string(src), ToNearestEven)
 }
 func (bf *BigFloat) String() string {
-	//helpers.Dump(bf._bf.Prec(), bf._bf.MinPrec())
+	//debug.Dump(bf._bf.Prec(), bf._bf.MinPrec())
 	//if bf.decimalCount == 0 {
 	//	return bf.Text('f', 62)
 	//}

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/totoval/framework/database"
+)
 
 type BaseModeller interface {
 	DB() *gorm.DB
@@ -13,7 +16,7 @@ type BaseModel struct {
 
 func (bm *BaseModel)DB() *gorm.DB {
 	if bm.db == nil{
-		return DB()
+		return database.DB()
 	}
 	return bm.db
 }

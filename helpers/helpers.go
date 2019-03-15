@@ -1,40 +1,11 @@
 package helpers
 
 import (
-	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/totoval/framework/resources/lang"
-	"math/rand"
-	"os"
-	"time"
 )
 
-func InSlice(needle interface{}, slice interface{}) bool {
-	for _, value := range slice.([]interface{}) {
-		if value == needle {
-			return true
-		}
-	}
-	return false
-}
 
-func Dump(v ...interface{}) {
-	fmt.Println("########### Totoval Dump ###########")
-	for _, value := range v {
-		spew.Dump(value)
-	}
-	fmt.Println("########### Totoval Dump ###########")
-}
-
-func DD(v ...interface{}) {
-	fmt.Println("########### Totoval DD ###########")
-	for _, value := range v {
-		spew.Dump(value)
-	}
-	fmt.Println("########### Totoval DD ###########")
-	os.Exit(1)
-}
 
 func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	l := lang.Locale(c)
@@ -61,34 +32,3 @@ func Decrypt(){
 }
 
 
-const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const numberBytes = "0123456789"
-const (
-	letterIdxBits = 6                    // 6 bits to represent a letter index
-	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
-	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
-)
-func RandNumberString(length uint) string {
-	return random(int(length), numberBytes)
-}
-func RandString(length uint) string {
-	return random(int(length), letterBytes)
-}
-func random(n int, bytes string)string{
-
-	src := rand.NewSource(time.Now().UnixNano())
-	b := make([]byte, n)
-	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
-		if remain == 0 {
-			cache, remain = src.Int63(), letterIdxMax
-		}
-		if idx := int(cache & letterIdxMask); idx < len(bytes) {
-			b[i] = bytes[idx]
-			i--
-		}
-		cache >>= letterIdxBits
-		remain--
-	}
-
-	return string(b)
-}

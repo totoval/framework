@@ -1,4 +1,4 @@
-package model
+package orm
 
 type OrmConfigurator interface {
 	ConnectionArgs() string

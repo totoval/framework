@@ -2,6 +2,7 @@ package migration
 
 import (
 	"github.com/totoval/framework/cmd"
+	"github.com/totoval/framework/helpers/m"
 	"github.com/totoval/framework/model"
 )
 
@@ -11,35 +12,35 @@ type MigrationUtils struct {
 	model.BaseModel
 }
 
-func (m *MigrationUtils) Init(chLog chan interface{}) {
-	m.setLog(chLog)
+func (mu *MigrationUtils) Init(chLog chan interface{}) {
+	mu.setLog(chLog)
 }
 
-func (m *MigrationUtils) setLog(ch chan interface{}) {
-	m.chLog = ch
+func (mu *MigrationUtils) setLog(ch chan interface{}) {
+	mu.chLog = ch
 }
 
 // 项目初始化
-func (m *MigrationUtils) SetUp() {
-	defer m.closeLog()
-	m.log(cmd.CODE_WARNING, "initializing:migration table")
+func (mu *MigrationUtils) SetUp() {
+	defer mu.closeLog()
+	mu.log(cmd.CODE_WARNING, "initializing:migration table")
 
-	m.Migration.up(m.DB())
+	mu.Migration.up(mu.DB())
 
-	m.log(cmd.CODE_SUCCESS, "initialized:migration table")
+	mu.log(cmd.CODE_SUCCESS, "initialized:migration table")
 }
 
 // 所有migrate过的任务列表
-func (m *MigrationUtils) migrationList() (migrationList []Migration) {
-	m.DB().Find(&migrationList)
+func (mu *MigrationUtils) migrationList() (migrationList []Migration) {
+	mu.DB().Find(&migrationList)
 	return
 }
 
 // 计算需要migrate的任务
-func (m *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
+func (mu *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
 	for _, migrator := range migratorList {
 		found := false
-		for _, migration := range m.migrationList() {
+		for _, migration := range mu.migrationList() {
 			if migrator.Name(&migrator) == migration.Migration {
 				found = true
 				break
@@ -53,123 +54,123 @@ func (m *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
 	return
 }
 
-func (m *MigrationUtils) currentBatch() uint {
+func (mu *MigrationUtils) currentBatch() uint {
 	migration := &Migration{}
-	if !m.DB().Order("batch desc").First(&migration).RecordNotFound() {
+	if !mu.DB().Order("batch desc").First(&migration).RecordNotFound() {
 		return migration.Batch
 	}
 	return 0
 }
-func (m *MigrationUtils) addMigration(migratorName string, batch uint) bool {
+func (mu *MigrationUtils) addMigration(migratorName string, batch uint) bool {
 	migration := &Migration{Migration: migratorName, Batch: batch}
-	if nil != m.DB().Create(&migration).Error {
+	if nil != mu.DB().Create(&migration).Error {
 		return false
 	}
 	return true
 }
-func (m *MigrationUtils) needRollbackMigrationList(batch uint) (migrationList []Migration) {
-	m.DB().Where("batch = ?", batch).Find(&migrationList)
+func (mu *MigrationUtils) needRollbackMigrationList(batch uint) (migrationList []Migration) {
+	mu.DB().Where("batch = ?", batch).Find(&migrationList)
 	return
 }
-func (m *MigrationUtils) delMigration(migration *Migration) bool {
-	if nil != m.DB().Delete(&migration).Error {
+func (mu *MigrationUtils) delMigration(migration *Migration) bool {
+	if nil != mu.DB().Delete(&migration).Error {
 		return false
 	}
 	return true
 }
-func (m *MigrationUtils) errorRollback() {
+func (mu *MigrationUtils) errorRollback() {
 	if err := recover(); err != nil {
 		if _err, ok := err.(error); ok {
-			m.log(cmd.CODE_WARNING, "error:"+_err.Error())
+			mu.log(cmd.CODE_WARNING, "error:"+_err.Error())
 		} else {
-			m.log(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
+			mu.log(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
 		}
 	}
 }
 
-func (m *MigrationUtils) log(code interface{}, message string) {
+func (mu *MigrationUtils) log(code interface{}, message string) {
 	if _code, ok := code.(cmd.Attribute); ok {
-		m.chLog <- cmd.TermLog{
+		mu.chLog <- cmd.TermLog{
 			Code:    _code,
 			Message: message,
 		}
 	}
 }
-func (m *MigrationUtils) closeLog() {
-	m.chLog <- nil
+func (mu *MigrationUtils) closeLog() {
+	mu.chLog <- nil
 }
 
-func (m *MigrationUtils) Migrate() {
-	defer m.closeLog()
-	defer m.errorRollback()
+func (mu *MigrationUtils) Migrate() {
+	defer mu.closeLog()
+	defer mu.errorRollback()
 
-	model.Transaction(func(h *model.Helper) {
-		m.SetTX(h.DB())
-		batch := m.currentBatch() + 1
+	m.Transaction(func(h *m.Helper) {
+		mu.SetTX(h.DB())
+		batch := mu.currentBatch() + 1
 
-		for _, migrator := range m.needMigrateList() {
+		for _, migrator := range mu.needMigrateList() {
 			migrationName := migrator.Name(&migrator)
 
-			m.log(cmd.CODE_WARNING, "migrating:"+migrationName)
+			mu.log(cmd.CODE_WARNING, "migrating:"+migrationName)
 
-			if err := migrator.Up(m.DB()).Error; err != nil {
+			if err := migrator.Up(mu.DB()).Error; err != nil {
 				panic(err)
 			}
 
 			// add migration
-			if !m.addMigration(migrationName, batch) {
+			if !mu.addMigration(migrationName, batch) {
 				panic("migration added failed!")
 			}
-			m.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
+			mu.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
 		}
 	}, 1)
 }
-func (m *MigrationUtils) Rollback() {
-	defer m.closeLog()
-	defer m.errorRollback()
+func (mu *MigrationUtils) Rollback() {
+	defer mu.closeLog()
+	defer mu.errorRollback()
 
-	model.Transaction(func(h *model.Helper) {
-		m.SetTX(h.DB())
-		for _, migration := range m.needRollbackMigrationList(m.currentBatch()) {
-			m.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
+	m.Transaction(func(h *m.Helper) {
+		mu.SetTX(h.DB())
+		for _, migration := range mu.needRollbackMigrationList(mu.currentBatch()) {
+			mu.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
 
 			migrator := newMigrator(migration.Name())
 			if migrator == nil {
 				panic("migration has not been defined yet!")
 			}
 
-			if err := migrator.Down(m.DB()).Error; err != nil {
+			if err := migrator.Down(mu.DB()).Error; err != nil {
 				panic(err)
 			}
 
-			if !m.delMigration(&migration) {
+			if !mu.delMigration(&migration) {
 				panic("migration deleted failed!")
 			}
 
-			m.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
+			mu.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
 		}
 	}, 1)
 }
-func (m *MigrationUtils) Fresh() {
-	defer m.closeLog()
+func (mu *MigrationUtils) Fresh() {
+	defer mu.closeLog()
 
 }
-func (m *MigrationUtils) Install() {
-	defer m.closeLog()
+func (mu *MigrationUtils) Install() {
+	defer mu.closeLog()
 	//   --database[=DATABASE]  The database connection to use
 	//@todo
 	//  Create the migration repository
 }
-func (m *MigrationUtils) Refresh() {
-	defer m.closeLog()
+func (mu *MigrationUtils) Refresh() {
+	defer mu.closeLog()
 
 }
-func (m *MigrationUtils) Reset() {
-	defer m.closeLog()
+func (mu *MigrationUtils) Reset() {
+	defer mu.closeLog()
 
 }
-func (m *MigrationUtils) Status() {
-	defer m.closeLog()
+func (mu *MigrationUtils) Status() {
+	defer mu.closeLog()
 	//+------+--------------------------------------------------------------+-------+
 	//| Ran? | Migration                                                    | Batch |
 	//+------+--------------------------------------------------------------+-------+

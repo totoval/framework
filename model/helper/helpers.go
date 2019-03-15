@@ -1,39 +1,23 @@
-package model
+package helper
 
 import (
 	"errors"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
+	"github.com/totoval/framework/model"
 	"gopkg.in/go-playground/validator.v9"
 	"reflect"
 	"strings"
 )
 
 type Helper struct {
-	BaseModel
+	model.BaseModel
 }
 
-type sortDirection byte
-
-func (sd sortDirection) String() string {
-	switch sd {
-	case ASC:
-		return "asc"
-	case DESC:
-		return "desc"
-	}
-	panic(errors.New("type sortDirection parsed error"))
+func (h *Helper)SetTX(db *gorm.DB){
+	// helper cannot setTX only can setDB in transaction_helpers
 }
 
-type Sort struct {
-	Key       string
-	Direction sortDirection
-}
-
-const (
-	ASC sortDirection = iota
-	DESC
-)
 
 func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
 	dataType := reflect.TypeOf(data).Elem()
@@ -99,7 +83,7 @@ func (h *Helper)Create(out interface{}) error {
 	//dataMap := structToMap(data)
 
 	// fill default data
-	defaultData := out.(Modeller)
+	defaultData := out.(model.Modeller)
 	inData, err := fillStruct(out, defaultData.Default(), false)
 	if err != nil {
 		return err
@@ -246,7 +230,7 @@ func (h *Helper)Restore(in interface{}) (error) {
 	return nil
 }
 
-func (h *Helper)Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed bool) *gorm.DB {
+func (h *Helper)Q(filterArr []model.Filter, sortArr []model.Sort, limit int, withTrashed bool) *gorm.DB {
 	_db := mapFilter(h.DB(), filterArr)
 
 	for _, value := range sortArr {
@@ -264,12 +248,7 @@ func (h *Helper)Q(filterArr []Filter, sortArr []Sort, limit int, withTrashed boo
 	return _db
 }
 
-type Filter struct {
-	Key string
-	Op string
-	Val interface{}
-}
-func mapFilter(_db *gorm.DB, filterArr []Filter) *gorm.DB {
+func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 	for _, filter := range filterArr {
 
 		//if len(filter) > 3 {
@@ -326,12 +305,12 @@ func mapFilter(_db *gorm.DB, filterArr []Filter) *gorm.DB {
 	return _db
 }
 
-func (h *Helper)Count(in Modeller, filterArr []Filter, withTrashed bool) (count uint, err error) {
-	err = h.Q(filterArr, []Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
+func (h *Helper)Count(in model.Modeller, filterArr []model.Filter, withTrashed bool) (count uint, err error) {
+	err = h.Q(filterArr, []model.Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
 	return count, err
 }
 
-func (h *Helper)Exist(in Modeller, withTrashed bool) (exist bool) {
+func (h *Helper)Exist(in model.Modeller, withTrashed bool) (exist bool) {
 	err := h.First(in, withTrashed)
 	if err == nil {
 		return true

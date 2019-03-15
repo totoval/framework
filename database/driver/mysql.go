@@ -1,4 +1,4 @@
-package model
+package driver
 
 import "github.com/totoval/framework/config"
 

@@ -1,23 +1,22 @@
-package model
+package database
 
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/database/driver"
+	"github.com/totoval/framework/database/orm"
 )
 import _ "github.com/jinzhu/gorm/dialects/mysql"
 
 var db *gorm.DB
-var H Helper
-var orm OrmConfigurator
+var ormConfig orm.OrmConfigurator
 
 func Initialize() {
-	orm, db = setConnection("default")
-	ormConfig(orm)
-	H = Helper{}
-	H.SetDB(db)
+	ormConfig, db = setConnection("default")
+	configOrm(ormConfig)
 }
 
-func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
+func setConnection(conn string) (ormConfig orm.OrmConfigurator, _db *gorm.DB) {
 	// get database connection name
 	_conn := conn
 	if conn == "default" {
@@ -35,14 +34,14 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 	// get orm instance
 	switch _conn {
 	case "mysql":
-		orm = NewMysql(_conn)
+		ormConfig = driver.NewMysql(_conn)
 		break
 	default:
 		panic("incorrect database connection provided")
 	}
 
 	// connect database
-	_db, err := gorm.Open(_conn, orm.ConnectionArgs())
+	_db, err := gorm.Open(_conn, ormConfig.ConnectionArgs())
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -61,7 +60,7 @@ func setConnection(conn string) (orm OrmConfigurator, _db *gorm.DB) {
 	_db.DB().SetMaxOpenConns(config.GetInt("database.max_open_connections"))
 
 	//defer _db.Close()
-	return orm, _db
+	return ormConfig, _db
 }
 
 func Connection(conn string) (_db *gorm.DB) {
@@ -74,10 +73,10 @@ func DB() *gorm.DB {
 }
 
 func Prefix() string {
-	return orm.Prefix()
+	return ormConfig.Prefix()
 }
 
-func ormConfig(orm OrmConfigurator) {
+func configOrm(orm orm.OrmConfigurator) {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 		return Prefix() + defaultTableName
 	}

@@ -1,7 +1,8 @@
-package model
+package helper
 
 import (
 	"errors"
+	"github.com/totoval/framework/database"
 )
 
 type transactionFunc func(TransactionHelper *Helper)
@@ -12,7 +13,7 @@ func Transaction(tf transactionFunc, attempts uint) {
 	var currentAttempt uint
 	currentAttempt = 1
 	h := Helper{}
-	h.SetDB(DB().Begin())
+	h.SetDB(database.DB().Begin())
 	defer func(_h *Helper) {
 		if err := recover(); err != nil {
 			var __err error
