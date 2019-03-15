@@ -1,4 +1,4 @@
-package diy_type
+package bigfloat
 
 import (
 	"strings"
