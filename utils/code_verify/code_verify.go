@@ -1,7 +1,7 @@
 package code_verify
 
 import (
-	"github.com/totoval/framework/helpers"
+	"github.com/totoval/framework/helpers/str"
 	"time"
 )
 
@@ -17,7 +17,7 @@ type code struct {
 
 func (cv *CodeVerify) Generate(index string) string {
 	c := code{
-		value: helpers.RandNumberString(cv.CodeLen),
+		value: str.RandNumberString(cv.CodeLen),
 		createdAt: time.Now(),
 	}
 	if cv.validationList == nil{
