@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/resources/lang"
+
+	"github.com/totoval/framework/config"
 )
 
 func Locale() gin.HandlerFunc {

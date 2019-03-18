@@ -5,7 +5,7 @@ import "golang.org/x/crypto/bcrypt"
 func Bcrypt(password string) string {
 	result, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		panic(err.Error())
+		panic(err)
 	}
 	return string(result)
 }

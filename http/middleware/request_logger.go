@@ -13,13 +13,12 @@ func RequestLogger() gin.HandlerFunc {
 
 		// before request
 
-		// print request data
+		// collect request data
 		requestData, err := c.GetRawData()
 		if err != nil{
 			fmt.Println(err.Error())
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // 关键点
-		debug.Dump(string(requestData))
 
 		// collect response data
 		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -29,6 +28,9 @@ func RequestLogger() gin.HandlerFunc {
 		c.Next()
 
 		// after request
+
+		// print request data
+		debug.Dump(string(requestData))
 		// print response data
 		debug.Dump(responseWriter.body.String())
 

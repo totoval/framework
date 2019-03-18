@@ -2,32 +2,48 @@ package lang
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/totoval/framework/config"
-	"golang.org/x/text/language"
 	"io/ioutil"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/locales"
+	"github.com/go-playground/universal-translator"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
+
+
+	"github.com/totoval/framework/config"
 )
 
 type UnmarshalFunc = i18n.UnmarshalFunc
 
 var LocalizerMap map[string]*i18n.Localizer
 
-var localeArr []string
+var localeMap map[string]*locale
+
+type locale struct {
+	languageName string
+	localizer *i18n.Localizer
+	localesTranslator *locales.Translator
+	validationTranslation *ValidationTranslation
+	universalTranslator ut.Translator
+	validationRegisterStatus bool
+}
 
 func init(){
+	localeMap = make(map[string]*locale)
 	LocalizerMap = make(map[string]*i18n.Localizer)
 
+	// init lang files
 	langFileFormat := "json"
 	langUnmarshalFunc := json.Unmarshal
-	dirName := "resources/lang"
+	langFileDirName := "resources/lang"
+	initializeLangFiles(langFileDirName, langFileFormat, langUnmarshalFunc)
 
-	initializeLangFiles(dirName, langFileFormat, langUnmarshalFunc)
 }
 
 func initializeLangFiles(dirName string, langFileFormat string, langUnmarshalFunc UnmarshalFunc){
-	bundle := &i18n.Bundle{DefaultLanguage: language.English}
+	bundle := &i18n.Bundle{DefaultLanguage: language.English} //@todo xxx there's maybe a bug
 	bundle.RegisterUnmarshalFunc(langFileFormat, langUnmarshalFunc)
 
 	if dirName[len(dirName)-1:] != "/" {
@@ -41,11 +57,57 @@ func initializeLangFiles(dirName string, langFileFormat string, langUnmarshalFun
 		if value.IsDir() {
 			continue
 		}
-		bundle.MustLoadMessageFile(dirName + value.Name())
-		langName := strings.Replace(value.Name(), "."+langFileFormat, "", 1) // if file name = "test.json.json", there may be a bug
+		fileName := value.Name()
+		if fileName[len(fileName)-len("."+langFileFormat):] != ("."+langFileFormat) {
+			continue
+		}
+		//@todo bundle.AddMessage to support custom language!!!
+
+
+		bundle.MustLoadMessageFile(dirName + fileName)
+		langName := strings.Replace(fileName, "."+langFileFormat, "", 1) //@todo if file name = "test.json.json", there may be a bug
 		LocalizerMap[langName] = i18n.NewLocalizer(bundle, langName)
-		localeArr = append(localeArr, langName)
+
+		//addLocale(langName)
 	}
+}
+
+func (l *locale)setValidationRegistered() *locale {
+	l.validationRegisterStatus = true
+	return l
+}
+func (l *locale)validationRegistered() bool {
+	return l.validationRegisterStatus
+}
+
+func (l *locale)setCustomTranslation(dirName string, langFileFormat string, langUnmarshalFunc UnmarshalFunc) *locale {
+	bundle := &i18n.Bundle{DefaultLanguage: language.English} //@todo xxx there's maybe a default language bug
+	bundle.RegisterUnmarshalFunc(langFileFormat, langUnmarshalFunc)
+
+	if dirName[len(dirName)-1:] != "/" {
+		dirName = dirName + "/"
+	}
+	bundle.MustLoadMessageFile(dirName + l.languageName + "." + langFileFormat)
+	l.localizer = i18n.NewLocalizer(bundle, l.languageName)
+	return l
+}
+
+func (l *locale)setValidationTranslation(validationTranslation *ValidationTranslation) *locale {
+	localesTranslator := NewCommonLanguage(l.languageName)
+	l.localesTranslator = &localesTranslator
+	l.validationTranslation = validationTranslation
+	return l
+}
+
+func (l *locale)setLanguageName(langName string) *locale {
+	l.languageName = langName
+	return l
+}
+
+func (l *locale)setUniversalTranslator() *locale {
+	uttr := ut.New(NewCommonLanguage(l.languageName))
+	l.universalTranslator, _ = uttr.GetTranslator(l.languageName)
+	return l
 }
 
 func SetLocale(c *gin.Context, locale string) {
@@ -59,6 +121,9 @@ func Locale(c *gin.Context) string {
 	configLocale := config.GetString("app.locale")
 	return fallbackLocale(configLocale)
 }
+func supportedLocale() []string {
+	return []string{}
+}
 
 func fallbackLocale(locale string) string {
 	if !hasLocale(locale){
@@ -67,11 +132,9 @@ func fallbackLocale(locale string) string {
 	return locale
 }
 
-func hasLocale(locale string)bool{
-	for _, l := range localeArr {
-		if l == locale {
-			return true
-		}
+func hasLocale(langName string)bool{
+	if _, ok := localeMap[langName]; ok {
+		return true
 	}
 	return false
 }

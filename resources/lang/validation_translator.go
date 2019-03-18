@@ -1,27 +1,14 @@
 package lang
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/go-playground/locales"
-	"github.com/go-playground/locales/en"
-	"github.com/go-playground/locales/fr"
-	"github.com/go-playground/locales/id"
-	"github.com/go-playground/locales/ja"
-	"github.com/go-playground/locales/nl"
-	"github.com/go-playground/locales/pt_BR"
-	"github.com/go-playground/locales/zh"
-	"github.com/go-playground/locales/zh_Hant_TW"
 	"github.com/go-playground/universal-translator"
 	"gopkg.in/go-playground/validator.v9"
-
-	en_translation "gopkg.in/go-playground/validator.v9/translations/en"
-	fr_translation "gopkg.in/go-playground/validator.v9/translations/fr"
-	id_translation "gopkg.in/go-playground/validator.v9/translations/id"
-	ja_translation "gopkg.in/go-playground/validator.v9/translations/ja"
-	nl_translation "gopkg.in/go-playground/validator.v9/translations/nl"
-	pt_BR_translation "gopkg.in/go-playground/validator.v9/translations/pt_BR"
-	zh_translation "gopkg.in/go-playground/validator.v9/translations/zh"
-	zh_tw_translation "gopkg.in/go-playground/validator.v9/translations/zh_tw"
 )
+
 
 type ValidationTranslator interface {
 	RegisterDefaultTranslations(v *validator.Validate, trans ut.Translator) (err error)
@@ -29,70 +16,33 @@ type ValidationTranslator interface {
 	LocalesTranslator() locales.Translator
 }
 
-var UniversalTranslator *ut.UniversalTranslator
-var validationTranslatorMap map[string]ValidationTranslator
+func AddValidationTranslation(langName string, translation *ValidationTranslation) {
+	//@todo change this config
+	langFileFormat := "json"
+	langUnmarshalFunc := json.Unmarshal
+	langFileDirName := "resources/lang"
 
-func init(){
-	_en := en.New()
-	_zh := zh.New()
-	_ja := ja.New()
-	_fr := fr.New()
-	_id := id.New()
-	_nl := nl.New()
-	_pt_BR := pt_BR.New()
-	_zh_tw := zh_Hant_TW.New()
+	// add locale
+	l := locale{}
+	l.setLanguageName(langName).setCustomTranslation(langFileDirName, langFileFormat, langUnmarshalFunc).setValidationTranslation(translation).setUniversalTranslator()
+	localeMap[langName] = &l
 
-	UniversalTranslator = ut.New(_en, _en, _zh, _ja, _fr, _id, _nl, _pt_BR, _zh_tw)
-
-	validationTranslatorMap = make(map[string]ValidationTranslator)
 }
 
-func AddLocale(validationTranslator ValidationTranslator) error {
-	validationTranslatorMap[validationTranslator.Locale()] = validationTranslator
+func Translator(v *validator.Validate, langName string) (ut.Translator, error) {
 
-	return UniversalTranslator.AddTranslator(validationTranslator.LocalesTranslator(), true)
-}
-
-type RegisterDefaultTranslations func (v *validator.Validate, trans ut.Translator) (err error)
-func Translator(v *validator.Validate, translator string) (trans ut.Translator, found bool) {
-	trans, found = UniversalTranslator.GetTranslator(translator)
-
-	var rdt RegisterDefaultTranslations
-
-	switch translator {
-	case "en":
-		rdt = en_translation.RegisterDefaultTranslations
-		break
-	case "zh":
-		rdt = zh_translation.RegisterDefaultTranslations
-		break
-	case "ja":
-		rdt = ja_translation.RegisterDefaultTranslations
-		break
-	case "fr":
-		rdt = fr_translation.RegisterDefaultTranslations
-		break
-	case "id":
-		rdt = id_translation.RegisterDefaultTranslations
-		break
-	case "nl":
-		rdt = nl_translation.RegisterDefaultTranslations
-		break
-	case "pt_BR":
-		rdt = pt_BR_translation.RegisterDefaultTranslations
-		break
-	case "zh_tw":
-		rdt = zh_tw_translation.RegisterDefaultTranslations
-		break
+	locale, ok := localeMap[langName]
+	if !ok {
+		return locale.universalTranslator, errors.New("validation translation not found")
 	}
 
-	if validationTranslator, ok := validationTranslatorMap[translator]; ok {
-		rdt = validationTranslator.RegisterDefaultTranslations
+
+	//@todo 每次register会报错，如果已经注册了就不register了
+	if !locale.validationRegistered() {
+		if err := registerDefaultTranslations(v, locale); err != nil {
+			return locale.universalTranslator, err
+		}
 	}
 
-	if err := rdt(v, trans); err != nil{
-		return
-	}
-
-	return
+	return locale.universalTranslator, nil
 }
