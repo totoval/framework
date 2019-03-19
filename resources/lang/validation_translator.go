@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/go-playground/locales"
@@ -16,17 +15,10 @@ type ValidationTranslator interface {
 	LocalesTranslator() locales.Translator
 }
 
-func AddValidationTranslation(langName string, translation *ValidationTranslation) {
-	//@todo change this config
-	langFileFormat := "json"
-	langUnmarshalFunc := json.Unmarshal
-	langFileDirName := "resources/lang"
-
-	// add locale
+func AddLocale(langName string, validationTranslation *ValidationTranslation, customTranslation *CustomTranslation) {
 	l := locale{}
-	l.setLanguageName(langName).setCustomTranslation(langFileDirName, langFileFormat, langUnmarshalFunc).setValidationTranslation(translation).setUniversalTranslator()
+	l.setLanguageName(langName).setCustomTranslation(customTranslation).setValidationTranslation(validationTranslation).setUniversalTranslator()
 	localeMap[langName] = &l
-
 }
 
 func Translator(v *validator.Validate, langName string) (ut.Translator, error) {
@@ -36,8 +28,6 @@ func Translator(v *validator.Validate, langName string) (ut.Translator, error) {
 		return locale.universalTranslator, errors.New("validation translation not found")
 	}
 
-
-	//@todo 每次register会报错，如果已经注册了就不register了
 	if !locale.validationRegistered() {
 		if err := registerDefaultTranslations(v, locale); err != nil {
 			return locale.universalTranslator, err
