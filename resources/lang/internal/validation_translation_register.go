@@ -1,4 +1,4 @@
-package lang
+package internal
 
 import (
     "fmt"
@@ -13,120 +13,23 @@ import (
     "gopkg.in/go-playground/validator.v9"
 )
 
-type PluralRule struct {
-    One   string
-    Other string
-}
-type EmbeddedRule struct {
-    String   string
-    Numeric  string
-    Array    string
-    Datetime string
-}
-type ValidationTranslation struct {
-    Required     string
-    Len          EmbeddedRule
-    Min          EmbeddedRule
-    Max          EmbeddedRule
-    Eq           string
-    Ne           string
-    Lt           EmbeddedRule
-    Lte          EmbeddedRule
-    Gt           EmbeddedRule
-    Gte          EmbeddedRule
-    Eqfield      string
-    Eqcsfield    string
-    Necsfield    string
-    Gtcsfield    string
-    Gtecsfield   string
-    Ltcsfield    string
-    Ltecsfield   string
-    Nefield      string
-    Gtfield      string
-    Gtefield     string
-    Ltfield      string
-    Ltefield     string
-    Alpha        string
-    Alphanum     string
-    Numeric      string
-    Number       string
-    Hexadecimal  string
-    Hexcolor     string
-    Rgb          string
-    Rgba         string
-    Hsl          string
-    Hsla         string
-    Email        string
-    Url          string
-    Uri          string
-    Base64       string
-    Contains     string
-    Containsany  string
-    Excludes     string
-    Excludesall  string
-    Excludesrune string
-    Isbn         string
-    Isbn10       string
-    Isbn13       string
-    Uuid         string
-    Uuid3        string
-    Uuid4        string
-    Uuid5        string
-    Ascii        string
-    Printascii   string
-    Multibyte    string
-    Datauri      string
-    Latitude     string
-    Longitude    string
-    Ssn          string
-    Ipv4         string
-    Ipv6         string
-    Ip           string
-    Cidr         string
-    Cidrv4       string
-    Cidrv6       string
-    TcpAddr     string
-    Tcp4Addr    string
-    Tcp6Addr    string
-    UdpAddr     string
-    Udp4Addr    string
-    Udp6Addr    string
-    IpAddr      string
-    Ip4Addr     string
-    Ip6Addr     string
-    UnixAddr    string
-    Mac          string
-    Unique       string
-    Iscolor      string
-    Oneof        string
 
-    PluralRuleMap map[string]PluralRule
+type FieldError struct {
+    validator.FieldError
+    locale *locale
 }
 
-// func NewPluralRule(one string, other string) PluralRule {
-//     return PluralRule{
-//         One:   one,
-//         Other: other,
-//     }
-// }
-// func NewEmbeddedRule(string string, numeric string, array string, datetime string) EmbeddedRule {
-//     return EmbeddedRule{
-//         String:   string,
-//         Numeric:  numeric,
-//         Array:    array,
-//         Datetime: datetime,
-//     }
-// }
-
-func init() {
-    // if err := lang.AddLocale(&Translation{locale: "en", localesTranslator: en.New()}); err != nil{
-    // 	panic(err)
-    // }
+func (fe *FieldError) Field() string {
+    validationFieldTranslation := fe.locale.validationTranslation.FieldTranslation
+    if value, ok := validationFieldTranslation[fe.FieldError.Field()]; ok {
+        return value
+    }
+    return fe.FieldError.Field()
 }
 
 // RegisterDefaultTranslations registers a set of default translations
 // for all built in tag's in validator; you may add your own as desired.
-func registerDefaultTranslations(v *validator.Validate, locale *locale) (err error) {
+func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err error) {
 
     trans := locale.universalTranslator
     translationValue := locale.validationTranslation
@@ -178,6 +81,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -269,6 +173,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -360,6 +265,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -421,6 +327,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Eq,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -436,6 +343,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Ne,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -486,6 +394,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -606,6 +515,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
                 return
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -726,6 +636,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
                 return
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -846,6 +757,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
                 return
             },
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 var err error
                 var t string
@@ -932,6 +844,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Eqfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -947,6 +860,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Eqcsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -962,6 +876,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Necsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -977,6 +892,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Gtcsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -992,6 +908,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Gtecsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1007,6 +924,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Ltcsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1022,6 +940,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Ltecsfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1037,6 +956,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Nefield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1052,6 +972,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Gtfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1067,6 +988,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Gtefield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1082,6 +1004,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Ltfield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1097,6 +1020,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Ltefield,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1182,6 +1106,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Contains,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1197,6 +1122,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Containsany,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1212,6 +1138,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Excludes,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1227,6 +1154,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Excludesall,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1242,6 +1170,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Excludesrune,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
 
                 t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
@@ -1422,6 +1351,7 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
             translation: translationValue.Oneof,
             override:    false,
             customTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+                fe = &FieldError{FieldError:fe, locale: locale}
                 s, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
                 if err != nil {
                     log.Printf("warning: error translating FieldError: %#v", fe)
@@ -1430,6 +1360,33 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
                 return s
             },
         },
+    }
+
+
+    var registrationFunc = func(tag string, translation string, override bool) validator.RegisterTranslationsFunc {
+
+        return func(ut ut.Translator) (err error) {
+
+            if err = ut.Add(tag, translation, override); err != nil {
+                return
+            }
+
+            return
+
+        }
+
+    }
+
+    var translateFunc = func(ut ut.Translator, fe validator.FieldError) string {
+        fe = &FieldError{FieldError:fe, locale: locale}
+
+        t, err := ut.T(fe.Tag(), fe.Field())
+        if err != nil {
+            log.Printf("warning: error translating FieldError: %#v", fe)
+            return fe.(error).Error()
+        }
+
+        return t
     }
 
     for _, t := range translations {
@@ -1460,27 +1417,3 @@ func registerDefaultTranslations(v *validator.Validate, locale *locale) (err err
     return
 }
 
-func registrationFunc(tag string, translation string, override bool) validator.RegisterTranslationsFunc {
-
-    return func(ut ut.Translator) (err error) {
-
-        if err = ut.Add(tag, translation, override); err != nil {
-            return
-        }
-
-        return
-
-    }
-
-}
-
-func translateFunc(ut ut.Translator, fe validator.FieldError) string {
-
-    t, err := ut.T(fe.Tag(), fe.Field())
-    if err != nil {
-        log.Printf("warning: error translating FieldError: %#v", fe)
-        return fe.(error).Error()
-    }
-
-    return t
-}

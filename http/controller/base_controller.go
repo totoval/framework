@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v9"
 
-	"github.com/totoval/framework/resources/lang"
+	"github.com/totoval/framework/helpers/locale"
+	"github.com/totoval/framework/helpers/trans"
 )
 
 type Controller interface {
@@ -16,7 +17,7 @@ type Controller interface {
 
 type BaseController struct{}
 
-func (bc *BaseController) Validate(c *gin.Context, _validator interface{}) bool {
+func (bc *BaseController) Validate(c *gin.Context, _validator interface{}, onlyFirstError bool) bool {
 	if err := c.ShouldBindBodyWith(_validator, binding.JSON); err != nil {
 
 		_err, ok := err.(validator.ValidationErrors)
@@ -26,12 +27,14 @@ func (bc *BaseController) Validate(c *gin.Context, _validator interface{}) bool 
 		}
 
 		v := binding.Validator.Engine().(*validator.Validate) // important, should be a new one for each request error
-		translator, err := lang.Translator(v, lang.Locale(c))
-		if err != nil{
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-			return false
+
+		errorResult := trans.ValidationTranslate(v, locale.Locale(c), _err)
+		if onlyFirstError {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult.First()})
+		}else{
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult})
 		}
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": _err.Translate(translator)})
+
 		return false
 	}
 

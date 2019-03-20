@@ -1,15 +1,13 @@
-package lang
+package internal
 
 import (
     "errors"
 
-    "github.com/gin-gonic/gin"
     "github.com/go-playground/locales"
     "github.com/go-playground/universal-translator"
     "github.com/nicksnyder/go-i18n/v2/i18n"
+    "github.com/totoval/framework/resources/lang"
     "golang.org/x/text/language"
-
-    "github.com/totoval/framework/config"
 )
 
 type UnmarshalFunc = i18n.UnmarshalFunc
@@ -22,7 +20,7 @@ type locale struct {
     languageName             string
     localizer                *i18n.Localizer
     localesTranslator        *locales.Translator
-    validationTranslation    *ValidationTranslation
+    validationTranslation    *lang.ValidationTranslation
     universalTranslator      ut.Translator
     validationRegisterStatus bool
 }
@@ -36,13 +34,13 @@ func (l *locale) setValidationRegistered() *locale {
     l.validationRegisterStatus = true
     return l
 }
-func (l *locale) validationRegistered() bool {
+func (l *locale) ValidationRegistered() bool {
     return l.validationRegisterStatus
 }
 
 // UnmarshalFunc  func(data []byte, v interface{}) error
-type CustomTranslation map[string]string
-func (l *locale) setCustomTranslation(customTranslation *CustomTranslation) *locale {
+
+func (l *locale) SetCustomTranslation(customTranslation *lang.CustomTranslation) *locale {
     bundle := &i18n.Bundle{DefaultLanguage: language.English}
 
     for id, value := range *customTranslation {
@@ -58,51 +56,49 @@ func (l *locale) setCustomTranslation(customTranslation *CustomTranslation) *loc
     l.localizer = i18n.NewLocalizer(bundle, l.languageName)
     return l
 }
+func (l *locale) CustomTranslation() *i18n.Localizer {
+    return l.localizer
+}
 
-func (l *locale) setValidationTranslation(validationTranslation *ValidationTranslation) *locale {
+func (l *locale) SetValidationTranslation(validationTranslation *lang.ValidationTranslation) *locale {
     localesTranslator := NewCommonLanguage(l.languageName)
     l.localesTranslator = &localesTranslator
     l.validationTranslation = validationTranslation
     return l
 }
 
-func (l *locale) setLanguageName(langName string) *locale {
+func (l *locale) SetLanguageName(langName string) *locale {
     l.languageName = langName
     return l
 }
 
-func (l *locale) setUniversalTranslator() *locale {
+func (l *locale) SetUniversalTranslator() *locale {
     uttr := ut.New(NewCommonLanguage(l.languageName))
     l.universalTranslator, _ = uttr.GetTranslator(l.languageName)
     return l
 }
-
-func SetLocale(c *gin.Context, locale string) {
-    c.Set("locale", locale)
-}
-func Locale(c *gin.Context) string {
-    if contextLocale, exist := c.Get("locale"); exist {
-        l := contextLocale.(string)
-        return fallbackLocale(l)
-    }
-    configLocale := config.GetString("app.locale")
-    return fallbackLocale(configLocale)
+func (l *locale)UniversalTranslator() ut.Translator {
+    return l.universalTranslator
 }
 
-func fallbackLocale(locale string) string {
-    if !hasLocale(locale) {
-        return config.GetString("app.fallback_locale", "en")
-    }
-    return locale
+
+func AddLocale(langName string, customTranslation *lang.CustomTranslation, validationTranslation *lang.ValidationTranslation) {
+    l := locale{}
+    l.SetLanguageName(langName).SetCustomTranslation(customTranslation).SetValidationTranslation(validationTranslation).SetUniversalTranslator()
+    localeMap[langName] = &l
 }
 
-func hasLocale(langName string) bool {
+func HasLocale(langName string) bool {
     if _, ok := localeMap[langName]; ok {
         return true
     }
     return false
 }
 
-func Translate(messageID string, data map[string]interface{}, langName string) string {
-    return localeMap[langName].localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: messageID, TemplateData: data})
+func Locale(langName string) *locale {
+    if HasLocale(langName) {
+        return localeMap[langName]
+    }
+    return nil
 }
+
