@@ -86,6 +86,11 @@ type ValidationTranslation struct {
     Unique       string
     Iscolor      string
     Oneof        string
+    Base64url   string
+    UrnRfc2141 string
+    BtcAddr string
+    BtcAddrBech32 string
+    EthAddr string
 
     PluralRuleMap map[string]PluralRule
     FieldTranslation ValidationFieldTranslation

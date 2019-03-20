@@ -1097,8 +1097,18 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
             override:    false,
         },
         {
+            tag:         "urn_rfc2141",
+            translation: translationValue.UrnRfc2141,
+            override:    false,
+        },
+        {
             tag:         "base64",
             translation: translationValue.Base64,
+            override:    false,
+        },
+        {
+            tag:         "base64url",
+            translation: translationValue.Base64url,
             override:    false,
         },
         {
@@ -1282,52 +1292,52 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
             override:    false,
         },
         {
-            tag:         "tcpAddr",
+            tag:         "tcp_addr",
             translation: translationValue.TcpAddr,
             override:    false,
         },
         {
-            tag:         "tcp4Addr",
+            tag:         "tcp4_addr",
             translation: translationValue.Tcp4Addr,
             override:    false,
         },
         {
-            tag:         "tcp6Addr",
+            tag:         "tcp6_addr",
             translation: translationValue.Tcp6Addr,
             override:    false,
         },
         {
-            tag:         "udpAddr",
+            tag:         "udp_addr",
             translation: translationValue.UdpAddr,
             override:    false,
         },
         {
-            tag:         "udp4Addr",
+            tag:         "udp4_addr",
             translation: translationValue.Udp4Addr,
             override:    false,
         },
         {
-            tag:         "udp6Addr",
+            tag:         "udp6_addr",
             translation: translationValue.Udp6Addr,
             override:    false,
         },
         {
-            tag:         "ipAddr",
+            tag:         "ip_addr",
             translation: translationValue.IpAddr,
             override:    false,
         },
         {
-            tag:         "ip4Addr",
+            tag:         "ip4_addr",
             translation: translationValue.Ip4Addr,
             override:    false,
         },
         {
-            tag:         "ip6Addr",
+            tag:         "ip6_addr",
             translation: translationValue.Ip6Addr,
             override:    false,
         },
         {
-            tag:         "unixAddr",
+            tag:         "unix_addr",
             translation: translationValue.UnixAddr,
             override:    false,
         },
@@ -1359,6 +1369,21 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
                 }
                 return s
             },
+        },
+        {
+            tag:         "btc_addr",
+            translation: translationValue.BtcAddr,
+            override:    false,
+        },
+        {
+            tag:         "btc_addr_bech32",
+            translation: translationValue.BtcAddrBech32,
+            override:    false,
+        },
+        {
+            tag:         "eth_addr",
+            translation: translationValue.EthAddr,
+            override:    false,
         },
     }
 
