@@ -21,7 +21,7 @@ func Generate(index string, codeLen uint, expiredMinute uint) string {
 }
 
 func Verify(index string, code string) bool {
-	cacheCode := cache.Pull(index)
+	cacheCode := cache.Pull(validationCacheKey(index))
 	if cacheCode == nil {
 		return false
 	}
