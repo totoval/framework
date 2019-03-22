@@ -25,6 +25,7 @@
 - [x] User Email Validation via Notification
 - [ ] Error Handler
 - [x] Language Package
+- [x] Cache: Memory
 - [ ] Cache: Redis
 - [ ] Queue, Worker
 - [ ] Events

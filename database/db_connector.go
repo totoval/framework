@@ -19,18 +19,13 @@ func setConnection(conn string) (dber databaser, _db *gorm.DB) {
 	// get database connection name
 	_conn := conn
 	if conn == "default" {
-		//var _ok bool
-		//_conn, _ok = config.Get("database." + conn).(string)
-		//if !_ok {
-		//	panic("database connection parse error")
-		//}
 		_conn = config.GetString("database." + conn)
 		if _conn == "" {
 			panic("database connection parse error")
 		}
 	}
 
-	// get orm instance
+	// get driver instance
 	switch _conn {
 	case "mysql":
 		dber = driver.NewMysql(_conn)

@@ -42,27 +42,24 @@ func Get(path string, defaultValue ...interface{}) interface{} {
 	}
 	return v.Get(path)
 }
+func GetInterface(path string, defaultValue ...interface{}) (value interface{}) {
 
-func GetString(path string, defaultValue ...interface{}) string {
-	var value interface{}
 	if len(defaultValue) > 0 {
 		value = Get(path, defaultValue[0])
 	} else {
 		value = Get(path)
 	}
 
-	return cast.ToString(value)
+	return value
+}
+func GetString(path string, defaultValue ...interface{}) string {
+	return cast.ToString(GetInterface(path, defaultValue...))
 }
 func GetInt(path string, defaultValue ...interface{}) int {
-
-	var value interface{}
-	if len(defaultValue) > 0 {
-		value = Get(path, defaultValue[0])
-	} else {
-		value = Get(path)
-	}
-
-	return cast.ToInt(value)
+	return cast.ToInt(GetInterface(path, defaultValue...))
+}
+func GetUint(path string, defaultValue ...interface{}) uint {
+	return cast.ToUint(GetInterface(path, defaultValue...))
 }
 func GetBool(path string, defaultValue ...interface{}) bool {
 

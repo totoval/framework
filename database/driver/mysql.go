@@ -19,6 +19,10 @@ func (_mys *mysql) setConnection(connection string) {
 func (_mys *mysql) connection() string {
 	return _mys.conn
 }
+
+
+
+
 func (_mys *mysql) username() string {
 	return _mys.config("username")
 }
@@ -47,10 +51,6 @@ func (_mys *mysql) collation() string {
 	return _mys.config("collation")
 }
 func (_mys *mysql) config(key string) string {
-	//if value, ok := config.Get("database.connections."+ _mys.connection() + "." + key).(string); ok {
-	//	return value
-	//}
-	//panic("database "+key+" parse error")
 	value := config.GetString("database.connections." + _mys.connection() + "." + key)
 	if value == "" {
 		panic("database " + key + " parse error")
