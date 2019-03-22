@@ -154,7 +154,7 @@ func (j *JWT) tokenMd5(tokenString string) string {
 func (j *JWT) checkTokenRefreshTimesValid(tokenString string) bool {
 	tokenMd5 := j.tokenMd5(tokenString)
 	if cache.Has(tokenMd5) {
-		if cache.Get(tokenMd5).(uint) >= MaxRefreshTimes {
+		if cache.Get(tokenMd5).(int) >= MaxRefreshTimes {
 			return false
 		}
 	}
@@ -162,7 +162,7 @@ func (j *JWT) checkTokenRefreshTimesValid(tokenString string) bool {
 }
 func (j *JWT) recordTokenRefreshTimes(tokenString string) {
 	tokenMd5 := j.tokenMd5(tokenString)
-	var increment uint = 1
+	var increment int = 1
 	if cache.Has(refreshTokenCacheKey(tokenMd5)) {
 		cache.Increment(refreshTokenCacheKey(tokenMd5), increment)
 	}else{
