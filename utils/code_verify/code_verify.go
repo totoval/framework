@@ -1,39 +1,34 @@
 package code_verify
 
 import (
+	"github.com/totoval/framework/helpers/cache"
+
 	"github.com/totoval/framework/helpers/str"
+	"fmt"
 	"time"
 )
 
-type CodeVerify struct {
-	CodeLen uint
-	ExpiredDuration time.Duration
-	validationList map[string]code
-}
-type code struct {
-	value string
-	createdAt time.Time
+const VALIDATION_CACHE_KEY = "VALIDATION_CACHE_KEY_%s"
+
+func validationCacheKey(index string) string {
+	return fmt.Sprintf(VALIDATION_CACHE_KEY, index)
 }
 
-func (cv *CodeVerify) Generate(index string) string {
-	c := code{
-		value: str.RandNumberString(cv.CodeLen),
-		createdAt: time.Now(),
-	}
-	if cv.validationList == nil{
-		cv.validationList = make(map[string]code)
-	}
-	cv.validationList[index] = c
-
-	return c.value
+func Generate(index string, codeLen uint, expiredMinute uint) string {
+	code := str.RandNumberString(codeLen)
+	cache.Put(validationCacheKey(index), code, time.Now().Add(time.Duration(expiredMinute) * time.Minute))
+	return code
 }
-func (cv *CodeVerify) Verify(index string, code string) bool {
-	if cv.validationList[index].createdAt.Add(cv.ExpiredDuration).Sub(time.Now()) > 0 && cv.validationList[index].value == code {
-		cv.delete(index)
+
+func Verify(index string, code string) bool {
+	cacheCode := cache.Pull(index)
+	if cacheCode == nil {
+		return false
+	}
+
+	if cacheCode.(string) == code {
 		return true
 	}
+
 	return false
-}
-func (cv *CodeVerify) delete(index string){
-	delete(cv.validationList, index)
 }
