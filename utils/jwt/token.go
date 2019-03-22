@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/totoval/framework/helpers/cache"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"time"
 )
@@ -12,8 +13,12 @@ import (
 const ExpiredTime time.Duration = 4 * time.Hour //@todo move to configration
 const RefreshExpiredTime time.Duration = 10 * time.Minute
 const MaxRefreshTimes uint = 1
-var refreshedTokenList = make(map[string]refreshToken)
 
+const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_CACHE_KEY_%s"
+
+func refreshTokenCacheKey(tokenMd5 string) string {
+	return fmt.Sprintf(REFRESH_TOKEN_CACHE_KEY, tokenMd5)
+}
 
 type refreshToken struct {
 	Name string
@@ -147,8 +152,9 @@ func (j *JWT) tokenMd5(tokenString string) string {
 	return string(md5Slice[:])
 }
 func (j *JWT) checkTokenRefreshTimesValid(tokenString string) bool {
-	if rt, ok := refreshedTokenList[j.tokenMd5(tokenString)]; ok {
-		if rt.RefreshTimes >= MaxRefreshTimes {
+	tokenMd5 := j.tokenMd5(tokenString)
+	if cache.Has(tokenMd5) {
+		if cache.Get(tokenMd5).(uint) >= MaxRefreshTimes {
 			return false
 		}
 	}
@@ -156,10 +162,11 @@ func (j *JWT) checkTokenRefreshTimesValid(tokenString string) bool {
 }
 func (j *JWT) recordTokenRefreshTimes(tokenString string) {
 	tokenMd5 := j.tokenMd5(tokenString)
-	if rt, ok := refreshedTokenList[tokenMd5]; ok {
-		refreshedTokenList[tokenMd5] = refreshToken{Name: tokenString, RefreshTimes: rt.RefreshTimes+1}
+	var increment uint = 1
+	if cache.Has(refreshTokenCacheKey(tokenMd5)) {
+		cache.Increment(refreshTokenCacheKey(tokenMd5), increment)
 	}else{
-		refreshedTokenList[tokenMd5] = refreshToken{Name: tokenString, RefreshTimes: 1}
+		cache.Add(refreshTokenCacheKey(tokenMd5), increment, time.Now().Add(ExpiredTime).Add(RefreshExpiredTime))
 	}
 }
 
