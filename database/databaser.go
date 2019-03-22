@@ -1,6 +1,6 @@
-package orm
+package database
 
-type OrmConfigurator interface {
+type databaser interface {
 	ConnectionArgs() string
 	Driver() string
 	Prefix() string
