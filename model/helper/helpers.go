@@ -306,7 +306,7 @@ func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 }
 
 func (h *Helper)Count(in model.Modeller, filterArr []model.Filter, withTrashed bool) (count uint, err error) {
-	err = h.Q(filterArr, []model.Sort{}, 0, withTrashed).Model(&in).Count(&count).Error
+	err = h.Q(filterArr, []model.Sort{}, 0, withTrashed).Model(in).Count(&count).Error
 	return count, err
 }
 
