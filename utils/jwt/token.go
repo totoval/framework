@@ -154,7 +154,7 @@ func (j *JWT) tokenMd5(tokenString string) string {
 func (j *JWT) checkTokenRefreshTimesValid(tokenString string) bool {
 	tokenMd5 := j.tokenMd5(tokenString)
 	if cache.Has(tokenMd5) {
-		if cache.Get(tokenMd5).(int) >= MaxRefreshTimes {
+		if cache.Get(tokenMd5).(int) >= int(MaxRefreshTimes) {
 			return false
 		}
 	}
