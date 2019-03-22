@@ -43,7 +43,7 @@ func (m *memory)Get(key string, defaultValue ...interface{}) interface{}{
     return val
 }
 func (m *memory)Pull(key string, defaultValue ...interface{}) interface{}{
-    result := m.Get(key, defaultValue)
+    result := m.Get(key, defaultValue...)
     m.Forget(key)
     return result
 }
