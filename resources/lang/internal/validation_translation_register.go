@@ -26,6 +26,16 @@ func (fe *FieldError) Field() string {
     }
     return fe.FieldError.Field()
 }
+func (fe *FieldError) Param() string {
+    if fe.Tag() == "eqfield" { // add eqfield param translation
+        validationFieldTranslation := fe.locale.validationTranslation.FieldTranslation
+        if value, ok := validationFieldTranslation[fe.FieldError.Param()]; ok {
+            return value
+        }
+    }
+
+    return fe.FieldError.Param()
+}
 
 // RegisterDefaultTranslations registers a set of default translations
 // for all built in tag's in validator; you may add your own as desired.
