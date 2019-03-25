@@ -35,11 +35,14 @@ func (m *memory)Has(key string) bool {
 func (m *memory)Get(key string, defaultValue ...interface{}) interface{}{
     val, found := m.cache.Get(m.prefixedKey(key))
     if !found {
+        //@todo Event CacheMissed
         if len(defaultValue) > 0 {
             return defaultValue[0]
         }
         return nil
     }
+
+    //@todo Event CacheHit
     return val
 }
 func (m *memory)Pull(key string, defaultValue ...interface{}) interface{}{
@@ -49,11 +52,15 @@ func (m *memory)Pull(key string, defaultValue ...interface{}) interface{}{
 }
 func (m *memory)Put(key string, value interface{}, future time.Time){
     m.cache.Set(m.prefixedKey(key), value, durationFromNow(future))
+
+    //@todo Event KeyWritten
 }
 func (m *memory)Add(key string, value interface{}, future time.Time) bool{
     if err := m.cache.Add(m.prefixedKey(key), value, durationFromNow(future)); err != nil {
         return false
     }
+
+    //@todo Event KeyWritten
     return true
 }
 func (m *memory)Increment(key string, value int) bool {
@@ -70,8 +77,12 @@ func (m *memory)Decrement(key string, value int) bool{
 }
 func (m *memory)Forever(key string, value interface{}){
     m.cache.Set(m.prefixedKey(key), value, -1)
+
+    //@todo Event KeyWritten
 }
 func (m *memory)Forget(key string) bool{
     m.cache.Delete(m.prefixedKey(key))
+
+    //@todo Event KeyForget
     return true
 }
