@@ -9,6 +9,12 @@ type RateLimit struct {
     cache cacher
 }
 
+func NewRateLimit(cache cacher) *RateLimit {
+    return &RateLimit{
+        cache: cache,
+    }
+}
+
 const RATE_LIMITE_CACHE_KEY = "TOTOVAL_RATE_LIMIT_%s"
 const RATE_LIMITE_TIMER_CACHE_KEY = "TOTOVAL_RATE_LIMIT_%s_TIMER"
 
