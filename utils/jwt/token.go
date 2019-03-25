@@ -14,7 +14,7 @@ const ExpiredTime time.Duration = 4 * time.Hour //@todo move to configration
 const RefreshExpiredTime time.Duration = 10 * time.Minute
 const MaxRefreshTimes uint = 1
 
-const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_CACHE_KEY_%s"
+const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_%s"
 
 func refreshTokenCacheKey(tokenMd5 string) string {
 	return fmt.Sprintf(REFRESH_TOKEN_CACHE_KEY, tokenMd5)

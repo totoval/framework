@@ -63,17 +63,19 @@ func (m *memory)Add(key string, value interface{}, future time.Time) bool{
     //@todo Event KeyWritten
     return true
 }
-func (m *memory)Increment(key string, value int) bool {
-    if err := m.cache.Increment(m.prefixedKey(key), int64(value)); err != nil {
-        return false
+func (m *memory)Increment(key string, value int64) (incremented int64, success bool) {
+    incremented, err := m.cache.IncrementInt64(m.prefixedKey(key), value)
+    if err != nil {
+        return 0, false
     }
-    return true
+    return incremented, true
 }
-func (m *memory)Decrement(key string, value int) bool{
-    if err := m.cache.Decrement(m.prefixedKey(key), int64(value)); err != nil {
-        return false
+func (m *memory)Decrement(key string, value int64) (decremented int64, success bool){
+    decremented, err := m.cache.DecrementInt64(m.prefixedKey(key), value)
+    if err != nil {
+        return 0, false
     }
-    return true
+    return decremented, true
 }
 func (m *memory)Forever(key string, value interface{}){
     m.cache.Set(m.prefixedKey(key), value, -1)

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const VALIDATION_CACHE_KEY = "TOTOVAL_VALIDATION_CACHE_KEY_%s"
+const VALIDATION_CACHE_KEY = "TOTOVAL_VALIDATION_%s"
 
 func validationCacheKey(index string) string {
 	return fmt.Sprintf(VALIDATION_CACHE_KEY, index)

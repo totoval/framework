@@ -25,10 +25,10 @@ func Put(key string, value interface{}, future time.Time) {
 func Add(key string, value interface{}, future time.Time) bool {
     return c.Cache().Add(key, value, future)
 }
-func Increment(key string, value int) bool {
+func Increment(key string, value int64) (incremented int64, success bool) {
     return c.Cache().Increment(key, value)
 }
-func Decrement(key string, value int) bool {
+func Decrement(key string, value int64) (decremented int64, success bool) {
     return c.Cache().Decrement(key, value)
 }
 func Forever(key string, value interface{}) {
