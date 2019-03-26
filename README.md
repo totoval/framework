@@ -1,9 +1,10 @@
 # Totoval
-![GitHub last commit](https://img.shields.io/github/last-commit/totoval/totoval.svg)
-![Travis (.org)](https://img.shields.io/travis/totoval/totoval.svg)
-![GitHub top language](https://img.shields.io/github/languages/top/totoval/totoval.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/totoval/framework.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/totoval/framework)](https://goreportcard.com/report/github.com/totoval/framework)
+![Travis (.org)](https://img.shields.io/travis/totoval/framework.svg)
+![GitHub top language](https://img.shields.io/github/languages/top/totoval/framework.svg)
 ![Inspired by Laravel](https://img.shields.io/badge/Inspired%20by-Laravel-red.svg)
-![GitHub](https://img.shields.io/github/license/totoval/totoval.svg)
+![GitHub](https://img.shields.io/github/license/totoval/framework.svg)
 
 ## About Totoval
 Totoval is an API web framework that helps Golang engineers build a performance-boiled project quickly, easily, and securely. It is more like a scaffolding, respecting Golang's programming philosophy, supported by a number of highly acclaimed, high-performance core components, as well as many easy-to-use components to quickly adapt to more business scenarios. We also believe that development must be an enjoyable and creative experience. Totoval frees developers from the painful coding process. Do less, think more.
