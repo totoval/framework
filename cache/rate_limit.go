@@ -35,18 +35,18 @@ func (rl *RateLimit) TooManyAttempts(key string, maxAttempts int64) bool {
     }
     return false
 }
-func (rl *RateLimit) Hit(key string, decayMinutes int) (incremented int64) {
+func (rl *RateLimit) Hit(key string, decayMinutes int) int64 {
     expiredAt := time.Now().Add(time.Duration(decayMinutes) * time.Minute)
     rl.cache.Add(rateLimitTimerCacheKey(key), expiredAt.Unix(), expiredAt)
 
     added := rl.cache.Add(rateLimitCacheKey(key), int64(0), expiredAt)
-    incremented, success := rl.cache.Increment(rateLimitCacheKey(key), 1)
+    hits, success := rl.cache.Increment(rateLimitCacheKey(key), 1)
 
-    if !added && (success && incremented == 1) {
+    if !added && (success && hits == 1) {
         rl.cache.Put(rateLimitCacheKey(key), int64(1), expiredAt)
     }
 
-    return incremented
+    return hits
 }
 func (rl *RateLimit) Attempts(key string) int64 {
     return rl.cache.Get(rateLimitCacheKey(key), int64(0)).(int64)
