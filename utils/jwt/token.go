@@ -21,24 +21,26 @@ func refreshTokenCacheKey(tokenMd5 string) string {
 }
 
 type refreshToken struct {
-	Name string
+	Name         string
 	RefreshTimes uint
 }
 
 var (
-	TokenExpired     error  = errors.New("Token is expired")
-	TokenNotValidYet error  = errors.New("Token not active yet")
-	TokenMalformed   error  = errors.New("That's not even a token")
-	TokenInvalid     error  = errors.New("Couldn't handle this token")
-	TokenNoSet       error  = errors.New("Token is not set")
+	TokenExpired     error = errors.New("Token is expired")
+	TokenNotValidYet error = errors.New("Token not active yet")
+	TokenMalformed   error = errors.New("That's not even a token")
+	TokenInvalid     error = errors.New("Couldn't handle this token")
+	TokenNoSet       error = errors.New("Token is not set")
 )
+
 type UserClaims struct {
-	ID   string    `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 	//Email string `json:"email"`
 	Revoked bool `json:"revoked"`
 	jwt.StandardClaims
 }
+
 func (c *UserClaims) Revoke() {
 	c.Revoked = true
 }
@@ -64,7 +66,6 @@ func (c UserClaims) Valid() error {
 		vErr.Errors |= jwt.ValidationErrorNotValidYet
 	}
 
-
 	if vErr.Errors == 0 {
 		return nil
 	}
@@ -88,8 +89,8 @@ func (j *JWT) CreateToken(id string, name string) (string, error) {
 		id,
 		name,
 		false,
-		jwt.StandardClaims {
-			IssuedAt: now.Unix(),
+		jwt.StandardClaims{
+			IssuedAt:  now.Unix(),
 			NotBefore: now.Unix(),
 			ExpiresAt: now.Add(ExpiredTime).Unix(),
 		},
@@ -165,7 +166,7 @@ func (j *JWT) recordTokenRefreshTimes(tokenString string) {
 	var increment int64 = 1
 	if cache.Has(refreshTokenCacheKey(tokenMd5)) {
 		cache.Increment(refreshTokenCacheKey(tokenMd5), increment)
-	}else{
+	} else {
 		cache.Add(refreshTokenCacheKey(tokenMd5), increment, time.Now().Add(ExpiredTime).Add(RefreshExpiredTime))
 	}
 }
@@ -189,7 +190,7 @@ func (j *JWT) RefreshTokenUnverified(tokenString string) (string, error) {
 		// after refresh expired time, then cannot do auto refresh
 		if !time.Now().After(time.Unix(claims.ExpiresAt, 0).Add(RefreshExpiredTime)) {
 			newToken, err := j.CreateToken(claims.ID, claims.Name)
-			if err != nil{
+			if err != nil {
 				return "", err
 			}
 

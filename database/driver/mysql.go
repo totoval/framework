@@ -20,9 +20,6 @@ func (_mys *mysql) connection() string {
 	return _mys.conn
 }
 
-
-
-
 func (_mys *mysql) username() string {
 	return _mys.config("username")
 }

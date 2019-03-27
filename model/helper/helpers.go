@@ -14,10 +14,9 @@ type Helper struct {
 	model.BaseModel
 }
 
-func (h *Helper)SetTX(db *gorm.DB){
+func (h *Helper) SetTX(db *gorm.DB) {
 	// helper cannot setTX only can setDB in transaction_helpers
 }
-
 
 func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
 	dataType := reflect.TypeOf(data).Elem()
@@ -79,7 +78,7 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 }
 
 // out must be a struct pointer
-func (h *Helper)Create(out interface{}) error {
+func (h *Helper) Create(out interface{}) error {
 	//dataMap := structToMap(data)
 
 	// fill default data
@@ -128,7 +127,7 @@ func (h *Helper)Create(out interface{}) error {
 }
 
 // out must be a struct pointer
-func (h *Helper)Save(out interface{}, modify interface{}) error {
+func (h *Helper) Save(out interface{}, modify interface{}) error {
 	// modify data
 	inData, err := fillStruct(out, modify, true)
 	if err != nil {
@@ -173,13 +172,13 @@ func (h *Helper)Save(out interface{}, modify interface{}) error {
 	return nil
 }
 
-func (h *Helper)SaveByID(id interface{}, out interface{}, modify interface{}) error {
+func (h *Helper) SaveByID(id interface{}, out interface{}, modify interface{}) error {
 	//@todo First(), get primarykey through tag, then save
 	return h.Save(out, modify)
 }
 
 // out must be a struct pointer
-func (h *Helper)First(out interface{}, withTrashed bool) (error) {
+func (h *Helper) First(out interface{}, withTrashed bool) error {
 	_db := h.DB()
 	if withTrashed {
 		_db = _db.Unscoped()
@@ -190,7 +189,7 @@ func (h *Helper)First(out interface{}, withTrashed bool) (error) {
 	return nil
 }
 
-func (h *Helper)Delete(in interface{}, force bool) (error) {
+func (h *Helper) Delete(in interface{}, force bool) error {
 	_db := h.DB()
 	if force {
 		_db = _db.Unscoped()
@@ -219,7 +218,7 @@ func deleteKeyName(in interface{}) (string, error) {
 	return "", errors.New("cannot get DeletedAt key name")
 }
 
-func (h *Helper)Restore(in interface{}) (error) {
+func (h *Helper) Restore(in interface{}) error {
 	deleteKeyName, err := deleteKeyName(in)
 	if err != nil {
 		return err
@@ -230,7 +229,7 @@ func (h *Helper)Restore(in interface{}) (error) {
 	return nil
 }
 
-func (h *Helper)Q(filterArr []model.Filter, sortArr []model.Sort, limit int, withTrashed bool) *gorm.DB {
+func (h *Helper) Q(filterArr []model.Filter, sortArr []model.Sort, limit int, withTrashed bool) *gorm.DB {
 	_db := mapFilter(h.DB(), filterArr)
 
 	for _, value := range sortArr {
@@ -293,24 +292,24 @@ func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 			if !ok || len(f) != 2 {
 				panic(errors.New("cannot parse array conditions for BETWEEN"))
 			}
-			_db = _db.Where(filter.Key + " between ? and ?", f[0], f[1])
+			_db = _db.Where(filter.Key+" between ? and ?", f[0], f[1])
 			break
 
 		// xxx like><!= yyy
 		default:
-			_db = _db.Where(filter.Key + " " + filter.Op + " ?", filter.Val)
+			_db = _db.Where(filter.Key+" "+filter.Op+" ?", filter.Val)
 		}
 	}
 
 	return _db
 }
 
-func (h *Helper)Count(in model.Modeller, filterArr []model.Filter, withTrashed bool) (count uint, err error) {
+func (h *Helper) Count(in model.Modeller, filterArr []model.Filter, withTrashed bool) (count uint, err error) {
 	err = h.Q(filterArr, []model.Sort{}, 0, withTrashed).Model(in).Count(&count).Error
 	return count, err
 }
 
-func (h *Helper)Exist(in model.Modeller, withTrashed bool) (exist bool) {
+func (h *Helper) Exist(in model.Modeller, withTrashed bool) (exist bool) {
 	err := h.First(in, withTrashed)
 	if err == nil {
 		return true

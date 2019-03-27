@@ -14,12 +14,13 @@ type Model gorm.DB
 
 type Pagination struct {
 	currentPageItemCount uint
-	currentPageNum uint
-	totalPageNum uint
-	totalItemCount uint
-	itemArr interface{}
-	perPage uint
+	currentPageNum       uint
+	totalPageNum         uint
+	totalItemCount       uint
+	itemArr              interface{}
+	perPage              uint
 }
+
 func (p *Pagination) Count() uint {
 	return p.currentPageItemCount
 }
@@ -30,13 +31,13 @@ func (p *Pagination) LastPage() uint {
 	return p.totalPageNum
 }
 func (p *Pagination) FirstItem() interface{} {
-	if len(p.itemArr.([]interface{})) > 0{
+	if len(p.itemArr.([]interface{})) > 0 {
 		return p.itemArr.([]interface{})[0]
 	}
 	return nil
 }
 func (p *Pagination) LastItem() interface{} {
-	if len(p.itemArr.([]interface{})) > 0{
+	if len(p.itemArr.([]interface{})) > 0 {
 		return p.itemArr.([]interface{})[len(p.itemArr.([]interface{}))-1]
 	}
 	return nil
@@ -50,7 +51,6 @@ func (p *Pagination) Total() uint {
 func (p *Pagination) PerPage() uint {
 	return p.perPage
 }
-
 
 // Model(*Q(&User{}, data, []Sort{}, 1, false)).Paginate(c, perPage)
 func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagination Pagination, err error) {
@@ -85,7 +85,7 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 	}
 
 	_p, err := strconv.ParseUint(p, 10, 32)
-	if err != nil{
+	if err != nil {
 		return pagination, err
 	}
 	page := uint(_p)
@@ -98,7 +98,7 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 
 	// calc total item count
 	count := gorm.DB(*bm)
-	if err = count.Model(model).Count(&pagination.totalItemCount).Error; err != nil{
+	if err = count.Model(model).Count(&pagination.totalItemCount).Error; err != nil {
 		return pagination, err
 	}
 
@@ -107,11 +107,10 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 
 	// get data
 	data := gorm.DB(*bm)
-	if err = data.Offset(perPage * (page-1)).Limit(perPage).Find(model).Error; err != nil{
+	if err = data.Offset(perPage * (page - 1)).Limit(perPage).Find(model).Error; err != nil {
 		return pagination, err
 	}
 	pagination.itemArr = model
-
 
 	// get currentPageItemCount
 	if reflect.ValueOf(model).Elem().Type().Kind() != reflect.Slice {
@@ -122,8 +121,6 @@ func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagi
 
 	return pagination, nil
 }
-
-
 
 //func (m *Model) shouldInstantiate() { //     private function shouldInstantiate(bool $should, $primary_key_variable = null)
 //

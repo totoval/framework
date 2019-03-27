@@ -15,7 +15,7 @@ func RequestLogger() gin.HandlerFunc {
 
 		// collect request data
 		requestData, err := c.GetRawData()
-		if err != nil{
+		if err != nil {
 			fmt.Println(err.Error())
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // 关键点
@@ -23,7 +23,6 @@ func RequestLogger() gin.HandlerFunc {
 		// collect response data
 		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 		c.Writer = responseWriter
-
 
 		c.Next()
 

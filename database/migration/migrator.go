@@ -5,8 +5,8 @@ import (
 )
 
 type Migrator interface {
-	Up(db *gorm.DB) (*gorm.DB)
-	Down(db *gorm.DB) (*gorm.DB)
+	Up(db *gorm.DB) *gorm.DB
+	Down(db *gorm.DB) *gorm.DB
 	MigratorIdentifier
 }
 
@@ -17,7 +17,7 @@ func AddMigrator(migrator Migrator) {
 	migratorList = append(migratorList, migrator)
 }
 
-func newMigrator(name string) (Migrator) {
+func newMigrator(name string) Migrator {
 	for _, migrator := range migratorList {
 		if name == migrator.Name(&migrator) {
 			return migrator

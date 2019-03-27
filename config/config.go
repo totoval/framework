@@ -14,7 +14,7 @@ func init() {
 	v.SetConfigType("json")
 	v.AddConfigPath(".")
 	err := v.ReadInConfig() // Find and read the config file
-	if err != nil { // Handle errors reading the config file
+	if err != nil {         // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 

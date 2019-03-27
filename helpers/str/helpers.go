@@ -12,13 +12,14 @@ const (
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
+
 func RandNumberString(length uint) string {
 	return random(int(length), numberBytes)
 }
 func RandString(length uint) string {
 	return random(int(length), letterBytes)
 }
-func random(n int, bytes string)string{
+func random(n int, bytes string) string {
 
 	src := rand.NewSource(time.Now().UnixNano())
 	b := make([]byte, n)

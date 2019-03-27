@@ -1,12 +1,12 @@
 package m
 
-
 import (
 	"github.com/totoval/framework/database"
 	"github.com/totoval/framework/model/helper"
 )
 
 var h helper.Helper
+
 type Helper = helper.Helper
 
 func Initialize() {

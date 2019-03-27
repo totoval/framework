@@ -123,5 +123,5 @@ func NewSMTP(host string, port string, username string, password string, encrypt
 }
 
 func example() {
-	NewSMTP("1", "1", "1", "1", "1").Prepare(func(m notification.Messager) (notification.Messager) { return m }).Fire()
+	NewSMTP("1", "1", "1", "1", "1").Prepare(func(m notification.Messager) notification.Messager { return m }).Fire()
 }

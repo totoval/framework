@@ -8,8 +8,6 @@ import (
 	"github.com/totoval/framework/helpers/locale"
 )
 
-
-
 func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	l := locale.Locale(c)
 	data := make(map[string]interface{})
@@ -26,12 +24,10 @@ func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	return trans.CustomTranslate(messageID, data, l)
 }
 
-func Encrypt(secret string){
+func Encrypt(secret string) {
 	//@todo
 }
 
-func Decrypt(){
+func Decrypt() {
 	//@todo
 }
-
-

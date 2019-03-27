@@ -14,15 +14,15 @@ type BaseModel struct {
 	db *gorm.DB
 }
 
-func (bm *BaseModel)DB() *gorm.DB {
-	if bm.db == nil{
+func (bm *BaseModel) DB() *gorm.DB {
+	if bm.db == nil {
 		return database.DB()
 	}
 	return bm.db
 }
-func (bm *BaseModel)SetTX(db *gorm.DB){
+func (bm *BaseModel) SetTX(db *gorm.DB) {
 	bm.SetDB(db)
 }
-func (bm *BaseModel)SetDB(db *gorm.DB){
+func (bm *BaseModel) SetDB(db *gorm.DB) {
 	bm.db = db
 }

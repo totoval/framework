@@ -13,15 +13,18 @@ const (
 	CLAIM_KEY = "CLAIM"
 	TOKEN_KEY = "TOKEN"
 )
-type TokenRevokeError struct {}
-func (e TokenRevokeError) Error() string{
+
+type TokenRevokeError struct{}
+
+func (e TokenRevokeError) Error() string {
 	return "token revoke failed"
 }
+
 type UserNotLoginError struct{}
+
 func (e UserNotLoginError) Error() string {
 	return "user not login"
 }
-
 
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -74,12 +77,11 @@ func AuthClaimsID(c *gin.Context) (ID uint, isAbort bool) {
 	return ID, false
 }
 
-
 func Revoke(c *gin.Context) error {
 	j := jwt.NewJWT(config.GetString("auth.sign_key"))
 	if tokenString, exist := c.Get(TOKEN_KEY); exist {
 		if token, ok := tokenString.(string); ok {
-			if err := j.RevokeToken(token); err == nil{
+			if err := j.RevokeToken(token); err == nil {
 				c.Header("Authorization", "")
 				return nil
 			}

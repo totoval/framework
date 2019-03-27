@@ -6,6 +6,7 @@ type loginAuth struct {
 	username string
 	password string
 }
+
 func LoginAuth(username, password string) smtp.Auth {
 	return &loginAuth{username, password}
 }

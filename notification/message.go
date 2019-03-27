@@ -1,13 +1,12 @@
 package notification
 
-
 type Message struct {
-	from string
-	to []string
-	cc []string
-	bcc []string
+	from    string
+	to      []string
+	cc      []string
+	bcc     []string
 	subject string
-	body string
+	body    string
 }
 
 func (m *Message) SetFrom(from string) {
@@ -16,7 +15,7 @@ func (m *Message) SetFrom(from string) {
 func (m *Message) SetTo(to []string) {
 	m.to = to
 }
-func (m *Message) SetCc(cc []string)  {
+func (m *Message) SetCc(cc []string) {
 	m.cc = cc
 }
 func (m *Message) SetBcc(bcc []string) {
@@ -25,7 +24,7 @@ func (m *Message) SetBcc(bcc []string) {
 func (m *Message) SetSubject(subject string) {
 	m.subject = subject
 }
-func (m *Message) SetBody(body string)  {
+func (m *Message) SetBody(body string) {
 	m.body = body
 }
 

@@ -31,7 +31,7 @@ func (bc *BaseController) Validate(c *gin.Context, _validator interface{}, onlyF
 		errorResult := trans.ValidationTranslate(v, locale.Locale(c), _err)
 		if onlyFirstError {
 			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult.First()})
-		}else{
+		} else {
 			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult})
 		}
 

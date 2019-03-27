@@ -12,7 +12,6 @@ const (
 	DESC
 )
 
-
 type sortDirection byte
 
 func (sd sortDirection) String() string {

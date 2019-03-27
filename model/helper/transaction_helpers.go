@@ -6,6 +6,7 @@ import (
 )
 
 type transactionFunc func(TransactionHelper *Helper)
+
 func Transaction(tf transactionFunc, attempts uint) {
 	if attempts <= 0 {
 		attempts = 1

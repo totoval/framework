@@ -11,7 +11,7 @@ func Bcrypt(password string) string {
 }
 func BcryptCheck(encrypted string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(password))
-	if err != nil{
+	if err != nil {
 		return false
 	}
 	return true

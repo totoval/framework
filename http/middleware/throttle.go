@@ -41,7 +41,7 @@ func Throttle() gin.HandlerFunc {
 }
 
 func calculateRemainingAttempts(key string, maxAttempts uint, retryAfter time.Duration) int64 {
-	if retryAfter == 0{
+	if retryAfter == 0 {
 		return limiter.RetriesLeft(key, int64(maxAttempts))
 	}
 	return 0
@@ -60,15 +60,14 @@ func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAf
 func requestSignature(c *gin.Context) string {
 	userId, exist := authClaimID(c)
 
-	sha1 :=  crypto.SHA1.New()
-	if exist{
+	sha1 := crypto.SHA1.New()
+	if exist {
 		// has user
 		sha1.Write([]byte(bytes.FromUint64(uint64(userId))))
 		return string(sha1.Sum(nil))
 	}
 
 	// do not has user
-	sha1.Write([]byte(c.Request.Host + "|" +c.ClientIP()))
+	sha1.Write([]byte(c.Request.Host + "|" + c.ClientIP()))
 	return string(sha1.Sum(nil))
 }
-
