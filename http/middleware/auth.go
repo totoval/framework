@@ -56,15 +56,22 @@ func AuthRequired() gin.HandlerFunc {
 	}
 }
 
-func AuthClaimsID(c *gin.Context) (ID uint, isAbort bool) {
+func authClaimID(c *gin.Context) (ID uint, exist bool) {
 	claims, exist := c.Get(CLAIM_KEY)
 	if !exist {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, UserNotLoginError{})
+		return 0, false
+	}
+	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
+	return uint(r), true
+}
+
+func AuthClaimsID(c *gin.Context) (ID uint, isAbort bool) {
+	ID, exist := authClaimID(c)
+	if !exist {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotLoginError{}.Error()})
 		return 0, true
 	}
-
-	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
-	return uint(r), false
+	return ID, false
 }
 
 
