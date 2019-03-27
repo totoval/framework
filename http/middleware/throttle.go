@@ -8,8 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/totoval/framework/config"
-
 	"github.com/totoval/framework/cache"
 
 	"github.com/totoval/framework/helpers/bytes"
@@ -17,15 +15,13 @@ import (
 
 var limiter *cache.RateLimit
 
-func Throttle() gin.HandlerFunc {
+func Throttle(maxAttempts uint, decayMinutes uint) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if limiter == nil {
 			limiter = cache.NewRateLimit(cache.Cache())
 		}
 
 		key := requestSignature(c)
-		maxAttempts := config.GetUint("throttle.max_attempts")
-		decayMinutes := config.GetUint("throttle.decay_minutes")
 
 		if limiter.TooManyAttempts(key, int64(maxAttempts)) {
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Too Many Attempts"})
