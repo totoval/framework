@@ -29,7 +29,7 @@ func (m *memory)Prefix() string {
     return m.prefix
 }
 func (m *memory)Has(key string) bool {
-    _, found := m.cache.Get(key)
+    _, found := m.cache.Get(m.prefixedKey(key))
     return found
 }
 func (m *memory)Get(key string, defaultValue ...interface{}) interface{}{
