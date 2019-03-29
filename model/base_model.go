@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/totoval/framework/database"
 )
@@ -25,4 +27,7 @@ func (bm *BaseModel) SetTX(db *gorm.DB) {
 }
 func (bm *BaseModel) SetDB(db *gorm.DB) {
 	bm.db = db
+}
+func (bm *BaseModel) SetTableName(tableName string) string {
+	return fmt.Sprintf("%s%s", database.Prefix(), tableName)
 }

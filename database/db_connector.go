@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/database/driver"
@@ -72,6 +74,6 @@ func Prefix() string {
 
 func configOrm(orm databaser) {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return Prefix() + defaultTableName
+		return fmt.Sprintf("%s%s", Prefix(), defaultTableName)
 	}
 }
