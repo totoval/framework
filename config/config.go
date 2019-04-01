@@ -58,6 +58,9 @@ func GetString(path string, defaultValue ...interface{}) string {
 func GetInt(path string, defaultValue ...interface{}) int {
 	return cast.ToInt(GetInterface(path, defaultValue...))
 }
+func GetInt64(path string, defaultValue ...interface{}) int64 {
+	return cast.ToInt64(GetInterface(path, defaultValue...))
+}
 func GetUint(path string, defaultValue ...interface{}) uint {
 	return cast.ToUint(GetInterface(path, defaultValue...))
 }
