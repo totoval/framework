@@ -49,25 +49,19 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 
 			// if kind is ptr
 			if fillValue.Field(j).Kind() == reflect.Ptr {
-
 				// if not set, then do not fill
 				if fillValue.Field(j).IsNil() {
 					continue
 				}
 
-				// fill data
-				if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
-					newDataValue.Field(i).Set(fillValue.Field(j))
-					break
-				}
-			} else {
-				// if kind is value fill
-				//@todo WARN we have not check zero value for update, so if the type is `string`, and its' value is `""`(not set @fill), we'll override the correct value!!!!
-				// fill data
-				if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
-					newDataValue.Field(i).Set(fillValue.Field(j))
-					break
-				}
+			}
+
+			// if kind is value fill
+			//@todo WARN we have not check zero value for update, so if the type is `string`, and its' value is `""`(not set @fill), we'll override the correct value!!!!
+			// fill data
+			if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
+				newDataValue.Field(i).Set(fillValue.Field(j))
+				break
 			}
 
 		}
