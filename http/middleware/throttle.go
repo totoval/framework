@@ -48,7 +48,7 @@ func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAf
 	c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remainingAttempts))
 
 	if retryAfter != 0 {
-		c.Header("Retry-After", fmt.Sprintf("%d", retryAfter.Seconds()))
+		c.Header("Retry-After", fmt.Sprintf("%.0f", retryAfter.Seconds()))
 		c.Header("X-RateLimit-Reset", fmt.Sprintf("%d", time.Now().Add(retryAfter).Unix()))
 	}
 }
