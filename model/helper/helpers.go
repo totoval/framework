@@ -174,7 +174,7 @@ func (h *Helper) Save(out interface{}, modify interface{}) error {
 	if err := copier.Copy(out, inData); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
