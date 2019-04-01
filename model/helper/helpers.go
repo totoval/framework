@@ -122,7 +122,10 @@ func (h *Helper) Create(out interface{}) error {
 		return err
 	}
 
-	copier.Copy(out, inData)
+	if err := copier.Copy(out, inData); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -168,7 +171,10 @@ func (h *Helper) Save(out interface{}, modify interface{}) error {
 		return err
 	}
 
-	copier.Copy(out, inData)
+	if err := copier.Copy(out, inData); err != nil {
+		return err
+	}
+	
 	return nil
 }
 
