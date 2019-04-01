@@ -200,7 +200,7 @@ func (h *Helper) Delete(in interface{}, force bool) error {
 	return nil
 }
 
-func deleteKeyName(in interface{}) (string, error) {
+func deletedAtKeyName(in interface{}) (string, error) {
 	dataType, ok := reflect.TypeOf(in).Elem().FieldByName("DeletedAt")
 	if !ok {
 		return "", errors.New("cannot get DeletedAt key name type")
@@ -219,11 +219,11 @@ func deleteKeyName(in interface{}) (string, error) {
 }
 
 func (h *Helper) Restore(in interface{}) error {
-	deleteKeyName, err := deleteKeyName(in)
+	deletedAtKeyName, err := deletedAtKeyName(in)
 	if err != nil {
 		return err
 	}
-	if err := h.DB().Unscoped().Model(in).Update(deleteKeyName, gorm.Expr("NULL")).Error; err != nil {
+	if err := h.DB().Unscoped().Model(in).Update(deletedAtKeyName, gorm.Expr("NULL")).Error; err != nil {
 		return err
 	}
 	return nil
