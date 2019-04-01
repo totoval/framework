@@ -26,7 +26,7 @@ func (s *_smtp) Fire() error {
 
 	messageBody := s.BuildMessageHeader()
 
-	//auth := smtp.PlainAuth("", s.username, s.password, s.host)
+	// auth := smtp.PlainAuth("", s.username, s.password, s.host)
 	auth := LoginAuth(s.username, s.password)
 
 	// connect
@@ -39,7 +39,8 @@ func (s *_smtp) Fire() error {
 		break
 	case "ssl":
 		// ssl/tls
-		conn, err := tls.Dial("tcp", server, &tls.Config{
+		var conn *tls.Conn
+		conn, err = tls.Dial("tcp", server, &tls.Config{
 			InsecureSkipVerify: true,
 			ServerName:         server,
 		})
@@ -55,7 +56,9 @@ func (s *_smtp) Fire() error {
 	if err != nil {
 		return err
 	}
-	defer client.Quit()
+	defer func() {
+		_ = client.Quit()
+	}()
 
 	// step 1: Use Auth
 	if err = client.Auth(auth); err != nil {
@@ -79,7 +82,9 @@ func (s *_smtp) Fire() error {
 	if err != nil {
 		return err
 	}
-	defer w.Close()
+	defer func() {
+		_ = w.Close()
+	}()
 
 	_, err = w.Write([]byte(messageBody))
 	if err != nil {
@@ -123,5 +128,5 @@ func NewSMTP(host string, port string, username string, password string, encrypt
 }
 
 func example() {
-	NewSMTP("1", "1", "1", "1", "1").Prepare(func(m notification.Messager) notification.Messager { return m }).Fire()
+	_ = NewSMTP("1", "1", "1", "1", "1").Prepare(func(m notification.Messager) notification.Messager { return m }).Fire()
 }
