@@ -1,20 +1,19 @@
 package database
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/database/driver"
 )
-import _ "github.com/jinzhu/gorm/dialects/mysql"
 
 var db *gorm.DB
 var dber databaser
 
 func Initialize() {
 	dber, db = setConnection("default")
-	configOrm(dber)
+	//configOrm(dber)
 }
 
 func setConnection(conn string) (dber databaser, _db *gorm.DB) {
@@ -72,8 +71,8 @@ func Prefix() string {
 	return dber.Prefix()
 }
 
-func configOrm(orm databaser) {
-	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return fmt.Sprintf("%s%s", Prefix(), defaultTableName)
-	}
-}
+// func configOrm(orm databaser) {
+// 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+// 		return fmt.Sprintf("%s%s", Prefix(), defaultTableName)
+// 	}
+// }
