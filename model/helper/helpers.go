@@ -72,12 +72,12 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 }
 
 // out must be a struct pointer
-func (h *Helper) Create(out interface{}) error {
+func (h *Helper) Create(outPtr interface{}) error {
 	//dataMap := structToMap(data)
 
 	// fill default data
-	defaultData := out.(model.Modeller)
-	inData, err := fillStruct(out, defaultData.Default(), false)
+	defaultData := outPtr.(model.Modeller)
+	inData, err := fillStruct(outPtr, defaultData.Default(), false)
 	if err != nil {
 		return err
 	}
@@ -116,17 +116,17 @@ func (h *Helper) Create(out interface{}) error {
 		return err
 	}
 
-	if err := copier.Copy(out, inData); err != nil {
+	if err := copier.Copy(outPtr, inData); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// out must be a struct pointer
-func (h *Helper) Save(out interface{}, modify interface{}) error {
+// outPtr must be a struct pointer
+func (h *Helper) Save(outPtr interface{}, modify interface{}) error {
 	// modify data
-	inData, err := fillStruct(out, modify, true)
+	inData, err := fillStruct(outPtr, modify, true)
 	if err != nil {
 		return err
 	}
@@ -161,29 +161,29 @@ func (h *Helper) Save(out interface{}, modify interface{}) error {
 	}
 
 	// save record
-	if err := h.DB().Where(out).Save(inData).Error; err != nil {
+	if err := h.DB().Where(outPtr).Save(inData).Error; err != nil {
 		return err
 	}
 
-	if err := copier.Copy(out, inData); err != nil {
+	if err := copier.Copy(outPtr, inData); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (h *Helper) SaveByID(id interface{}, out interface{}, modify interface{}) error {
+func (h *Helper) SaveByID(id interface{}, outPtr interface{}, modify interface{}) error {
 	//@todo First(), get primarykey through tag, then save
-	return h.Save(out, modify)
+	return h.Save(outPtr, modify)
 }
 
-// out must be a struct pointer
-func (h *Helper) First(out interface{}, withTrashed bool) error {
+// outPtr must be a struct pointer
+func (h *Helper) First(outPtr interface{}, withTrashed bool) error {
 	_db := h.DB()
 	if withTrashed {
 		_db = _db.Unscoped()
 	}
-	if err := _db.Where(out).First(out).Error; err != nil {
+	if err := _db.Where(outPtr).First(outPtr).Error; err != nil {
 		return err
 	}
 	return nil
