@@ -1,5 +1,12 @@
 package ptr
 
+import (
+	"math/big"
+
+	"github.com/totoval/framework/model/types/bigfloat"
+	"github.com/totoval/framework/model/types/bigint"
+)
+
 func String(value string) *string {
 	return &value
 }
@@ -49,4 +56,18 @@ func Uint16(value uint16) *uint16 {
 }
 func Uint8(value uint8) *uint8 {
 	return &value
+}
+
+func BigInt(value *big.Int) *bigint.BigInt {
+	v := bigint.BigInt{}
+	v.Set(value)
+	return &v
+}
+func BigFloat(value string) (*bigfloat.BigFloat, error) {
+	v := bigfloat.BigFloat{}
+	err := v.CreateFromString(value, bigfloat.ToNearestEven)
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
 }

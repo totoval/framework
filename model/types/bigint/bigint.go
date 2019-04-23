@@ -50,6 +50,15 @@ func (bi *BigInt) MarshalJSON() ([]byte, error) {
 	return []byte(bi.String()), nil
 }
 
+func (bi *BigInt) SetUint64(i uint64) *BigInt {
+	bi._bi.SetUint64(i)
+	return bi
+}
+func (bi *BigInt) SetInt64(i int64) *BigInt {
+	bi._bi.SetInt64(i)
+	return bi
+}
+
 func (bi *BigInt) Add(a BigInt, b BigInt) {
 	bi._bi.Add(&a._bi, &b._bi)
 }
