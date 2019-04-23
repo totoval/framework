@@ -16,6 +16,14 @@ func (bi *BigInt) BI() _bi {
 	return bi._bi
 }
 
+var ZERO BigInt
+
+func init() {
+	if err := ZERO.CreateFromString("0", 10); err != nil {
+		panic(err)
+	}
+}
+
 func (bi BigInt) Value() (driver.Value, error) {
 	return []byte(bi.String()), nil
 }

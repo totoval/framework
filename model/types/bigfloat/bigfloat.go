@@ -29,6 +29,14 @@ func (bf *BigFloat) BF() _bf {
 	return bf._bf
 }
 
+var ZERO BigFloat
+
+func init() {
+	if err := ZERO.CreateFromString("0", ToNearestEven); err != nil {
+		panic(err)
+	}
+}
+
 func (bf BigFloat) Value() (driver.Value, error) {
 	//debug.Dump(bf._bf.Prec(), bf.Text('f', 100), bf.String())
 	return []byte(bf.String()), nil
