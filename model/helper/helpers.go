@@ -2,12 +2,14 @@ package helper
 
 import (
 	"errors"
-	"github.com/jinzhu/copier"
-	"github.com/jinzhu/gorm"
-	"github.com/totoval/framework/model"
-	"gopkg.in/go-playground/validator.v9"
 	"reflect"
 	"strings"
+
+	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
+	"gopkg.in/go-playground/validator.v9"
+
+	"github.com/totoval/framework/model"
 )
 
 type Helper struct {
@@ -180,6 +182,17 @@ func (h *Helper) SaveByID(id interface{}, outPtr interface{}, modify interface{}
 // outPtr must be a struct pointer
 func (h *Helper) First(outPtr interface{}, withTrashed bool) error {
 	_db := h.DB()
+	if withTrashed {
+		_db = _db.Unscoped()
+	}
+	if err := _db.Where(outPtr).First(outPtr).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Helper) FirstForUpdate(outPtr interface{}, withTrashed bool) error {
+	_db := h.DB().Set("gorm:query_option", "FOR UPDATE")
 	if withTrashed {
 		_db = _db.Unscoped()
 	}
