@@ -26,6 +26,7 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 	fillType := reflect.TypeOf(fill)
 	fillValue := reflect.ValueOf(fill)
 
+	// new struct
 	newDataType := reflect.TypeOf(fill)
 	newDataValue := reflect.New(reflect.TypeOf(fill)).Elem()
 	for i := 0; i < newDataType.NumField(); i++ {
