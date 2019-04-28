@@ -13,6 +13,7 @@ require (
 	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
+	github.com/golang/snappy v0.0.1 // indirect
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3 // indirect
 	github.com/jinzhu/gorm v1.9.2
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
@@ -26,6 +27,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.0.0-beta.6
+	github.com/nsqio/go-nsq v1.0.7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/viper v1.3.1
