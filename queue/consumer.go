@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )

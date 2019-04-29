@@ -3,7 +3,7 @@ package job
 import (
 	"errors"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 
 	"github.com/totoval/framework/queue"
 )
