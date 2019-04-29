@@ -16,7 +16,7 @@ func NewConsumer(topicName string, channelName string, handler func(param proto.
 	}
 }
 func (c *consumer) Pop() error {
-	return Queue().Pop(c.producer.topicName, c.producer.channelName, func(body []byte) error {
+	return Queue().Pop(c.topicName, c.channelName, func(body []byte) error {
 		var p proto.Message
 		if err := proto.Unmarshal(body, p); err != nil {
 			return err
