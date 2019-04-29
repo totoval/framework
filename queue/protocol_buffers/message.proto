@@ -1,0 +1,5 @@
+syntax = "proto3";
+message message {
+    bytes param = 1;
+    uint32 retries = 2;
+}

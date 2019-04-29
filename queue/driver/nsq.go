@@ -46,7 +46,7 @@ type nsq struct {
 	consumerList map[hashTopicChannel]*consumer
 }
 
-func (n *nsq) Push(topicName string, body []byte) (err error) {
+func (n *nsq) Push(topicName string, channelName string, body []byte) (err error) {
 	return n.producer.p.Publish(topicName, body)
 }
 
@@ -78,6 +78,7 @@ func (n *nsq) connect(topicName string, channelName string) (err error) {
 	}
 
 	n.consumerList[c.hashTopicChannel] = c
+	return nil
 }
 
 func (n *nsq) setConnection(connection string) {
