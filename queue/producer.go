@@ -40,6 +40,7 @@ func (p *producer) Push() error {
 		Retries:   p.retries,
 		CreatedAt: ptypes.TimestampNow(),
 		Delay:     ptypes.DurationProto(p.delay),
+		Tried:     0,
 	})
 }
 

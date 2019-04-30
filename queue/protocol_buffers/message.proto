@@ -6,6 +6,7 @@ import "google/protobuf/duration.proto";
 message message {
     bytes param = 1;
     uint32 retries = 2;
-    google.protobuf.Timestamp created_at = 3;
-    google.protobuf.Duration delay = 4;
+    uint32 tried = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Duration delay = 5;
 }

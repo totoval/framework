@@ -31,6 +31,10 @@ func (c *consumer) Pop() error {
 		if err := proto.Unmarshal(body, &msg); err != nil {
 			return err
 		}
+		
+		// increase tried
+		msg.Tried = msg.Tried + 1
+
 		log.Println(msg)
 
 		// exact param
