@@ -31,14 +31,12 @@ func (c *consumer) Pop() error {
 		if err := proto.Unmarshal(body, &msg); err != nil {
 			return err
 		}
+		log.Println(msg)
 
 		// exact param
 		if err := proto.Unmarshal(msg.Param, c.paramPtr); err != nil {
 			return err
 		}
-		//if err := ptypes.UnmarshalAny(msg.Param, c.paramPtr); err != nil {
-		//	return err
-		//}
 
 		defer c.Failed(msg)
 

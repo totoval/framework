@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"time"
+
 	"github.com/totoval/framework/queue/driver"
 )
 
@@ -26,7 +28,7 @@ type queuer interface {
 }
 
 type producerer interface {
-	Push(topicName string, channelName string, body []byte) (err error)
+	Push(topicName string, channelName string, delay time.Duration, body []byte) (err error)
 }
 type consumerer interface {
 	Pop(topicName string, channelName string, handler func(body []byte) error) (err error)

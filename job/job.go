@@ -2,6 +2,7 @@ package job
 
 import (
 	"errors"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 
@@ -21,7 +22,7 @@ func Add(j jobber) {
 }
 
 func Dispatch(j jobber) error {
-	if err := queue.NewProducer("job", j.Name(), j.ParamData(), j.Retries()).Push(); err != nil {
+	if err := queue.NewProducer("job", j.Name(), j.ParamData(), j.Retries(), j.Delay()).Push(); err != nil {
 		return err
 	}
 	return nil
@@ -40,15 +41,22 @@ func Process(jobName string) {
 
 type jobber interface {
 	Name() string
+
 	SetParam(paramPtr proto.Message)
 	ParamData() proto.Message
-	Handle(paramPtr proto.Message) error
 	ParamProto() proto.Message
+
+	Handle(paramPtr proto.Message) error
+
 	Retries() uint32
+
+	SetDelay(delay time.Duration)
+	Delay() time.Duration
 }
 
 type Job struct {
 	param proto.Message
+	delay time.Duration
 }
 
 func (j *Job) Name() string {
@@ -67,6 +75,17 @@ func (j *Job) ParamData() proto.Message {
 	return j.param
 }
 
+// default retry 3 times
 func (j *Job) Retries() uint32 {
-	return 0
+	return 3
+}
+
+// default no delay
+func (j *Job) SetDelay(delay time.Duration) {
+	j.delay = delay
+}
+
+// default no delay
+func (j *Job) Delay() time.Duration {
+	return j.delay
 }

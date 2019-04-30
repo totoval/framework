@@ -2,6 +2,7 @@ package driver
 
 import (
 	"fmt"
+	"time"
 
 	_nsq "github.com/nsqio/go-nsq"
 
@@ -46,7 +47,10 @@ type nsq struct {
 	consumerList map[hashTopicChannel]*consumer
 }
 
-func (n *nsq) Push(topicName string, channelName string, body []byte) (err error) {
+func (n *nsq) Push(topicName string, channelName string, delay time.Duration, body []byte) (err error) {
+	if delay > 0 {
+		return n.producer.p.DeferredPublish(topicName, delay, body)
+	}
 	return n.producer.p.Publish(topicName, body)
 }
 

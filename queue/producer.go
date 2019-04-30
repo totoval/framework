@@ -1,7 +1,10 @@
 package queue
 
 import (
+	"time"
+
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
@@ -11,14 +14,16 @@ type producer struct {
 	channelName string
 	param       proto.Message
 	retries     uint32
+	delay       time.Duration
 }
 
-func NewProducer(topicName string, channelName string, param proto.Message, retries uint32) *producer {
+func NewProducer(topicName string, channelName string, param proto.Message, retries uint32, delay time.Duration) *producer {
 	return &producer{
 		topicName:   topicName,
 		channelName: channelName,
 		param:       param,
 		retries:     retries,
+		delay:       delay,
 	}
 }
 
@@ -31,12 +36,10 @@ func (p *producer) Push() error {
 
 	// compress message
 	return push(p.topicName, p.channelName, &message.Message{
-		//Param: &any.Any{
-		//	TypeUrl: "github.com/totoval/framework/queue/" + proto.MessageName(p.param), // p.param should be pointer
-		//	Value:   paramPb,
-		//},
-		Param:   paramPb,
-		Retries: p.retries,
+		Param:     paramPb,
+		Retries:   p.retries,
+		CreatedAt: ptypes.TimestampNow(),
+		Delay:     ptypes.DurationProto(p.delay),
 	})
 }
 
@@ -47,5 +50,5 @@ func push(topicName string, channelName string, msg *message.Message) error {
 		return err
 	}
 
-	return Queue().Push(topicName, channelName, messagePb)
+	return Queue().Push(topicName, channelName, time.Duration(msg.Delay.GetSeconds())*time.Second+time.Duration(msg.Delay.GetNanos())*time.Nanosecond, messagePb)
 }
