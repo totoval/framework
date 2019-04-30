@@ -9,8 +9,8 @@ import (
 func Initialize() {
 	//@todo use different config to new different queuer
 	//@todo memory, nsq, rabbitmq
-	//@todo failure controll
 	setQueue(driver.NewNsq("nsq"))
+	initializeFailedProcessor()
 }
 
 var queue queuer

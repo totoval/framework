@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
+	"github.com/totoval/framework/helpers/str"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -31,9 +32,13 @@ func (c *consumer) Pop() error {
 		if err := proto.Unmarshal(body, &msg); err != nil {
 			return err
 		}
-		
+
 		// increase tried
 		msg.Tried = msg.Tried + 1
+
+		//@todo here should proceed the hash， write it into the message
+		// msg.Hash = "xxxxxxx"
+		msg.Hash = str.RandString(40)
 
 		log.Println(msg)
 
@@ -63,7 +68,7 @@ func (c *consumer) Failed(msg message.Message) {
 
 		if msg.Retries <= 0 {
 			// if database save failed, then push into queue again? or log?
-			if err := c.FailedToDatabase(&msg); err != nil {
+			if err := c.failedToDatabase(c.topicName, c.channelName, &msg); err != nil {
 				log.Println(msg)
 				log.Println(newMsg, "failedtodatabase processed failed")
 				newMsg.Retries = 1
@@ -73,8 +78,8 @@ func (c *consumer) Failed(msg message.Message) {
 		}
 
 	DB_FAILED:
-		if err := c.FailedToQueue(&newMsg); err != nil {
-			if err := c.FailedToDatabase(&newMsg); err != nil {
+		if err := c.failedToQueue(&newMsg); err != nil {
+			if err := c.failedToDatabase(c.topicName, c.channelName, &newMsg); err != nil {
 				// error!!!! processed failed
 				log.Println(newMsg, "failedtoqueue processed failed")
 			}
@@ -83,11 +88,10 @@ func (c *consumer) Failed(msg message.Message) {
 	}
 }
 
-func (c *consumer) FailedToQueue(msg *message.Message) error {
+func (c *consumer) failedToQueue(msg *message.Message) error {
 	return push(c.topicName, c.channelName, msg)
 }
 
-func (c *consumer) FailedToDatabase(msg *message.Message) error {
-	//@todo save in database
-	return nil
+func (c *consumer) failedToDatabase(topicName string, channelName string, msg *message.Message) error {
+	return failedProcessor.FailedToDatabase(topicName, channelName, msg)
 }

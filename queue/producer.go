@@ -6,6 +6,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 
+	"github.com/totoval/framework/helpers/pb"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -36,11 +37,12 @@ func (p *producer) Push() error {
 
 	// compress message
 	return push(p.topicName, p.channelName, &message.Message{
-		Param:     paramPb,
-		Retries:   p.retries,
-		CreatedAt: ptypes.TimestampNow(),
-		Delay:     ptypes.DurationProto(p.delay),
-		Tried:     0,
+		Hash:     "", // is empty when first push
+		Param:    paramPb,
+		Retries:  p.retries,
+		PushedAt: ptypes.TimestampNow(),
+		Delay:    ptypes.DurationProto(p.delay),
+		Tried:    0,
 	})
 }
 
@@ -51,5 +53,5 @@ func push(topicName string, channelName string, msg *message.Message) error {
 		return err
 	}
 
-	return Queue().Push(topicName, channelName, time.Duration(msg.Delay.GetSeconds())*time.Second+time.Duration(msg.Delay.GetNanos())*time.Nanosecond, messagePb)
+	return Queue().Push(topicName, channelName, *pb.DurationConvert(msg.Delay), messagePb)
 }

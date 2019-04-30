@@ -4,9 +4,10 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 message message {
-    bytes param = 1;
+    string hash = 1;
     uint32 retries = 2;
     uint32 tried = 3;
-    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp pushed_at = 4;
     google.protobuf.Duration delay = 5;
+    bytes param = 6;
 }
