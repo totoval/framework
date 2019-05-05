@@ -12,7 +12,6 @@ import (
 var jobMap map[string]jobber
 
 func init() {
-	queue.Queue()
 	jobMap = make(map[string]jobber)
 }
 
