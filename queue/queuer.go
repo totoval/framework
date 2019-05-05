@@ -31,5 +31,5 @@ type producerer interface {
 	Push(topicName string, channelName string, delay time.Duration, body []byte) (err error)
 }
 type consumerer interface {
-	Pop(topicName string, channelName string, handler func(body []byte) error) (err error)
+	Pop(topicName string, channelName string, handler func(hash string, body []byte) error) (err error)
 }

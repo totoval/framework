@@ -54,13 +54,13 @@ func (n *nsq) Push(topicName string, channelName string, delay time.Duration, bo
 	return n.producer.p.Publish(topicName, body)
 }
 
-func (n *nsq) Pop(topicName string, channelName string, handler func(body []byte) error) (err error) {
+func (n *nsq) Pop(topicName string, channelName string, handler func(hash string, body []byte) error) (err error) {
 	if err := n.connect(topicName, channelName); err != nil {
 		return err
 	}
 	h := n.HashTopicChannel(topicName, channelName)
 	n.consumerList[h].c.AddHandler(_nsq.HandlerFunc(func(message *_nsq.Message) error {
-		return handler(message.Body)
+		return handler(string(message.ID[:]), message.Body)
 	}))
 	return n.consumerList[h].c.ConnectToNSQD(n.connectionArgs())
 }

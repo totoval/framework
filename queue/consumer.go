@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"github.com/totoval/framework/helpers/str"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -26,7 +25,7 @@ func NewConsumer(topicName string, channelName string, paramPtr proto.Message, h
 	}
 }
 func (c *consumer) Pop() error {
-	return Queue().Pop(c.topicName, c.channelName, func(body []byte) error {
+	return Queue().Pop(c.topicName, c.channelName, func(hash string, body []byte) error {
 		// exact message
 		msg := message.Message{}
 		if err := proto.Unmarshal(body, &msg); err != nil {
@@ -36,9 +35,8 @@ func (c *consumer) Pop() error {
 		// increase tried
 		msg.Tried = msg.Tried + 1
 
-		//@todo here should proceed the hash， write it into the message
-		// msg.Hash = "xxxxxxx"
-		msg.Hash = str.RandString(40)
+		// log hash
+		msg.Hash = hash
 
 		log.Println(msg)
 
