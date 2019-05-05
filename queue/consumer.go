@@ -50,7 +50,7 @@ func (c *consumer) Pop() error {
 		defer c.Failed(msg)
 
 		if err := c.handler(c.paramPtr); err != nil {
-			return err
+			panic(err)
 		}
 		return nil
 	})
