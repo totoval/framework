@@ -14,7 +14,7 @@ func initializeFailedProcessor() {
 }
 
 type FailedProcessor interface {
-	FailedToDatabase(topicName string, channelName string, msg *message.Message) error
+	FailedToDatabase(topicName string, channelName string, msg *message.Message, errStr string) error
 	FailedQueuer
 }
 
