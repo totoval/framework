@@ -1,4 +1,5 @@
-# Totoval
+<p align="center"><img src="https://raw.githubusercontent.com/totoval/art/master/repo_use/logo-with-words-landscape.png?s=200&v=4"></p>
+
 ![GitHub last commit](https://img.shields.io/github/last-commit/totoval/framework.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/totoval/framework)](https://goreportcard.com/report/github.com/totoval/framework)
 ![Travis (.org)](https://img.shields.io/travis/totoval/framework.svg)
@@ -29,16 +30,16 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 - [x] Password Encryption
 - [x] Validation Error Multi-Language Support
 - [x] Request Logger Middleware
-- [x] Request Throttle Middleware
 - [x] Infinity User Affiliation System
 - [ ] Model Getter/Setter
 - [x] User Email Validation via Notification
+- [x] Views Support
 - [ ] Error Handler
 - [x] Language Package
 - [x] Cache: Memory
 - [ ] Cache: Redis
-- [ ] Queue, Worker
-- [ ] Events
+- [x] Queue, Worker
+- [x] Event, Listener
 - [ ] File Storage
 - [ ] Custom Artisan Command Line
 - [ ] Task Scheduling
@@ -46,7 +47,7 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 - [ ] Database Seeder
 - [ ] More Unit Test
 - [ ] Websocket Support
-- [ ] Logo
+- [x] Logo
 - [ ] Website && Document
 - [ ] CI
 
@@ -60,3 +61,6 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 * i18n
 * urfave/cli
 * fatih/color
+* golang/protobuf
+* nsqio/go-nsq
+
