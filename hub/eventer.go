@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/google/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 type EventerName = string
