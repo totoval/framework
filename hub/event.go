@@ -1,6 +1,6 @@
 package hub
 
-import "github.com/gogo/protobuf/proto"
+import "github.com/golang/protobuf/proto"
 
 type Event struct {
 	param proto.Message
