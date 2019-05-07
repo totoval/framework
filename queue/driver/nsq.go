@@ -2,6 +2,7 @@ package driver
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	_nsq "github.com/nsqio/go-nsq"
@@ -45,6 +46,7 @@ type nsq struct {
 	producer     *producer
 	conn         string
 	consumerList map[hashTopicChannel]*consumer
+	Lock         sync.RWMutex
 }
 
 func (n *nsq) Push(topicName string, channelName string, delay time.Duration, body []byte) (err error) {
@@ -59,10 +61,12 @@ func (n *nsq) Pop(topicName string, channelName string, handler func(hash string
 		return err
 	}
 	h := n.HashTopicChannel(topicName, channelName)
-	n.consumerList[h].c.AddHandler(_nsq.HandlerFunc(func(message *_nsq.Message) error {
+	// n.consumerList[h].c.AddHandler(_nsq.HandlerFunc(func(message *_nsq.Message) error {
+	n.consumer(h).c.AddHandler(_nsq.HandlerFunc(func(message *_nsq.Message) error {
 		return handler(string(message.ID[:]), message.Body)
 	}))
-	return n.consumerList[h].c.ConnectToNSQD(n.connectionArgs())
+	return n.consumer(h).c.ConnectToNSQD(n.connectionArgs())
+	//return n.consumerList[h].c.ConnectToNSQD(n.connectionArgs())
 }
 
 func (n *nsq) HashTopicChannel(topicName string, channelName string) hashTopicChannel {
@@ -81,8 +85,20 @@ func (n *nsq) connect(topicName string, channelName string) (err error) {
 		return err
 	}
 
-	n.consumerList[c.hashTopicChannel] = c
+	n.setConsumer(c.hashTopicChannel, c) // concurrent map writes
+	// n.consumerList[c.hashTopicChannel] = c
 	return nil
+}
+
+func (n *nsq) consumer(h hashTopicChannel) *consumer {
+	n.Lock.RLock()
+	defer n.Lock.RUnlock()
+	return n.consumerList[h]
+}
+func (n *nsq) setConsumer(h hashTopicChannel, c *consumer) {
+	n.Lock.Lock()
+	defer n.Lock.Unlock()
+	n.consumerList[h] = c
 }
 
 func (n *nsq) setConnection(connection string) {
