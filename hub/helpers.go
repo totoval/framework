@@ -11,7 +11,7 @@ import (
 func Emit(e Eventer) (errs map[ListenerName]error) {
 	// push to multi Listener
 	for _, l := range eventListener(e) {
-		if err := queue.NewProducer(EventName(e), l.Name(), e.paramData(), l.Retries(), l.Delay()).Push(); err != nil {
+		if err := queue.NewProducer(topicName(e, l), channelName(l), e.paramData(), l.Retries(), l.Delay()).Push(); err != nil {
 			if errs == nil {
 				errs = make(map[ListenerName]error)
 			}
@@ -30,7 +30,7 @@ func On(listenerName ListenerName) {
 	}
 
 	for _, e := range l.Subscribe() {
-		err := queue.NewConsumer(EventName(e), l.Name(), e.ParamProto(), func(paramPtr proto.Message) error {
+		err := queue.NewConsumer(topicName(e, l), channelName(l), e.ParamProto(), func(paramPtr proto.Message) error {
 			if err := l.Construct(paramPtr); err != nil {
 				return err
 			}
