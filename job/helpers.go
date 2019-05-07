@@ -7,7 +7,7 @@ import (
 )
 
 func Dispatch(j jobber) error {
-	if err := queue.NewProducer("job", j.Name(), j.paramData(), j.Retries(), j.Delay()).Push(); err != nil {
+	if err := queue.NewProducer("JOB-"+j.Name(), j.Name(), j.paramData(), j.Retries(), j.Delay()).Push(); err != nil {
 		return err
 	}
 	return nil
@@ -18,7 +18,7 @@ func Process(jobName string) {
 	if j == nil {
 		panic(errors.New("job " + jobName + " doesn't exist"))
 	}
-	err := queue.NewConsumer("job", j.Name(), j.ParamProto(), j.Handle).Pop()
+	err := queue.NewConsumer("JOB-"+j.Name(), j.Name(), j.ParamProto(), j.Handle).Pop()
 	if err != nil {
 		panic(err)
 	}
