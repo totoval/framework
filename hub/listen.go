@@ -13,7 +13,7 @@ func (l *Listen) Name() ListenerName {
 	panic("need implements")
 }
 
-func (l *Listen) Subscribe() (eventPtrList [] Eventer) {
+func (l *Listen) Subscribe() (eventPtrList []Eventer) {
 	panic("need implements")
 }
 
