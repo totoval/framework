@@ -20,11 +20,31 @@ func (h *Helper) SetTX(db *gorm.DB) {
 	// helper cannot setTX only can setDB in transaction_helpers
 }
 
-func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{}, error) {
+func isNull(value reflect.Value, nullData reflect.Value) bool {
+	if value.Type().Kind() == reflect.Ptr {
+		if !nullData.IsNil() { // nullData has null.xxx set
+			return true
+		}
+	}
+	return false
+}
+
+func isSameField(a reflect.StructField, b reflect.StructField) bool {
+	return a.Type == b.Type && a.Name == b.Name
+}
+
+func fillStruct(data interface{}, fill interface{}, nullData interface{}, mustFill bool) (interface{}, error) {
 	dataType := reflect.TypeOf(data).Elem()
 	dataValue := reflect.ValueOf(data).Elem()
 	fillType := reflect.TypeOf(fill)
 	fillValue := reflect.ValueOf(fill)
+
+	var nullValue reflect.Value
+	//var nullType reflect.Type
+	if nullData != nil {
+		//nullType = reflect.TypeOf(nullData).Elem()
+		nullValue = reflect.ValueOf(nullData).Elem()
+	}
 
 	// new struct
 	newDataType := reflect.TypeOf(fill)
@@ -34,10 +54,18 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 			return nil, errors.New("model value cannot be filled")
 		}
 
+		if nullData != nil {
+			// nullData if null not fill
+			if isNull(fillValue.Field(i), nullValue.Field(i)) {
+				continue
+			}
+		}
+
 		// fill original data
 		isFilled := false
 		for j := 0; j < dataType.NumField(); j++ {
-			if newDataType.Field(i).Type == dataType.Field(j).Type && newDataType.Field(i).Name == dataType.Field(j).Name {
+			//if newDataType.Field(i).Type == dataType.Field(j).Type && newDataType.Field(i).Name == dataType.Field(j).Name {
+			if isSameField(newDataType.Field(i), dataType.Field(j)) {
 				newDataValue.Field(i).Set(dataValue.Field(j))
 				isFilled = true
 				break
@@ -62,13 +90,13 @@ func fillStruct(data interface{}, fill interface{}, mustFill bool) (interface{},
 			// if kind is value fill
 			//@todo WARN we have not check zero value for update, so if the type is `string`, and its' value is `""`(not set @fill), we'll override the correct value!!!!
 			// fill data
-			if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
+			//if newDataType.Field(i).Type == fillType.Field(j).Type && newDataType.Field(i).Name == fillType.Field(j).Name {
+			if isSameField(newDataType.Field(i), fillType.Field(j)) {
 				newDataValue.Field(i).Set(fillValue.Field(j))
 				break
 			}
 
 		}
-
 	}
 
 	return newDataValue.Addr().Interface(), nil
@@ -80,7 +108,7 @@ func (h *Helper) Create(outPtr interface{}) error {
 
 	// fill default data
 	defaultData := outPtr.(model.Modeller)
-	inData, err := fillStruct(outPtr, defaultData.Default(), false)
+	inData, err := fillStruct(outPtr, defaultData.Default(), nil, false)
 	if err != nil {
 		return err
 	}
@@ -126,10 +154,16 @@ func (h *Helper) Create(outPtr interface{}) error {
 	return nil
 }
 
-// outPtr must be a struct pointer
-func (h *Helper) Save(outPtr interface{}, modify interface{}) error {
+// outPtr must be a struct pointer, modify and nullDataPtr must be a same type
+func (h *Helper) Save(outPtr interface{}, modify interface{}, nullDataPtr ...interface{}) error {
+	// handler null data
+	var nullPtr interface{}
+	if len(nullDataPtr) > 0 {
+		nullPtr = nullDataPtr[0]
+	}
+
 	// modify data
-	inData, err := fillStruct(outPtr, modify, true)
+	inData, err := fillStruct(outPtr, modify, nullPtr, true)
 	if err != nil {
 		return err
 	}
