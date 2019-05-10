@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+
+	"github.com/totoval/framework/model/types/bigint"
 )
 
 // These constants define supported rounding modes.
@@ -65,6 +67,10 @@ func (bf *BigFloat) String() string {
 	//	return bf.Text('f', 62)
 	//}
 	return bf.Text('f', int(bf.decimalCount)/2)
+}
+
+func (bf *BigFloat) SetInt(i *bigint.BigInt, mode big.RoundingMode) error {
+	return bf.CreateFromString(i.String(), mode)
 }
 
 func (bf *BigFloat) SetDecimal(d uint) {
