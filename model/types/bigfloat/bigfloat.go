@@ -74,7 +74,7 @@ func (bf *BigFloat) SetInt(i *bigint.BigInt, mode big.RoundingMode) error {
 	return bf.CreateFromString(i.String(), mode)
 }
 
-func (bf *BigFloat) setDecimal(d uint) {
+func (bf *BigFloat) setDecimal(d uint) { //@todo 0 is infinity
 	bf.decimalCount = d * 2
 }
 
@@ -162,8 +162,17 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 		return nil, err
 	}
 	parts := strings.Split(tmp.String(), ".")
-	normalPart := parts[0]
-	decimalPart := parts[1]
+	normalPart := ""
+	decimalPart := ""
+	if len(parts) == 1 {
+		normalPart = parts[0]
+		decimalPart = ""
+	} else if len(parts) == 2 {
+		normalPart = parts[0]
+		decimalPart = parts[1]
+	} else {
+		return nil, errors.New("cannot parse " + tmp.String())
+	}
 
 	// check is greater than 0
 	if tmp.Cmp(ZERO) < 0 {
@@ -171,7 +180,7 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 	}
 
 	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
-	if int(decimal) > len(decimalPart) {
+	if int(decimal) >= len(decimalPart) {
 		return bf, nil
 	}
 
