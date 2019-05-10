@@ -157,31 +157,32 @@ func createCarry(lastDecimal uint, newDecimalPartPlusStr string) (*BigFloat, err
 //	}
 //}
 func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) {
-	var tmp BigFloat
-	if err := bf.Copy(&tmp); err != nil {
+	var bfCopy BigFloat
+	if err := bf.Copy(&bfCopy); err != nil {
 		return nil, err
 	}
-	parts := strings.Split(tmp.String(), ".")
+	parts := strings.Split(bfCopy.String(), ".")
 	normalPart := ""
 	decimalPart := ""
 	if len(parts) == 1 {
 		normalPart = parts[0]
 		decimalPart = ""
+		bfCopy.setDecimal(0)
 	} else if len(parts) == 2 {
 		normalPart = parts[0]
 		decimalPart = parts[1]
 	} else {
-		return nil, errors.New("cannot parse " + tmp.String())
+		return nil, errors.New("cannot parse " + bfCopy.String())
 	}
 
 	// check is greater than 0
-	if tmp.Cmp(ZERO) < 0 {
+	if bfCopy.Cmp(ZERO) < 0 {
 		return nil, errors.New("currently not support for number smaller than 0")
 	}
 
 	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
 	if int(decimal) >= len(decimalPart) {
-		return bf, nil
+		return &bfCopy, nil
 	}
 
 	newDecimalPart := decimalPart[:decimal]
