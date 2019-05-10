@@ -316,7 +316,7 @@ func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 
 		// xxx in array
 		case "in":
-			f, ok := filter.Val.([]interface{})
+			f, ok := filter.Val.([]string)
 			if !ok {
 				// error cannot parse array conditions for in
 				panic(errors.New("cannot parse array conditions for IN"))
@@ -326,7 +326,7 @@ func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 
 		// xxx not in array
 		case "not_in":
-			f, ok := filter.Val.([]interface{})
+			f, ok := filter.Val.([]string)
 			if !ok {
 				// error cannot parse array conditions for in
 				panic(errors.New("cannot parse array conditions for NOT IN"))
@@ -336,7 +336,7 @@ func mapFilter(_db *gorm.DB, filterArr []model.Filter) *gorm.DB {
 
 		// xxx between array
 		case "between":
-			f, ok := filter.Val.([]interface{})
+			f, ok := filter.Val.([]string)
 			if !ok || len(f) != 2 {
 				panic(errors.New("cannot parse array conditions for BETWEEN"))
 			}
