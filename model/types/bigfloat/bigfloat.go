@@ -234,7 +234,7 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 func (bf *BigFloat) Ceil() (*BigFloat, error) {
 	return bf.Round(0, RoundUpAlways)
 }
-func (bf *BigFloat) Floor(decimal uint) (*BigFloat, error) {
+func (bf *BigFloat) Floor() (*BigFloat, error) {
 	return bf.Round(0, RoundDown)
 }
 
