@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"strings"
 	"testing"
+
+	"github.com/totoval/framework/model/types/bigint"
 )
 
 type testAdd struct {
@@ -159,8 +161,14 @@ func TestBigFloat_Convert(t *testing.T) {
 	log.Println(a.Prec())
 	log.Println(a.Text('f', 1024))
 	b := BigFloat{}
-	b.CreateFromString(a.Text('f', 1024), ToNearestEven)
+	b.Convert(a)
 	fmt.Println(b.String())
+
+	c := big.Int{}
+	c.SetString("312343532485823940580923458934", 10)
+	d := bigint.BigInt{}
+	d.Convert(&c)
+	fmt.Println(d.String())
 }
 
 func TestBigFloat_Floor(t *testing.T) {
