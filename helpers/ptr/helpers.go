@@ -61,7 +61,7 @@ func Uint8(value uint8) *uint8 {
 
 func BigInt(value *big.Int) *bigint.BigInt {
 	v := bigint.BigInt{}
-	v.Set(value)
+	v.Convert(value)
 	return &v
 }
 func BigFloat(value string) (*bigfloat.BigFloat, error) {

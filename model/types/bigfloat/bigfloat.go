@@ -21,14 +21,20 @@ const (
 	ToPositiveInf                         // == IEEE 754-2008 roundTowardPositive
 )
 
-type _bf = big.Float
 type BigFloat struct {
-	_bf
+	_bf          big.Float
 	normalCount  uint
 	decimalCount uint
 }
 
-func (bf *BigFloat) BF() _bf {
+func (bf *BigFloat) Convert(f *big.Float) {
+	bf._bf = *f
+}
+func (bf *BigFloat) Float() *big.Float {
+	return &bf._bf
+}
+
+func (bf *BigFloat) BF() big.Float {
 	return bf._bf
 }
 
@@ -41,7 +47,7 @@ func init() {
 }
 
 func (bf BigFloat) Value() (driver.Value, error) {
-	//debug.Dump(bf._bf.Prec(), bf.Text('f', 100), bf.String())
+	// debug.Dump(bf._bf.Prec(), bf.Text('f', 100), bf.String())
 	return []byte(bf.String()), nil
 }
 func (bf *BigFloat) Scan(src interface{}) error {
@@ -63,23 +69,59 @@ func (bf *BigFloat) scanBytes(src []byte) error {
 	return bf.CreateFromString(string(src), ToNearestEven)
 }
 func (bf *BigFloat) String() string {
-	//debug.Dump(bf._bf.Prec(), bf._bf.MinPrec())
-	//if bf.decimalCount == 0 {
-	//	return bf.Text('f', 62)
-	//}
-	return bf.Text('f', int(bf.decimalCount)/2)
+	// result := bf.Text('f', int(bf.Prec()))
+	//
+	// switch bf.Acc() {
+	// case big.Above:
+	// 	for i := bf.Prec(); i > 0; i-- {
+	// 		result = bf.Text('f', int(i))
+	// 		if bf.Acc() == big.Exact {
+	// 			break
+	// 		}
+	// 	}
+	// 	break
+	// case big.Below:
+	// 	for i := uint(0); i <= bf.Prec(); i++ {
+	// 		result = bf.Text('f', int(i))
+	// 		if bf.Acc() == big.Exact {
+	// 			break
+	// 		}
+	// 	}
+	// 	break
+	// case big.Exact:
+	// 	break
+	// }
+	//
+	// trimResult := strings.TrimRight(result, "0")
+	//
+	// if trimResult[len(trimResult)-1:] == "." {
+	// 	trimResult = trimResult[:len(trimResult)-1]
+	// }
+	//
+	// return trimResult
+
+	result := bf._bf.Text('f', int(bf.decimalCount)/2)
+	trimResult := result
+	if strings.Contains(result, ".") {
+		trimResult = strings.TrimRight(result, "0")
+		if trimResult[len(trimResult)-1:] == "." {
+			trimResult = trimResult[:len(trimResult)-1]
+		}
+	}
+
+	return trimResult
 }
 
 func (bf *BigFloat) SetInt(i *bigint.BigInt, mode big.RoundingMode) error {
 	return bf.CreateFromString(i.String(), mode)
 }
 
-func (bf *BigFloat) setDecimal(d uint) { //@todo 0 is infinity
+func (bf *BigFloat) setDecimal(d uint) { // @todo 0 is infinity
 	bf.decimalCount = d * 2
 }
 
 func (bf *BigFloat) Copy(newBf *BigFloat) error {
-	return newBf.CreateFromString(bf.String(), bf.Mode())
+	return newBf.CreateFromString(bf.String(), bf._bf.Mode())
 }
 
 type RoundType byte
@@ -100,19 +142,19 @@ func createCarry(lastDecimal uint, newDecimalPartPlusStr string) (*BigFloat, err
 		carryLastDecimal = 0
 	}
 
-	//tmp := ""
-	//if lastDecimal == 0{
-	//	tmp = newDecimalPartPlusStr
-	//}else{
-	//	tmp =
-	//}
-	//newDecimalPartPlusStr[:len(newDecimalPartPlusStr)-1]
+	// tmp := ""
+	// if lastDecimal == 0{
+	// 	tmp = newDecimalPartPlusStr
+	// }else{
+	// 	tmp =
+	// }
+	// newDecimalPartPlusStr[:len(newDecimalPartPlusStr)-1]
 
-	//var newDecimalPartPlus BigFloat
-	//err := newDecimalPartPlus.CreateFromString(newDecimalPartPlusStr, ToNearestEven)
-	//if err != nil {
-	//	return nil, err
-	//}
+	// var newDecimalPartPlus BigFloat
+	// err := newDecimalPartPlus.CreateFromString(newDecimalPartPlusStr, ToNearestEven)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	carryStr := "0."
 	for i := 0; i < decimal; i++ {
@@ -129,33 +171,33 @@ func createCarry(lastDecimal uint, newDecimalPartPlusStr string) (*BigFloat, err
 	return &carry, nil
 }
 
-//func (bf *BigFloat) roundDown(decimal uint) (*BigFloat, error) {
-//	var tmp BigFloat
-//	if err := bf.Copy(&tmp); err != nil {
-//		return nil, err
-//	}
-//	parts := strings.Split(tmp.String(), ".")
-//	normalPart := parts[0]
-//	decimalPart := parts[1]
+// func (bf *BigFloat) roundDown(decimal uint) (*BigFloat, error) {
+// 	var tmp BigFloat
+// 	if err := bf.Copy(&tmp); err != nil {
+// 		return nil, err
+// 	}
+// 	parts := strings.Split(tmp.String(), ".")
+// 	normalPart := parts[0]
+// 	decimalPart := parts[1]
 //
-//	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
-//	if int(decimal) > len(decimalPart) {
-//		return bf, nil
-//	}
+// 	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
+// 	if int(decimal) > len(decimalPart) {
+// 		return bf, nil
+// 	}
 //
-//	newDecimalPart := decimalPart[:decimal]
-//	lastDecimal, err := strconv.ParseUint(decimalPart[decimal:decimal+1], 10, 32)
-//	if err != nil {
-//		return nil, err
-//	}
+// 	newDecimalPart := decimalPart[:decimal]
+// 	lastDecimal, err := strconv.ParseUint(decimalPart[decimal:decimal+1], 10, 32)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 //
-//	// create roundDown with RoundDown
-//	roundDownStr := normalPart + "." + newDecimalPart
-//	var roundDown BigFloat
-//	if err := roundDown.CreateFromString(roundDownStr, ToNearestEven); err != nil {
-//		return nil, err
-//	}
-//}
+// 	// create roundDown with RoundDown
+// 	roundDownStr := normalPart + "." + newDecimalPart
+// 	var roundDown BigFloat
+// 	if err := roundDown.CreateFromString(roundDownStr, ToNearestEven); err != nil {
+// 		return nil, err
+// 	}
+// }
 func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) {
 	var bfCopy BigFloat
 	if err := bf.Copy(&bfCopy); err != nil {
@@ -237,7 +279,10 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 		return nil, errors.New("unknown roundType")
 	}
 
-	result.setDecimal(decimal)
+	// result.setDecimal(decimal)
+	if err := result.CreateFromString(result.String(), ToNearestEven); err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
@@ -249,7 +294,7 @@ func (bf *BigFloat) Floor() (*BigFloat, error) {
 }
 
 func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
-	//parse number string
+	// parse number string
 	parts := strings.Split(s, ".")
 	if len(parts) == 1 {
 		// There is no decimal point, we can just parse the original string as
@@ -266,14 +311,31 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 	}
 
 	// string to BigFloat
-	_bf, _, err := big.ParseFloat(s, 10, bf.normalCount*2+bf.decimalCount*2+8, mode)
+	// _bf, _, err := big.ParseFloat(s, 10, bf.normalCount*2+bf.decimalCount*2+8, mode)
+	_bf, _, err := big.ParseFloat(s, 10, 1024, mode)
+	// _bf, _, err := big.ParseFloat(s, 10, 2, mode)
+	if err != nil {
+		return err
+	}
 	bf._bf = *_bf
-	//bf.SetPrec(prec).SetMode(mode)
-	//_, err := fmt.Sscan(s, &bf._bf)
-	return err
+	return nil
+
+	// tmp := &big.Float{}
+	// // _, _, err := tmp.Parse(s, 10)
+	// // tmp, _, err := big.ParseFloat(s, 10, bf.normalCount*2+bf.decimalCount*2+8, mode)
+	// tmp, _, err := big.ParseFloat(s, 10, 168, mode)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Println(tmp.Acc())
+	// bf._bf = *tmp
+
+	// bf.SetPrec(prec).SetMode(mode)
+	// _, err := fmt.Sscan(s, &bf._bf)
+	// return err
 }
 
-//@todo xml protobuf ...
+// @todo xml protobuf ...
 func (bf *BigFloat) MarshalJSON() ([]byte, error) {
 	return []byte(bf.String()), nil
 }
@@ -284,6 +346,15 @@ func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 	} else {
 		bf.decimalCount = b.decimalCount
 	}
+	if a.normalCount > b.normalCount {
+		bf.normalCount = a.normalCount
+	} else {
+		bf.normalCount = b.normalCount
+	}
+}
+
+func (bf *BigFloat) mergeDecimal(a BigFloat, b BigFloat) {
+	bf.decimalCount = a.decimalCount + b.decimalCount
 }
 
 func (bf *BigFloat) Add(a BigFloat, b BigFloat) {
@@ -295,7 +366,7 @@ func (bf *BigFloat) Sub(a BigFloat, b BigFloat) {
 	bf._bf.Sub(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Mul(a BigFloat, b BigFloat) {
-	bf.useBiggerDecimal(a, b)
+	bf.mergeDecimal(a, b)
 	bf._bf.Mul(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Div(a BigFloat, b BigFloat) {
@@ -310,11 +381,11 @@ func (bf *BigFloat) Cmp(a BigFloat) int {
 }
 
 //
-//func main(){
-//	a := BigFloat{}
-//	a.SetString("10", 10)
-//	b := BigFloat{}
-//	b.SetString("11", 10)
-//	c := BigFloat{}
-//	c.Add(&a.BF, &b.BF)
-//}
+// func main(){
+// 	a := BigFloat{}
+// 	a.SetString("10", 10)
+// 	b := BigFloat{}
+// 	b.SetString("11", 10)
+// 	c := BigFloat{}
+// 	c.Add(&a.BF, &b.BF)
+// }

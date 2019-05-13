@@ -7,12 +7,11 @@ import (
 	"math/big"
 )
 
-type _bi = big.Int
 type BigInt struct {
-	_bi
+	_bi big.Int
 }
 
-func (bi *BigInt) BI() _bi {
+func (bi *BigInt) BI() big.Int {
 	return bi._bi
 }
 
@@ -23,9 +22,20 @@ func init() {
 		panic(err)
 	}
 }
+func (bi BigInt) Convert(i *big.Int) {
+	bi._bi = *i
+}
+
+func (bi *BigInt) Int() *big.Int {
+	return &bi._bi
+}
+
+func (bi BigInt) String() string {
+	return bi._bi.String()
+}
 
 func (bi BigInt) Value() (driver.Value, error) {
-	return []byte(bi.String()), nil
+	return []byte(bi._bi.String()), nil
 }
 func (bi *BigInt) Scan(src interface{}) error {
 	switch src := src.(type) {
@@ -46,16 +56,16 @@ func (bi *BigInt) scanBytes(src []byte) error {
 }
 
 func (bi *BigInt) CreateFromString(s string, base int) error {
-	_, ok := bi.SetString(s, base)
+	_, ok := bi._bi.SetString(s, base)
 	if !ok {
 		return errors.New("create bigint from string failed: " + s)
 	}
 	return nil
 }
 
-//@todo xml protobuf ...
+// @todo xml protobuf ...
 func (bi *BigInt) MarshalJSON() ([]byte, error) {
-	return []byte(bi.String()), nil
+	return []byte(bi._bi.String()), nil
 }
 
 func (bi *BigInt) SetUint64(i uint64) *BigInt {
@@ -87,11 +97,11 @@ func (bi *BigInt) Cmp(a BigInt) int {
 }
 
 //
-//func main(){
-//	a := BigInt{}
-//	a.SetString("10", 10)
-//	b := BigInt{}
-//	b.SetString("11", 10)
-//	c := BigInt{}
-//	c.Add(&a.BI, &b.BI)
-//}
+// func main(){
+// 	a := BigInt{}
+// 	a.SetString("10", 10)
+// 	b := BigInt{}
+// 	b.SetString("11", 10)
+// 	c := BigInt{}
+// 	c.Add(&a.BI, &b.BI)
+// }

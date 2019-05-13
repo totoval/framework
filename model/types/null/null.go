@@ -84,7 +84,7 @@ func BigInt() *bigint.BigInt {
 	b := big.Int{}
 	b.SetInt64(nullNumber)
 	v := bigint.BigInt{}
-	v.Set(&b)
+	v.Convert(&b)
 	return &v
 }
 func BigFloat() (*bigfloat.BigFloat, error) {
