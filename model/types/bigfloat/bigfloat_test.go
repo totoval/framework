@@ -3,6 +3,7 @@ package bigfloat
 import (
 	"fmt"
 	"log"
+	"math/big"
 	"strings"
 	"testing"
 )
@@ -150,6 +151,16 @@ func TestBigFloat_Round(t *testing.T) {
 			t.Errorf("expected %s, got %s a:%v, decimal:%v, roundType:%v", te.output, result.String(), te.a, te.decimal, te.roundType)
 		}
 	}
+}
+func TestBigFloat_Convert(t *testing.T) {
+	//a := big.Float{}
+	a, _, _ := big.ParseFloat("3.123456789012345678901234567890123456789012345678901234567890123456789012345678901", 10, 1024, big.ToNearestEven)
+
+	log.Println(a.Prec())
+	log.Println(a.Text('f', 1024))
+	b := BigFloat{}
+	b.CreateFromString(a.Text('f', 1024), ToNearestEven)
+	fmt.Println(b.String())
 }
 
 func TestBigFloat_Floor(t *testing.T) {

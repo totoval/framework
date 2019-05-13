@@ -22,8 +22,8 @@ func init() {
 		panic(err)
 	}
 }
-func (bi BigInt) Convert(i *big.Int) {
-	bi._bi = *i
+func (bi BigInt) Convert(i *big.Int) error {
+	return bi.CreateFromString(i.Text(10), 10)
 }
 
 func (bi *BigInt) Int() *big.Int {

@@ -27,8 +27,8 @@ type BigFloat struct {
 	decimalCount uint
 }
 
-func (bf *BigFloat) Convert(f *big.Float) {
-	bf._bf = *f
+func (bf *BigFloat) Convert(f *big.Float) error {
+	return bf.CreateFromString(f.Text('f', 1024), ToNearestEven)
 }
 func (bf *BigFloat) Float() *big.Float {
 	return &bf._bf
