@@ -5,8 +5,6 @@ import (
 	"strings"
 
 	"github.com/urfave/cli"
-
-	"github.com/totoval/framework/helpers/debug"
 )
 
 var commandMap map[string]parsedCommand
@@ -42,7 +40,6 @@ func parseCommand(commandWithArgs string) (name string, argList []string) {
 
 func List() (cmdList []cli.Command) {
 	for _, v := range commandMap {
-		debug.Dump(v.Name(), v.commandCategory())
 		cmdList = append(cmdList, cli.Command{
 			Category: v.commandCategory(),
 			Name:     v.Name(),
