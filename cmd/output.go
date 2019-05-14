@@ -11,6 +11,9 @@ func Println(code Attribute, msg string) {
 		log.Println(err)
 	}
 }
+func Sprintf(code Attribute, format string, a ...interface{}) string {
+	return color.New(code.(color.Attribute)).Sprintf(format, a...)
+}
 
 type Attribute interface{}
 
