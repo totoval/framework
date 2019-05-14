@@ -27,8 +27,15 @@ type BigFloat struct {
 	decimalCount uint
 }
 
+const AutoPrec = 512 // 256 -> decimal 32   512 -> decimal 78
+
 func (bf *BigFloat) Convert(f *big.Float) error {
-	return bf.CreateFromString(f.Text('f', 1024), ToNearestEven)
+	// int(f.Prec()) uint to int may cause precision loss
+	prec := f.Prec()
+	if prec > big.MaxExp {
+		return errors.New("precision is too large, may cause precision loss")
+	}
+	return bf.CreateFromString(f.Text('f', int(prec)), ToNearestEven)
 }
 func (bf *BigFloat) Float() *big.Float {
 	return &bf._bf
@@ -312,7 +319,7 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 
 	// string to BigFloat
 	// _bf, _, err := big.ParseFloat(s, 10, bf.normalCount*2+bf.decimalCount*2+8, mode)
-	_bf, _, err := big.ParseFloat(s, 10, 1024, mode)
+	_bf, _, err := big.ParseFloat(s, 10, AutoPrec, mode)
 	// _bf, _, err := big.ParseFloat(s, 10, 2, mode)
 	if err != nil {
 		return err

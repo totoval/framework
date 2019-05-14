@@ -156,13 +156,16 @@ func TestBigFloat_Round(t *testing.T) {
 }
 func TestBigFloat_Convert(t *testing.T) {
 	//a := big.Float{}
-	a, _, _ := big.ParseFloat("3.123456789012345678901234567890123456789012345678901234567890123456789012345678901", 10, 1024, big.ToNearestEven)
-
+	a, _, _ := big.ParseFloat("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.12345678901234567890123456789012345678901234567890123456789012345678901234567890", 10, AutoPrec, big.ToNearestEven)
+	
 	log.Println(a.Prec())
 	log.Println(a.Text('f', 1024))
 	b := BigFloat{}
+	log.Println(a.Prec())
 	b.Convert(a)
 	fmt.Println(b.String())
+	e, _ := b.Round(2, RoundUpAlways)
+	fmt.Println(e.String())
 
 	c := big.Int{}
 	c.SetString("312343532485823940580923458934", 10)
