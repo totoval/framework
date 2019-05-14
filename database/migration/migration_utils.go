@@ -7,27 +7,18 @@ import (
 )
 
 type MigrationUtils struct {
-	chLog chan interface{}
 	Migration
 	model.BaseModel
 }
 
-func (mu *MigrationUtils) Init(chLog chan interface{}) {
-	mu.setLog(chLog)
-}
-
-func (mu *MigrationUtils) setLog(ch chan interface{}) {
-	mu.chLog = ch
-}
-
 // 项目初始化
 func (mu *MigrationUtils) SetUp() {
-	defer mu.closeLog()
-	mu.log(cmd.CODE_WARNING, "initializing:migration table")
+
+	cmd.Println(cmd.CODE_WARNING, "initializing:migration table")
 
 	mu.Migration.up(mu.DB())
 
-	mu.log(cmd.CODE_SUCCESS, "initialized:migration table")
+	cmd.Println(cmd.CODE_SUCCESS, "initialized:migration table")
 }
 
 // 所有migrate过的任务列表
@@ -81,29 +72,17 @@ func (mu *MigrationUtils) delMigration(migration *Migration) bool {
 func (mu *MigrationUtils) errorRollback() {
 	if err := recover(); err != nil {
 		if _err, ok := err.(error); ok {
-			mu.log(cmd.CODE_WARNING, "error:"+_err.Error())
+			cmd.Println(cmd.CODE_WARNING, "error:"+_err.Error())
 		} else {
-			mu.log(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
+			cmd.Println(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
 		}
 	}
-}
-
-func (mu *MigrationUtils) log(code interface{}, message string) {
-	if _code, ok := code.(cmd.Attribute); ok {
-		mu.chLog <- cmd.TermLog{
-			Code:    _code,
-			Message: message,
-		}
-	}
-}
-func (mu *MigrationUtils) closeLog() {
-	mu.chLog <- nil
 }
 
 func (mu *MigrationUtils) Migrate() {
-	defer mu.closeLog()
-	defer mu.errorRollback()
 
+	defer mu.errorRollback()
+	
 	m.Transaction(func(h *m.Helper) {
 		mu.SetTX(h.DB())
 		batch := mu.currentBatch() + 1
@@ -111,7 +90,7 @@ func (mu *MigrationUtils) Migrate() {
 		for _, migrator := range mu.needMigrateList() {
 			migrationName := migrator.Name(&migrator)
 
-			mu.log(cmd.CODE_WARNING, "migrating:"+migrationName)
+			cmd.Println(cmd.CODE_WARNING, "migrating:"+migrationName)
 
 			if err := migrator.Up(mu.DB()).Error; err != nil {
 				panic(err)
@@ -121,18 +100,18 @@ func (mu *MigrationUtils) Migrate() {
 			if !mu.addMigration(migrationName, batch) {
 				panic("migration added failed!")
 			}
-			mu.log(cmd.CODE_SUCCESS, "migrated:"+migrationName)
+			cmd.Println(cmd.CODE_SUCCESS, "migrated:"+migrationName)
 		}
 	}, 1)
 }
 func (mu *MigrationUtils) Rollback() {
-	defer mu.closeLog()
+
 	defer mu.errorRollback()
 
 	m.Transaction(func(h *m.Helper) {
 		mu.SetTX(h.DB())
 		for _, migration := range mu.needRollbackMigrationList(mu.currentBatch()) {
-			mu.log(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
+			cmd.Println(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
 
 			migrator := newMigrator(migration.Name())
 			if migrator == nil {
@@ -147,30 +126,27 @@ func (mu *MigrationUtils) Rollback() {
 				panic("migration deleted failed!")
 			}
 
-			mu.log(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
+			cmd.Println(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
 		}
 	}, 1)
 }
 func (mu *MigrationUtils) Fresh() {
-	defer mu.closeLog()
 
 }
 func (mu *MigrationUtils) Install() {
-	defer mu.closeLog()
+
 	//   --database[=DATABASE]  The database connection to use
 	//@todo
 	//  Create the migration repository
 }
 func (mu *MigrationUtils) Refresh() {
-	defer mu.closeLog()
 
 }
 func (mu *MigrationUtils) Reset() {
-	defer mu.closeLog()
 
 }
 func (mu *MigrationUtils) Status() {
-	defer mu.closeLog()
+
 	//+------+--------------------------------------------------------------+-------+
 	//| Ran? | Migration                                                    | Batch |
 	//+------+--------------------------------------------------------------+-------+
