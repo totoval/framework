@@ -5,14 +5,14 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/totoval/framework/cmd"
+	"github.com/totoval/framework/console"
 )
 
 func Dump(v ...interface{}) {
-	cmd.Println(cmd.CODE_WARNING, spew.Sdump(v...))
+	console.Println(console.CODE_INFO, spew.Sdump(v...))
 }
 
 func DD(v ...interface{}) {
-	cmd.Println(cmd.CODE_ERROR, spew.Sdump(v...))
+	console.Println(console.CODE_ERROR, spew.Sdump(v...))
 	os.Exit(1)
 }

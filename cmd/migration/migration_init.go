@@ -1,8 +1,6 @@
 package migration
 
 import (
-	"github.com/urfave/cli"
-
 	"github.com/totoval/framework/cmd"
 	"github.com/totoval/framework/database/migration"
 )
@@ -26,7 +24,7 @@ func (mi *MigrationInit) Description() string {
 	return "complete a task on the list"
 }
 
-func (mi *MigrationInit) Handler(c *cli.Context) error {
+func (mi *MigrationInit) Handler(arg *cmd.Arg) error {
 	m := &migration.MigrationUtils{}
 	m.SetUp()
 	return nil

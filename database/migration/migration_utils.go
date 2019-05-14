@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"github.com/totoval/framework/cmd"
+	"github.com/totoval/framework/console"
 	"github.com/totoval/framework/helpers/m"
 	"github.com/totoval/framework/model"
 )
@@ -14,11 +14,11 @@ type MigrationUtils struct {
 // 项目初始化
 func (mu *MigrationUtils) SetUp() {
 
-	cmd.Println(cmd.CODE_WARNING, "initializing:migration table")
+	console.Println(console.CODE_WARNING, "initializing:migration table")
 
 	mu.Migration.up(mu.DB())
 
-	cmd.Println(cmd.CODE_SUCCESS, "initialized:migration table")
+	console.Println(console.CODE_SUCCESS, "initialized:migration table")
 }
 
 // 所有migrate过的任务列表
@@ -72,9 +72,9 @@ func (mu *MigrationUtils) delMigration(migration *Migration) bool {
 func (mu *MigrationUtils) errorRollback() {
 	if err := recover(); err != nil {
 		if _err, ok := err.(error); ok {
-			cmd.Println(cmd.CODE_WARNING, "error:"+_err.Error())
+			console.Println(console.CODE_WARNING, "error:"+_err.Error())
 		} else {
-			cmd.Println(cmd.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
+			console.Println(console.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
 		}
 	}
 }
@@ -90,7 +90,7 @@ func (mu *MigrationUtils) Migrate() {
 		for _, migrator := range mu.needMigrateList() {
 			migrationName := migrator.Name(&migrator)
 
-			cmd.Println(cmd.CODE_WARNING, "migrating:"+migrationName)
+			console.Println(console.CODE_WARNING, "migrating:"+migrationName)
 
 			if err := migrator.Up(mu.DB()).Error; err != nil {
 				panic(err)
@@ -100,7 +100,7 @@ func (mu *MigrationUtils) Migrate() {
 			if !mu.addMigration(migrationName, batch) {
 				panic("migration added failed!")
 			}
-			cmd.Println(cmd.CODE_SUCCESS, "migrated:"+migrationName)
+			console.Println(console.CODE_SUCCESS, "migrated:"+migrationName)
 		}
 	}, 1)
 }
@@ -111,7 +111,7 @@ func (mu *MigrationUtils) Rollback() {
 	m.Transaction(func(h *m.Helper) {
 		mu.SetTX(h.DB())
 		for _, migration := range mu.needRollbackMigrationList(mu.currentBatch()) {
-			cmd.Println(cmd.CODE_WARNING, "rollbacking:"+migration.Name())
+			console.Println(console.CODE_WARNING, "rollbacking:"+migration.Name())
 
 			migrator := newMigrator(migration.Name())
 			if migrator == nil {
@@ -126,7 +126,7 @@ func (mu *MigrationUtils) Rollback() {
 				panic("migration deleted failed!")
 			}
 
-			cmd.Println(cmd.CODE_SUCCESS, "rollbacked:"+migration.Name())
+			console.Println(console.CODE_SUCCESS, "rollbacked:"+migration.Name())
 		}
 	}, 1)
 }
