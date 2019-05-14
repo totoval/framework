@@ -1,5 +1,5 @@
 package migration
 
 func Initialize() {
-	
+
 }

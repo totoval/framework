@@ -82,7 +82,7 @@ func (mu *MigrationUtils) errorRollback() {
 func (mu *MigrationUtils) Migrate() {
 
 	defer mu.errorRollback()
-	
+
 	m.Transaction(func(h *m.Helper) {
 		mu.SetTX(h.DB())
 		batch := mu.currentBatch() + 1

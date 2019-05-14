@@ -15,7 +15,7 @@ var nullTime time.Time = time.Unix(0, 0)
 const nullNumber = 0
 const nullStringNumber = "0"
 
-var nullMapStringInterface map[string]interface{} = map[string]interface{}{nullString: nullNumber,}
+var nullMapStringInterface map[string]interface{} = map[string]interface{}{nullString: nullNumber}
 var nullFloat32 float32 = nullNumber
 var nullFloat64 float64 = nullNumber
 var nullInt int = nullNumber
