@@ -4,7 +4,6 @@ import "errors"
 
 type Commander interface {
 	Command() string
-	Aliases() []string
 	Description() string
 	Handler(arg *Arg) error
 }
