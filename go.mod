@@ -31,6 +31,7 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.0.0-beta.6
 	github.com/nsqio/go-nsq v1.0.7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/robfig/cron v1.1.0 // indirect
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/viper v1.3.1
 	github.com/urfave/cli v1.20.0

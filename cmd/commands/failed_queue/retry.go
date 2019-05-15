@@ -1,6 +1,7 @@
 package failed_queue
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/totoval/framework/cmd"
@@ -18,21 +19,21 @@ func (r *Retry) Command() string {
 	return "failed_queue:retry {queue_id}"
 }
 
-func (r *Retry) Aliases() []string {
-	return []string{"c"}
-}
-
 func (r *Retry) Description() string {
 	return "Retry a failed queue from database"
 }
 
 func (r *Retry) Handler(arg *cmd.Arg) error {
-	queueIdStr, err := arg.Get("queue_id")
+	queueIdPtr, err := arg.Get("queue_id")
 	if err != nil {
 		return err
 	}
 
-	queueId, err := strconv.ParseUint(queueIdStr, 10, 32)
+	if queueIdPtr == nil {
+		return errors.New("queue_id is invalid")
+	}
+
+	queueId, err := strconv.ParseUint(*queueIdPtr, 10, 32)
 	if err != nil {
 		return err
 	}

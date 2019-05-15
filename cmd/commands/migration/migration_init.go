@@ -16,10 +16,6 @@ func (mi *MigrationInit) Command() string {
 	return "migration:init"
 }
 
-func (mi *MigrationInit) Aliases() []string {
-	return []string{"c"}
-}
-
 func (mi *MigrationInit) Description() string {
 	return "complete a task on the list"
 }

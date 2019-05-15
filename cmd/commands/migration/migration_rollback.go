@@ -16,10 +16,6 @@ func (mr *MigrationRollback) Command() string {
 	return "migration:rollback"
 }
 
-func (mr *MigrationRollback) Aliases() []string {
-	return []string{"c"}
-}
-
 func (mr *MigrationRollback) Description() string {
 	return "complete a task on the list"
 }

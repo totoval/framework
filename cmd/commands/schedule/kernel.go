@@ -1,0 +1,5 @@
+package schedule
+
+func Initialize() {
+
+}
