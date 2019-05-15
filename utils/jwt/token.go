@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/dgrijalva/jwt-go.v3"
@@ -13,8 +12,8 @@ import (
 	"github.com/totoval/framework/helpers/zone"
 )
 
-const ExpiredTime zone.Duration = 4 * time.Hour //@todo move to configration
-const RefreshExpiredTime zone.Duration = 10 * time.Minute
+const ExpiredTime zone.Duration = 4 * zone.Hour //@todo move to configration
+const RefreshExpiredTime zone.Duration = 10 * zone.Minute
 const MaxRefreshTimes uint = 1
 
 const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_%s"

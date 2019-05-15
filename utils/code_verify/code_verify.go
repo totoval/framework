@@ -2,7 +2,6 @@ package code_verify
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/totoval/framework/helpers/cache"
 	"github.com/totoval/framework/helpers/zone"
@@ -18,7 +17,7 @@ func validationCacheKey(index string) string {
 
 func Generate(index string, codeLen uint, expiredMinute uint) string {
 	code := str.RandNumberString(codeLen)
-	cache.Put(validationCacheKey(index), code, zone.Now().Add(zone.Duration(expiredMinute)*time.Minute))
+	cache.Put(validationCacheKey(index), code, zone.Now().Add(zone.Duration(expiredMinute)*zone.Minute))
 	return code
 }
 

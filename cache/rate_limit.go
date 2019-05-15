@@ -2,7 +2,6 @@ package cache
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/totoval/framework/helpers/zone"
 )
@@ -38,7 +37,7 @@ func (rl *RateLimit) TooManyAttempts(key string, maxAttempts int64) bool {
 	return false
 }
 func (rl *RateLimit) Hit(key string, decayMinutes int) int64 {
-	expiredAt := zone.Now().Add(zone.Duration(decayMinutes) * time.Minute)
+	expiredAt := zone.Now().Add(zone.Duration(decayMinutes) * zone.Minute)
 	rl.cache.Add(rateLimitTimerCacheKey(key), expiredAt.Unix(), expiredAt)
 
 	added := rl.cache.Add(rateLimitCacheKey(key), int64(0), expiredAt)

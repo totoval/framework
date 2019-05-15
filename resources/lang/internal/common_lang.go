@@ -3,7 +3,6 @@ package internal
 import (
 	"math"
 	"strconv"
-	"time"
 
 	"github.com/go-playground/locales"
 	"github.com/go-playground/locales/currency"
@@ -134,7 +133,7 @@ func (commonLang *commonLang) RangePluralRule(num1 float64, v1 uint64, num2 floa
 }
 
 // MonthAbbreviated returns the locales abbreviated month given the 'month' provided
-func (commonLang *commonLang) MonthAbbreviated(month time.Month) string {
+func (commonLang *commonLang) MonthAbbreviated(month zone.Month) string {
 	return commonLang.monthsAbbreviated[month]
 }
 
@@ -144,7 +143,7 @@ func (commonLang *commonLang) MonthsAbbreviated() []string {
 }
 
 // MonthNarrow returns the locales narrow month given the 'month' provided
-func (commonLang *commonLang) MonthNarrow(month time.Month) string {
+func (commonLang *commonLang) MonthNarrow(month zone.Month) string {
 	return commonLang.monthsNarrow[month]
 }
 
@@ -154,7 +153,7 @@ func (commonLang *commonLang) MonthsNarrow() []string {
 }
 
 // MonthWide returns the locales wide month given the 'month' provided
-func (commonLang *commonLang) MonthWide(month time.Month) string {
+func (commonLang *commonLang) MonthWide(month zone.Month) string {
 	return commonLang.monthsWide[month]
 }
 
@@ -164,7 +163,7 @@ func (commonLang *commonLang) MonthsWide() []string {
 }
 
 // WeekdayAbbreviated returns the locales abbreviated weekday given the 'weekday' provided
-func (commonLang *commonLang) WeekdayAbbreviated(weekday time.Weekday) string {
+func (commonLang *commonLang) WeekdayAbbreviated(weekday zone.Weekday) string {
 	return commonLang.daysAbbreviated[weekday]
 }
 
@@ -174,7 +173,7 @@ func (commonLang *commonLang) WeekdaysAbbreviated() []string {
 }
 
 // WeekdayNarrow returns the locales narrow weekday given the 'weekday' provided
-func (commonLang *commonLang) WeekdayNarrow(weekday time.Weekday) string {
+func (commonLang *commonLang) WeekdayNarrow(weekday zone.Weekday) string {
 	return commonLang.daysNarrow[weekday]
 }
 
@@ -184,7 +183,7 @@ func (commonLang *commonLang) WeekdaysNarrow() []string {
 }
 
 // WeekdayShort returns the locales short weekday given the 'weekday' provided
-func (commonLang *commonLang) WeekdayShort(weekday time.Weekday) string {
+func (commonLang *commonLang) WeekdayShort(weekday zone.Weekday) string {
 	return commonLang.daysShort[weekday]
 }
 
@@ -194,7 +193,7 @@ func (commonLang *commonLang) WeekdaysShort() []string {
 }
 
 // WeekdayWide returns the locales wide weekday given the 'weekday' provided
-func (commonLang *commonLang) WeekdayWide(weekday time.Weekday) string {
+func (commonLang *commonLang) WeekdayWide(weekday zone.Weekday) string {
 	return commonLang.daysWide[weekday]
 }
 

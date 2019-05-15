@@ -1,8 +1,6 @@
 package driver
 
 import (
-	"time"
-
 	c "github.com/patrickmn/go-cache"
 
 	"github.com/totoval/framework/helpers/zone"
@@ -10,7 +8,7 @@ import (
 
 func NewMemory(prefix string, defaultExpirationMinute uint, cleanUpIntervalMinute uint) *memory {
 	return &memory{
-		cache:  c.New(zone.Duration(defaultExpirationMinute)*time.Minute, zone.Duration(cleanUpIntervalMinute)*time.Minute),
+		cache:  c.New(zone.Duration(defaultExpirationMinute)*zone.Minute, zone.Duration(cleanUpIntervalMinute)*zone.Minute),
 		prefix: prefix,
 	}
 }

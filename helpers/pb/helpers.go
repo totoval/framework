@@ -1,8 +1,6 @@
 package pb
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
 
@@ -10,7 +8,7 @@ import (
 )
 
 func DurationConvert(d *duration.Duration) *zone.Duration {
-	result := zone.Duration(d.GetSeconds())*time.Second + zone.Duration(d.GetNanos())*time.Nanosecond
+	result := zone.Duration(d.GetSeconds())*zone.Second + zone.Duration(d.GetNanos())*zone.Nanosecond
 	return &result
 }
 func TimestampConvert(t *timestamp.Timestamp) *zone.Time {
