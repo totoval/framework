@@ -1,9 +1,8 @@
 package cache
 
 import (
-	"time"
-
 	c "github.com/totoval/framework/cache"
+	"github.com/totoval/framework/helpers/zone"
 )
 
 func Prefix() string {
@@ -19,10 +18,10 @@ func Get(key string, defaultValue ...interface{}) interface{} {
 func Pull(key string, defaultValue ...interface{}) interface{} {
 	return c.Cache().Pull(key, defaultValue...)
 }
-func Put(key string, value interface{}, future time.Time) {
+func Put(key string, value interface{}, future zone.Time) {
 	c.Cache().Put(key, value, future)
 }
-func Add(key string, value interface{}, future time.Time) bool {
+func Add(key string, value interface{}, future zone.Time) bool {
 	return c.Cache().Add(key, value, future)
 }
 func Increment(key string, value int64) (incremented int64, success bool) {

@@ -1,9 +1,8 @@
 package queue
 
 import (
-	"time"
-
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/helpers/zone"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -23,7 +22,7 @@ type FailedQueuer interface {
 	RetryHash() string
 	RetryChannel() string
 	RetryRetries() uint32
-	RetryDelay() time.Duration
+	RetryDelay() zone.Duration
 	RetryParamProtoBytes() []byte
 	FailedQueueById(id uint) (failedQueuerPtr FailedQueuer, err error)
 	DeleteQueueById(id uint) error

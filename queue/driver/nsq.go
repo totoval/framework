@@ -3,12 +3,12 @@ package driver
 import (
 	"fmt"
 	"sync"
-	"time"
 
 	_nsq "github.com/nsqio/go-nsq"
 
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/hash"
+	"github.com/totoval/framework/helpers/zone"
 )
 
 func NewNsq(connection string) *nsq {
@@ -49,7 +49,7 @@ type nsq struct {
 	Lock         sync.RWMutex
 }
 
-func (n *nsq) Push(topicName string, channelName string, delay time.Duration, body []byte) (err error) {
+func (n *nsq) Push(topicName string, channelName string, delay zone.Duration, body []byte) (err error) {
 	if delay > 0 {
 		return n.producer.p.DeferredPublish(topicName, delay, body)
 	}

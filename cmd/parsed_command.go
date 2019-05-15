@@ -7,11 +7,11 @@ import (
 
 type parsedCommand struct {
 	Commander
-	name    string
+	name    commandName
 	argList []string
 }
 
-func (pc *parsedCommand) Name() string {
+func (pc *parsedCommand) Name() commandName {
 	return pc.name
 }
 func (pc *parsedCommand) ArgList() []string {

@@ -37,14 +37,14 @@ func Throttle(maxAttempts uint, decayMinutes uint) gin.HandlerFunc {
 	}
 }
 
-func calculateRemainingAttempts(key string, maxAttempts uint, retryAfter time.Duration) int64 {
+func calculateRemainingAttempts(key string, maxAttempts uint, retryAfter zone.Duration) int64 {
 	if retryAfter == 0 {
 		return limiter.RetriesLeft(key, int64(maxAttempts))
 	}
 	return 0
 }
 
-func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAfter time.Duration) {
+func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAfter zone.Duration) {
 	c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", maxAttempts))
 	c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remainingAttempts))
 

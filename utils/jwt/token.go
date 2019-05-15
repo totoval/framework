@@ -13,8 +13,8 @@ import (
 	"github.com/totoval/framework/helpers/zone"
 )
 
-const ExpiredTime time.Duration = 4 * time.Hour //@todo move to configration
-const RefreshExpiredTime time.Duration = 10 * time.Minute
+const ExpiredTime zone.Duration = 4 * time.Hour //@todo move to configration
+const RefreshExpiredTime zone.Duration = 10 * time.Minute
 const MaxRefreshTimes uint = 1
 
 const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_%s"
@@ -135,7 +135,7 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 		return "", TokenNoSet
 	}
 
-	jwt.TimeFunc = func() time.Time {
+	jwt.TimeFunc = func() zone.Time {
 		return zone.Unix(0, 0)
 	}
 	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {

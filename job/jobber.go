@@ -1,9 +1,9 @@
 package job
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 var jobMap map[string]jobber
@@ -28,6 +28,6 @@ type jobber interface {
 
 	Retries() uint32
 
-	SetDelay(delay time.Duration)
-	Delay() time.Duration
+	SetDelay(delay zone.Duration)
+	Delay() zone.Duration
 }

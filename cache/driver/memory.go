@@ -10,7 +10,7 @@ import (
 
 func NewMemory(prefix string, defaultExpirationMinute uint, cleanUpIntervalMinute uint) *memory {
 	return &memory{
-		cache:  c.New(time.Duration(defaultExpirationMinute)*time.Minute, time.Duration(cleanUpIntervalMinute)*time.Minute),
+		cache:  c.New(zone.Duration(defaultExpirationMinute)*time.Minute, zone.Duration(cleanUpIntervalMinute)*time.Minute),
 		prefix: prefix,
 	}
 }
@@ -20,7 +20,7 @@ type memory struct {
 	prefix string
 }
 
-func durationFromNow(future time.Time) time.Duration {
+func durationFromNow(future zone.Time) zone.Duration {
 	return future.Sub(zone.Now())
 }
 func (m *memory) prefixedKey(k string) string {
@@ -52,12 +52,12 @@ func (m *memory) Pull(key string, defaultValue ...interface{}) interface{} {
 	m.Forget(key)
 	return result
 }
-func (m *memory) Put(key string, value interface{}, future time.Time) {
+func (m *memory) Put(key string, value interface{}, future zone.Time) {
 	m.cache.Set(m.prefixedKey(key), value, durationFromNow(future))
 
 	//@todo Event KeyWritten
 }
-func (m *memory) Add(key string, value interface{}, future time.Time) bool {
+func (m *memory) Add(key string, value interface{}, future zone.Time) bool {
 	if err := m.cache.Add(m.prefixedKey(key), value, durationFromNow(future)); err != nil {
 		return false
 	}

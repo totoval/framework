@@ -1,14 +1,14 @@
 package job
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 type Job struct {
 	param proto.Message
-	delay time.Duration
+	delay zone.Duration
 }
 
 func (j *Job) Name() string {
@@ -37,11 +37,11 @@ func (j *Job) Retries() uint32 {
 }
 
 // default no delay
-func (j *Job) SetDelay(delay time.Duration) {
+func (j *Job) SetDelay(delay zone.Duration) {
 	j.delay = delay
 }
 
 // default no delay
-func (j *Job) Delay() time.Duration {
+func (j *Job) Delay() zone.Duration {
 	return j.delay
 }

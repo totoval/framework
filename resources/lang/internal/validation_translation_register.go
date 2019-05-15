@@ -6,11 +6,12 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-playground/locales"
 	"github.com/go-playground/universal-translator"
 	"gopkg.in/go-playground/validator.v9"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 type FieldError struct {
@@ -460,7 +461,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 					t, err = ut.T("lt-items", fe.Field(), c)
 
 				case reflect.Struct:
-					if fe.Type() != reflect.TypeOf(time.Time{}) {
+					if fe.Type() != reflect.TypeOf(zone.Time{}) {
 						err = fmt.Errorf("tag '%s' cannot be used on a struct type", fe.Tag())
 						goto END
 					}
@@ -581,7 +582,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 					t, err = ut.T("lte-items", fe.Field(), c)
 
 				case reflect.Struct:
-					if fe.Type() != reflect.TypeOf(time.Time{}) {
+					if fe.Type() != reflect.TypeOf(zone.Time{}) {
 						err = fmt.Errorf("tag '%s' cannot be used on a struct type", fe.Tag())
 						goto END
 					}
@@ -702,7 +703,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 					t, err = ut.T("gt-items", fe.Field(), c)
 
 				case reflect.Struct:
-					if fe.Type() != reflect.TypeOf(time.Time{}) {
+					if fe.Type() != reflect.TypeOf(zone.Time{}) {
 						err = fmt.Errorf("tag '%s' cannot be used on a struct type", fe.Tag())
 						goto END
 					}
@@ -823,7 +824,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 					t, err = ut.T("gte-items", fe.Field(), c)
 
 				case reflect.Struct:
-					if fe.Type() != reflect.TypeOf(time.Time{}) {
+					if fe.Type() != reflect.TypeOf(zone.Time{}) {
 						err = fmt.Errorf("tag '%s' cannot be used on a struct type", fe.Tag())
 						goto END
 					}

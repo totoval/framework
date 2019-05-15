@@ -1,6 +1,8 @@
 package cache
 
-import "time"
+import (
+	"github.com/totoval/framework/helpers/zone"
+)
 
 type cacher interface {
 	Prefix() string
@@ -8,8 +10,8 @@ type cacher interface {
 	Has(key string) bool
 	Get(key string, defaultValue ...interface{}) interface{}
 	Pull(key string, defaultValue ...interface{}) interface{}
-	Put(key string, value interface{}, future time.Time)
-	Add(key string, value interface{}, future time.Time) bool
+	Put(key string, value interface{}, future zone.Time)
+	Add(key string, value interface{}, future zone.Time) bool
 	Increment(key string, value int64) (incremented int64, success bool)
 	Decrement(key string, value int64) (decremented int64, success bool)
 	Forever(key string, value interface{})

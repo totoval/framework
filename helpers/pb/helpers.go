@@ -5,13 +5,15 @@ import (
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/timestamp"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
-func DurationConvert(d *duration.Duration) *time.Duration {
-	result := time.Duration(d.GetSeconds())*time.Second + time.Duration(d.GetNanos())*time.Nanosecond
+func DurationConvert(d *duration.Duration) *zone.Duration {
+	result := zone.Duration(d.GetSeconds())*time.Second + zone.Duration(d.GetNanos())*time.Nanosecond
 	return &result
 }
-func TimestampConvert(t *timestamp.Timestamp) *time.Time {
-	result := time.Unix(t.GetSeconds(), int64(t.GetNanos()))
+func TimestampConvert(t *timestamp.Timestamp) *zone.Time {
+	result := zone.Unix(t.GetSeconds(), int64(t.GetNanos()))
 	return &result
 }

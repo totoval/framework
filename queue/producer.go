@@ -1,12 +1,11 @@
 package queue
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 
 	"github.com/totoval/framework/helpers/pb"
+	"github.com/totoval/framework/helpers/zone"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -15,10 +14,10 @@ type producer struct {
 	channelName string
 	param       proto.Message
 	retries     uint32
-	delay       time.Duration
+	delay       zone.Duration
 }
 
-func NewProducer(topicName string, channelName string, param proto.Message, retries uint32, delay time.Duration) *producer {
+func NewProducer(topicName string, channelName string, param proto.Message, retries uint32, delay zone.Duration) *producer {
 	return &producer{
 		topicName:   topicName,
 		channelName: channelName,

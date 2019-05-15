@@ -18,7 +18,7 @@ func validationCacheKey(index string) string {
 
 func Generate(index string, codeLen uint, expiredMinute uint) string {
 	code := str.RandNumberString(codeLen)
-	cache.Put(validationCacheKey(index), code, zone.Now().Add(time.Duration(expiredMinute)*time.Minute))
+	cache.Put(validationCacheKey(index), code, zone.Now().Add(zone.Duration(expiredMinute)*time.Minute))
 	return code
 }
 

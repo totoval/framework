@@ -2,8 +2,8 @@ package ptr
 
 import (
 	"math/big"
-	"time"
 
+	"github.com/totoval/framework/helpers/zone"
 	"github.com/totoval/framework/model/types/bigfloat"
 	"github.com/totoval/framework/model/types/bigint"
 )
@@ -72,6 +72,6 @@ func BigFloat(value string) (*bigfloat.BigFloat, error) {
 	}
 	return &v, nil
 }
-func Time(value time.Time) *time.Time {
+func Time(value zone.Time) *zone.Time {
 	return &value
 }

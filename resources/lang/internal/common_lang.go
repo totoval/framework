@@ -7,6 +7,8 @@ import (
 
 	"github.com/go-playground/locales"
 	"github.com/go-playground/locales/currency"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 type commonLang struct {
@@ -416,7 +418,7 @@ func (commonLang *commonLang) FmtAccounting(num float64, v uint64, currency curr
 }
 
 // FmtDateShort returns the short date representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtDateShort(t time.Time) string {
+func (commonLang *commonLang) FmtDateShort(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -435,7 +437,7 @@ func (commonLang *commonLang) FmtDateShort(t time.Time) string {
 }
 
 // FmtDateMedium returns the medium date representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtDateMedium(t time.Time) string {
+func (commonLang *commonLang) FmtDateMedium(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -454,7 +456,7 @@ func (commonLang *commonLang) FmtDateMedium(t time.Time) string {
 }
 
 // FmtDateLong returns the long date representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtDateLong(t time.Time) string {
+func (commonLang *commonLang) FmtDateLong(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -473,7 +475,7 @@ func (commonLang *commonLang) FmtDateLong(t time.Time) string {
 }
 
 // FmtDateFull returns the full date representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtDateFull(t time.Time) string {
+func (commonLang *commonLang) FmtDateFull(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -494,7 +496,7 @@ func (commonLang *commonLang) FmtDateFull(t time.Time) string {
 }
 
 // FmtTimeShort returns the short time representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtTimeShort(t time.Time) string {
+func (commonLang *commonLang) FmtTimeShort(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -524,7 +526,7 @@ func (commonLang *commonLang) FmtTimeShort(t time.Time) string {
 }
 
 // FmtTimeMedium returns the medium time representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtTimeMedium(t time.Time) string {
+func (commonLang *commonLang) FmtTimeMedium(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -561,7 +563,7 @@ func (commonLang *commonLang) FmtTimeMedium(t time.Time) string {
 }
 
 // FmtTimeLong returns the long time representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtTimeLong(t time.Time) string {
+func (commonLang *commonLang) FmtTimeLong(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 
@@ -603,7 +605,7 @@ func (commonLang *commonLang) FmtTimeLong(t time.Time) string {
 }
 
 // FmtTimeFull returns the full time representation of 't' for 'commonLang'
-func (commonLang *commonLang) FmtTimeFull(t time.Time) string {
+func (commonLang *commonLang) FmtTimeFull(t zone.Time) string {
 
 	b := make([]byte, 0, 32)
 

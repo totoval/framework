@@ -1,9 +1,9 @@
 package hub
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 type Listener interface {
@@ -14,7 +14,7 @@ type Listener interface {
 	Handle() error
 
 	Retries() uint32
-	Delay() time.Duration
+	Delay() zone.Duration
 }
 
 type ListenerName = string

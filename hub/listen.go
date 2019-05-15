@@ -1,9 +1,9 @@
 package hub
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 type Listen struct {
@@ -29,6 +29,6 @@ func (l *Listen) Retries() uint32 {
 	return 0
 }
 
-func (l *Listen) Delay() time.Duration {
+func (l *Listen) Delay() zone.Duration {
 	return 0
 }
