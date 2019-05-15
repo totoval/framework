@@ -17,7 +17,7 @@ func newArg(argList *map[string]string) *Arg {
 }
 func (a *Arg) Get(argName string) (data *string, err error) {
 	if a.argList == nil {
-		return nil, errors.New("arg is not set")
+		return nil, errors.New("arg <" + argName + "> is not set")
 	}
 
 	al := *a.argList

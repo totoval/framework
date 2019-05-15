@@ -1,4 +1,4 @@
-package failed_queue
+package queue
 
 func Initialize() {
 

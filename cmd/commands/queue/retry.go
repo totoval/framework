@@ -1,4 +1,4 @@
-package failed_queue
+package queue
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ type Retry struct {
 }
 
 func (r *Retry) Command() string {
-	return "failed_queue:retry {queue_id}"
+	return "queue:retry {queue_id}"
 }
 
 func (r *Retry) Description() string {
