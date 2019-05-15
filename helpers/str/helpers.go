@@ -2,7 +2,8 @@ package str
 
 import (
 	"math/rand"
-	"time"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -21,7 +22,7 @@ func RandString(length uint) string {
 }
 func random(n int, bytes string) string {
 
-	src := rand.NewSource(time.Now().UnixNano())
+	src := rand.NewSource(zone.Now().UnixNano())
 	b := make([]byte, n)
 	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {

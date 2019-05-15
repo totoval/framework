@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/cache"
+	"github.com/totoval/framework/helpers/zone"
 
 	"github.com/totoval/framework/helpers/bytes"
 )
@@ -49,7 +50,7 @@ func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAf
 
 	if retryAfter != 0 {
 		c.Header("Retry-After", fmt.Sprintf("%.0f", retryAfter.Seconds()))
-		c.Header("X-RateLimit-Reset", fmt.Sprintf("%d", time.Now().Add(retryAfter).Unix()))
+		c.Header("X-RateLimit-Reset", fmt.Sprintf("%d", zone.Now().Add(retryAfter).Unix()))
 	}
 }
 

@@ -4,6 +4,8 @@ import (
 	"time"
 
 	c "github.com/patrickmn/go-cache"
+
+	"github.com/totoval/framework/helpers/zone"
 )
 
 func NewMemory(prefix string, defaultExpirationMinute uint, cleanUpIntervalMinute uint) *memory {
@@ -19,7 +21,7 @@ type memory struct {
 }
 
 func durationFromNow(future time.Time) time.Duration {
-	return future.Sub(time.Now())
+	return future.Sub(zone.Now())
 }
 func (m *memory) prefixedKey(k string) string {
 	return m.Prefix() + k

@@ -4,10 +4,13 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/totoval/framework/helpers/cache"
-	"gopkg.in/dgrijalva/jwt-go.v3"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"gopkg.in/dgrijalva/jwt-go.v3"
+
+	"github.com/totoval/framework/helpers/cache"
+	"github.com/totoval/framework/helpers/zone"
 )
 
 const ExpiredTime time.Duration = 4 * time.Hour //@todo move to configration
@@ -51,7 +54,7 @@ func (c UserClaims) Valid() error {
 	// The claims below are optional, by default, so if they are set to the
 	// default value in Go, let's not fail the verification for them.
 	if c.VerifyExpiresAt(now, false) == false {
-		delta := time.Unix(now, 0).Sub(time.Unix(c.ExpiresAt, 0))
+		delta := zone.Unix(now, 0).Sub(zone.Unix(c.ExpiresAt, 0))
 		vErr.Inner = fmt.Errorf("token is expired by %v", delta)
 		vErr.Errors |= jwt.ValidationErrorExpired
 	}
@@ -83,8 +86,8 @@ func NewJWT(signKey string) *JWT {
 	}
 }
 func (j *JWT) CreateToken(id string, name string) (string, error) {
-	jwt.TimeFunc = time.Now
-	now := time.Now()
+	jwt.TimeFunc = zone.Now
+	now := zone.Now()
 	claims := UserClaims{
 		id,
 		name,
@@ -133,7 +136,7 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	}
 
 	jwt.TimeFunc = func() time.Time {
-		return time.Unix(0, 0)
+		return zone.Unix(0, 0)
 	}
 	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return j.SigningKey, nil
@@ -142,7 +145,7 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
-		//claims.StandardClaims.ExpiresAt = time.Now().Add(ExpiredTime).Unix()
+		//claims.StandardClaims.ExpiresAt = zone.Now().Add(ExpiredTime).Unix()
 		return j.CreateToken(claims.ID, claims.Name)
 	}
 	return "", TokenInvalid
@@ -167,7 +170,7 @@ func (j *JWT) recordTokenRefreshTimes(tokenString string) {
 	if cache.Has(refreshTokenCacheKey(tokenMd5)) {
 		cache.Increment(refreshTokenCacheKey(tokenMd5), increment)
 	} else {
-		cache.Add(refreshTokenCacheKey(tokenMd5), increment, time.Now().Add(ExpiredTime).Add(RefreshExpiredTime))
+		cache.Add(refreshTokenCacheKey(tokenMd5), increment, zone.Now().Add(ExpiredTime).Add(RefreshExpiredTime))
 	}
 }
 
@@ -186,9 +189,9 @@ func (j *JWT) RefreshTokenUnverified(tokenString string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(*UserClaims); ok {
-		//claims.StandardClaims.ExpiresAt = time.Now().Add(ExpiredTime).Unix()
+		//claims.StandardClaims.ExpiresAt = zone.Now().Add(ExpiredTime).Unix()
 		// after refresh expired time, then cannot do auto refresh
-		if !time.Now().After(time.Unix(claims.ExpiresAt, 0).Add(RefreshExpiredTime)) {
+		if !zone.Now().After(zone.Unix(claims.ExpiresAt, 0).Add(RefreshExpiredTime)) {
 			newToken, err := j.CreateToken(claims.ID, claims.Name)
 			if err != nil {
 				return "", err

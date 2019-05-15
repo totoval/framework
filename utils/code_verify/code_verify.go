@@ -1,11 +1,13 @@
 package code_verify
 
 import (
-	"github.com/totoval/framework/helpers/cache"
-
 	"fmt"
-	"github.com/totoval/framework/helpers/str"
 	"time"
+
+	"github.com/totoval/framework/helpers/cache"
+	"github.com/totoval/framework/helpers/zone"
+
+	"github.com/totoval/framework/helpers/str"
 )
 
 const VALIDATION_CACHE_KEY = "TOTOVAL_VALIDATION_%s"
@@ -16,7 +18,7 @@ func validationCacheKey(index string) string {
 
 func Generate(index string, codeLen uint, expiredMinute uint) string {
 	code := str.RandNumberString(codeLen)
-	cache.Put(validationCacheKey(index), code, time.Now().Add(time.Duration(expiredMinute)*time.Minute))
+	cache.Put(validationCacheKey(index), code, zone.Now().Add(time.Duration(expiredMinute)*time.Minute))
 	return code
 }
 

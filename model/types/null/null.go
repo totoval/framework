@@ -4,13 +4,14 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/totoval/framework/helpers/zone"
 	"github.com/totoval/framework/model/types/bigfloat"
 	"github.com/totoval/framework/model/types/bigint"
 )
 
 var nullString string = ""
 var nullByte byte = 0
-var nullTime time.Time = time.Unix(0, 0)
+var nullTime time.Time = zone.Unix(0, 0)
 
 const nullNumber = 0
 const nullStringNumber = "0"
