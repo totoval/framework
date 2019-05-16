@@ -36,7 +36,7 @@ const (
 	Hour                 = 60 * Minute
 )
 
-func init() {
+func Initialize() {
 	var err error
 	location, err = time.LoadLocation(config.GetString("app.timezone"))
 	if err != nil {

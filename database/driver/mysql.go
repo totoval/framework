@@ -1,6 +1,8 @@
 package driver
 
 import (
+	"net/url"
+
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/zone"
 )
@@ -58,5 +60,6 @@ func (_mys *mysql) config(key string) string {
 	return value
 }
 func (_mys *mysql) ConnectionArgs() string {
-	return _mys.username() + ":" + _mys.password() + "@" + "tcp(" + _mys.host() + ":" + _mys.port() + ")/" + _mys.database() + "?charset=" + _mys.charset() + "&parseTime=True&loc=" + zone.GetLocation().String()
+	loc := url.Values{"loc": []string{zone.GetLocation().String()}}
+	return _mys.username() + ":" + _mys.password() + "@" + "tcp(" + _mys.host() + ":" + _mys.port() + ")/" + _mys.database() + "?charset=" + _mys.charset() + "&parseTime=True&" + loc.Encode()
 }
