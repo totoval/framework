@@ -10,7 +10,7 @@ import (
 
 var nullString string = ""
 var nullByte byte = 0
-var nullTime zone.Time = zone.Unix(0, 0)
+var nullTime zone.Time
 
 const nullNumber = 0
 const nullStringNumber = "0"
@@ -96,5 +96,6 @@ func BigFloat() (*bigfloat.BigFloat, error) {
 	return &v, nil
 }
 func Time() *zone.Time {
+	nullTime = zone.Unix(0, 0)
 	return &nullTime
 }
