@@ -2,10 +2,11 @@ package bigfloat
 
 import (
 	"fmt"
-	"log"
 	"math/big"
 	"strings"
 	"testing"
+
+	"github.com/totoval/framework/helpers/log"
 
 	"github.com/totoval/framework/model/types/bigint"
 )
@@ -144,7 +145,7 @@ func TestBigFloat_Round(t *testing.T) {
 		result, err := a.Round(te.decimal, te.roundType)
 
 		if err != nil {
-			log.Println(err)
+			log.Info(err)
 			continue
 		}
 
@@ -158,10 +159,10 @@ func TestBigFloat_Convert(t *testing.T) {
 	//a := big.Float{}
 	a, _, _ := big.ParseFloat("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.12345678901234567890123456789012345678901234567890123456789012345678901234567890", 10, AutoPrec, big.ToNearestEven)
 
-	log.Println(a.Prec())
-	log.Println(a.Text('f', 1024))
+	log.Info(a.Prec())
+	log.Info(a.Text('f', 1024))
 	b := BigFloat{}
-	log.Println(a.Prec())
+	log.Info(a.Prec())
 	b.Convert(a)
 	fmt.Println(b.String())
 	e, _ := b.Round(2, RoundUpAlways)

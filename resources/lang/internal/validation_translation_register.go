@@ -2,10 +2,11 @@ package internal
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/totoval/framework/helpers/log"
 
 	"github.com/go-playground/locales"
 	"github.com/go-playground/universal-translator"
@@ -858,7 +859,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -874,7 +875,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -890,7 +891,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -906,7 +907,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -922,7 +923,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -938,7 +939,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -954,7 +955,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -970,7 +971,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -986,7 +987,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1002,7 +1003,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1018,7 +1019,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1034,7 +1035,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1130,7 +1131,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1146,7 +1147,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1162,7 +1163,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1178,7 +1179,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1194,7 +1195,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 				t, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 
@@ -1374,7 +1375,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 				fe = &FieldError{FieldError: fe, locale: locale}
 				s, err := ut.T(fe.Tag(), fe.Field(), fe.Param())
 				if err != nil {
-					log.Printf("warning: error translating FieldError: %#v", fe)
+					log.Info("warning: error translating FieldError: %#v", fe)
 					return fe.(error).Error()
 				}
 				return s
@@ -1416,7 +1417,7 @@ func RegisterDefaultTranslations(v *validator.Validate, locale *locale) (err err
 
 		t, err := ut.T(fe.Tag(), fe.Field())
 		if err != nil {
-			log.Printf("warning: error translating FieldError: %#v", fe)
+			log.Info("warning: error translating FieldError: %#v", fe)
 			return fe.(error).Error()
 		}
 
