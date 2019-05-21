@@ -1,7 +1,6 @@
 package debug
 
 import (
-	"log"
 	"os"
 	"runtime/debug"
 
@@ -9,13 +8,14 @@ import (
 
 	"github.com/totoval/framework/console"
 	"github.com/totoval/framework/helpers/zone"
+	"github.com/totoval/framework/log"
 )
 
 func Dump(v ...interface{}) {
-	log.Println(console.Sprintf(console.CODE_INFO, "%s - %s", zone.Now().String(), spew.Sdump(v...)), console.Sprintf(console.CODE_WARNING, string(debug.Stack())))
+	log.Println("DUMP", console.Sprintf(console.CODE_INFO, "%s - %s", zone.Now().String(), spew.Sdump(v...)), console.Sprintf(console.CODE_WARNING, string(debug.Stack())))
 }
 
 func DD(v ...interface{}) {
-	log.Println(console.Sprintf(console.CODE_ERROR, "%s - %s%s", zone.Now().String(), spew.Sdump(v...), console.Sprintf(console.CODE_WARNING, string(debug.Stack()))))
+	Dump(v...)
 	os.Exit(1)
 }
