@@ -23,7 +23,6 @@ func init() {
 	}
 }
 func (bi *BigInt) Convert(i *big.Int) error {
-	fmt.Println(i.Text(10))
 	return bi.CreateFromString(i.Text(10), 10)
 }
 
