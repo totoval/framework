@@ -12,7 +12,7 @@ import (
 )
 
 func Dump(v ...interface{}) {
-	console.Println(console.CODE_SUCCESS, spew.Sdump(v...))
+	console.Println(console.CODE_ERROR, spew.Sdump(v...))
 	debugPrint(errors.New("====== Totoval Debug ======"), 2)
 }
 
