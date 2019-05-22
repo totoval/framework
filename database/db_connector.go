@@ -6,6 +6,7 @@ import (
 
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/database/driver"
+	"github.com/totoval/framework/helpers/zone"
 )
 
 var db *gorm.DB
@@ -53,6 +54,7 @@ func setConnection(conn string) (dber databaser, _db *gorm.DB) {
 
 	_db.DB().SetMaxIdleConns(config.GetInt("database.max_idle_connections"))
 	_db.DB().SetMaxOpenConns(config.GetInt("database.max_open_connections"))
+	_db.DB().SetConnMaxLifetime(zone.Duration(config.GetInt("database.max_life_seconds")) * zone.Second)
 
 	//defer _db.Close()
 	return dber, _db
