@@ -3,9 +3,12 @@ package middleware
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/totoval/framework/helpers/debug"
 	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/logs"
 )
 
 func RequestLogger() gin.HandlerFunc {
@@ -14,6 +17,7 @@ func RequestLogger() gin.HandlerFunc {
 		// before request
 
 		// collect request data
+		requestHeader := c.Request.Header
 		requestData, err := c.GetRawData()
 		if err != nil {
 			fmt.Println(err.Error())
@@ -29,9 +33,15 @@ func RequestLogger() gin.HandlerFunc {
 		// after request
 
 		// print request data
-		debug.Dump(string(requestData))
+		log.Trace("totoval request trace", logs.Field{
+			"header": requestHeader,
+			"body":   string(requestData),
+		})
 		// print response data
-		debug.Dump(responseWriter.body.String())
+		log.Trace("totoval response trace", logs.Field{
+			"header": responseWriter.Header(),
+			"body":   responseWriter.body.String(),
+		})
 
 		// access the status we are sending
 	}
