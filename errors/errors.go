@@ -13,5 +13,5 @@ func ErrPrint(err error, startFrom int) {
 		logs.Println(logs.ERROR, err.Error(), nil)
 	}
 	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
-	logs.Println(logs.ERROR, tracerr.SprintSourceColor(traceErr), nil)
+	logs.Println(logs.ERROR, err.Error(), logs.Field{"trace": tracerr.SprintSource(traceErr)})
 }
