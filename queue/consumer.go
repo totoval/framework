@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
+	"github.com/totoval/framework/config"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -51,7 +52,7 @@ func (c *consumer) Pop() error {
 			panic(err)
 		}
 		return nil
-	})
+	}, config.GetInt("queue.max_in_flight"))
 
 }
 

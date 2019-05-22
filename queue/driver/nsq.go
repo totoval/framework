@@ -66,7 +66,7 @@ func (n *nsq) Push(topicName string, channelName string, delay zone.Duration, bo
 	return n.producer.p.Publish(topicName, body)
 }
 
-func (n *nsq) Pop(topicName string, channelName string, handler func(hash string, body []byte) error) (err error) {
+func (n *nsq) Pop(topicName string, channelName string, handler func(hash string, body []byte) error, maxInFlight int) (err error) {
 	if err := n.connect(topicName, channelName); err != nil {
 		return err
 	}
@@ -78,6 +78,7 @@ func (n *nsq) Pop(topicName string, channelName string, handler func(hash string
 	if err := n.consumer(h).c.ConnectToNSQD(n.connectionArgs()); err != nil {
 		return err
 	}
+	n.consumer(h).c.ChangeMaxInFlight(maxInFlight)
 	n.addConnectedConsumer(n.consumer(h))
 	return nil
 }
