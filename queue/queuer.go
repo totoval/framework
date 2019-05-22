@@ -24,6 +24,7 @@ func setQueue(q queuer) {
 type queuer interface {
 	producerer
 	consumerer
+	Close() (err error)
 }
 
 type producerer interface {

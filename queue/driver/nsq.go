@@ -24,6 +24,7 @@ func NewNsq(connection string) *nsq {
 	if n.producer.p, err = _nsq.NewProducer(addr, n.producer.cfg); err != nil {
 		panic(err)
 	}
+	n.addConnectedProducer(n.producer)
 
 	return n
 }
@@ -43,10 +44,19 @@ type consumer struct {
 }
 
 type nsq struct {
-	producer     *producer
-	conn         string
-	consumerList map[hashTopicChannel]*consumer
-	Lock         sync.RWMutex
+	producer              *producer
+	conn                  string
+	consumerList          map[hashTopicChannel]*consumer
+	Lock                  sync.RWMutex
+	connectedProducerList []*producer
+	connectedConsumerList []*consumer
+}
+
+func (n *nsq) addConnectedProducer(p *producer) {
+	n.connectedProducerList = append(n.connectedProducerList, p)
+}
+func (n *nsq) addConnectedConsumer(c *consumer) {
+	n.connectedConsumerList = append(n.connectedConsumerList, c)
 }
 
 func (n *nsq) Push(topicName string, channelName string, delay zone.Duration, body []byte) (err error) {
@@ -65,8 +75,25 @@ func (n *nsq) Pop(topicName string, channelName string, handler func(hash string
 	n.consumer(h).c.AddHandler(_nsq.HandlerFunc(func(message *_nsq.Message) error {
 		return handler(string(message.ID[:]), message.Body)
 	}))
-	return n.consumer(h).c.ConnectToNSQD(n.connectionArgs())
-	//return n.consumerList[h].c.ConnectToNSQD(n.connectionArgs())
+	if err := n.consumer(h).c.ConnectToNSQD(n.connectionArgs()); err != nil {
+		return err
+	}
+	n.addConnectedConsumer(n.consumer(h))
+	return nil
+}
+
+func (n *nsq) Close() (err error) {
+	// stop producer
+	for _, p := range n.connectedProducerList {
+		p.p.Stop()
+	}
+
+	// stop consumer
+	for _, c := range n.connectedConsumerList {
+		c.c.Stop()
+	}
+
+	return nil
 }
 
 func (n *nsq) HashTopicChannel(topicName string, channelName string) hashTopicChannel {
