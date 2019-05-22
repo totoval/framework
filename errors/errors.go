@@ -7,6 +7,9 @@ import (
 )
 
 func ErrPrint(err error, startFrom int) {
+	if err == nil {
+		return
+	}
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
 	if startFrom > len(frameList) {
