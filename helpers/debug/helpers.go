@@ -1,21 +1,32 @@
 package debug
 
 import (
+	"errors"
 	"os"
-	"runtime/debug"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/ztrue/tracerr"
 
 	"github.com/totoval/framework/console"
-	"github.com/totoval/framework/helpers/zone"
-	"github.com/totoval/framework/log"
+	"github.com/totoval/framework/helpers/log"
 )
 
 func Dump(v ...interface{}) {
-	log.Println("DUMP", console.Sprintf(console.CODE_INFO, "%s - %s", zone.Now().String(), spew.Sdump(v...)), console.Sprintf(console.CODE_WARNING, string(debug.Stack())))
+	console.Println(console.CODE_SUCCESS, spew.Sdump(v...))
+	debugPrint(errors.New("====== Totoval Debug ======"), 2)
 }
 
 func DD(v ...interface{}) {
 	Dump(v...)
 	os.Exit(1)
+}
+
+func debugPrint(err error, startFrom int) {
+	traceErr := tracerr.Wrap(err)
+	frameList := tracerr.StackTrace(traceErr)
+	if startFrom > len(frameList) {
+		_ = log.Error(err)
+	}
+	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	tracerr.PrintSourceColor(traceErr)
 }

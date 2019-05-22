@@ -3,15 +3,15 @@ package errors
 import (
 	"github.com/ztrue/tracerr"
 
-	"github.com/totoval/framework/log"
+	"github.com/totoval/framework/logs"
 )
 
-func ErrPrint(prefix string, err error, startFrom int) {
+func ErrPrint(err error, startFrom int) {
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
 	if startFrom > len(frameList) {
-		log.Println(prefix, err)
+		logs.Println(logs.ERROR, err.Error(), nil)
 	}
 	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
-	log.Println(prefix, tracerr.SprintSourceColor(traceErr))
+	logs.Println(logs.ERROR, tracerr.SprintSourceColor(traceErr), nil)
 }
