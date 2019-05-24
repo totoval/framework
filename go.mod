@@ -1,7 +1,5 @@
 module github.com/totoval/framework
 
-go 1.11+
-
 require (
 	cloud.google.com/go v0.36.0 // indirect
 	github.com/davecgh/go-spew v1.1.1
