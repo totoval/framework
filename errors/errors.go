@@ -20,9 +20,10 @@ func ErrPrintln(err error, startFrom int, fields logs.Field) {
 
 	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
 
-	if fields != nil {
-		fields["totoval_trace"] = tracerr.SprintSource(traceErr)
+	if fields == nil {
+		fields = logs.Field{}
 	}
+	fields["totoval_trace"] = tracerr.SprintSource(traceErr)
 	logs.Println(logs.ERROR, err.Error(), fields)
 }
 
@@ -37,9 +38,10 @@ func ErrPrint(err error, startFrom int, fields logs.Field) string {
 	}
 
 	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
-	
-	if fields != nil {
-		fields["totoval_trace"] = tracerr.SprintSource(traceErr)
+
+	if fields == nil {
+		fields = logs.Field{}
 	}
+	fields["totoval_trace"] = tracerr.SprintSource(traceErr)
 	return fmt.Sprint(err.Error(), fields)
 }
