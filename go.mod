@@ -30,11 +30,11 @@ require (
 	github.com/nsqio/go-nsq v1.0.7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robfig/cron v1.1.0 // indirect
-	github.com/sirupsen/logrus v1.4.2 // indirect
+	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/viper v1.3.1
 	github.com/urfave/cli v1.20.0
-	github.com/ztrue/tracerr v0.3.0 // indirect
+	github.com/ztrue/tracerr v0.3.0
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
