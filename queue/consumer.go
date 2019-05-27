@@ -1,12 +1,14 @@
 package queue
 
 import (
+	"errors"
 	"fmt"
-	"log"
 
 	"github.com/golang/protobuf/proto"
 
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/logs"
 	message "github.com/totoval/framework/queue/protocol_buffers"
 )
 
@@ -39,7 +41,9 @@ func (c *consumer) Pop() error {
 		// log hash
 		msg.Hash = hash
 
-		log.Println(msg)
+		log.Info("queue msg received", logs.Field{
+			"msg": msg,
+		})
 
 		// exact param
 		if err := proto.Unmarshal(msg.Param, c.paramPtr); err != nil {
@@ -58,18 +62,24 @@ func (c *consumer) Pop() error {
 
 func (c *consumer) Failed(msg message.Message) {
 	if err := recover(); err != nil {
-		log.Println(err)
+		//fmt.Println(err)
 
 		newMsg := msg
 		newMsg.Retries = newMsg.Retries - 1
 
-		fmt.Println(msg.Retries)
+		//fmt.Println(msg.Retries)
+
+		_ = log.Error(errors.New("queue msg processed error"), logs.Field{
+			"msg": msg,
+		})
 
 		if msg.Retries <= 0 {
 			// if database save failed, then push into queue again? or log?
 			if err := c.failedToDatabase(c.topicName, c.channelName, &msg, err); err != nil {
-				log.Println(msg)
-				log.Println(newMsg, "failedtodatabase processed failed")
+
+				_ = log.Error(errors.New("failedtodatabase processed failed"), logs.Field{
+					"new_msg": newMsg,
+				})
 				newMsg.Retries = 1
 				goto DB_FAILED
 			}
@@ -80,7 +90,9 @@ func (c *consumer) Failed(msg message.Message) {
 		if err := c.failedToQueue(&newMsg); err != nil {
 			if err := c.failedToDatabase(c.topicName, c.channelName, &newMsg, err); err != nil {
 				// error!!!! processed failed
-				log.Println(newMsg, "failedtoqueue processed failed")
+				_ = log.Error(errors.New("failedtoqueue processed failed"), logs.Field{
+					"new_msg": newMsg,
+				})
 			}
 		}
 		return
@@ -92,5 +104,9 @@ func (c *consumer) failedToQueue(msg *message.Message) error {
 }
 
 func (c *consumer) failedToDatabase(topicName string, channelName string, msg *message.Message, err interface{}) error {
-	return failedProcessor.FailedToDatabase(topicName, channelName, msg, fmt.Sprint(err))
+	errStr := fmt.Sprint(err)
+	if _err, ok := err.(error); ok {
+		errStr = log.ErrorStr(_err)
+	}
+	return failedProcessor.FailedToDatabase(topicName, channelName, msg, errStr)
 }

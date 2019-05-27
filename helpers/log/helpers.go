@@ -5,8 +5,12 @@ import (
 	"github.com/totoval/framework/logs"
 )
 
-func Error(err error) error {
-	errors.ErrPrint(err, 2)
+func Error(err error, v ...logs.Field) error {
+	var fields logs.Field
+	if len(v) > 0 {
+		fields = v[0]
+	}
+	errors.ErrPrintln(err, 2, fields)
 	return err
 }
 
@@ -51,4 +55,11 @@ func Trace(msg string, v ...logs.Field) {
 		fields = v[0]
 	}
 	logs.Println(logs.TRACE, msg, fields)
+}
+func ErrorStr(err error, v ...logs.Field) string {
+	var fields logs.Field
+	if len(v) > 0 {
+		fields = v[0]
+	}
+	return errors.ErrPrint(err, 2, fields)
 }
