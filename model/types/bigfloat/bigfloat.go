@@ -372,6 +372,26 @@ func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 func (bf *BigFloat) mergeDecimal(a BigFloat, b BigFloat) {
 	bf.decimalCount = a.decimalCount + b.decimalCount
 }
+func (bf *BigFloat) mergeDecimalDiv(a BigFloat, b BigFloat) {
+	decimalA := a.decimalCount
+	decimalB := b.decimalCount
+
+	if decimalA == 0 && decimalB == 0 {
+		// may be infinitive
+		bf.decimalCount = AutoPrec / 2
+		return
+	}
+
+	if decimalA == 0 {
+		decimalA = 1
+	}
+	if decimalB == 0 {
+		decimalB = 1
+	}
+
+	bf.decimalCount = decimalA * decimalB
+	return
+}
 
 func (bf *BigFloat) Add(a BigFloat, b BigFloat) {
 	bf.useBiggerDecimal(a, b)
@@ -386,7 +406,7 @@ func (bf *BigFloat) Mul(a BigFloat, b BigFloat) {
 	bf._bf.Mul(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Div(a BigFloat, b BigFloat) {
-	bf.mergeDecimal(a, b)
+	bf.mergeDecimalDiv(a, b)
 	bf._bf.Quo(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Abs(a BigFloat) {
