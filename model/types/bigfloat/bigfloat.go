@@ -234,6 +234,19 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 		return &bfCopy, nil
 	}
 
+	result, err := greaterOrEqualThanZero(decimalPart, normalPart, decimal, roundType)
+	if err != nil {
+		return nil, err
+	}
+
+	// result.setDecimal(decimal)
+	if err := result.CreateFromString(result.String(), ToNearestEven); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func greaterOrEqualThanZero(decimalPart string, normalPart string, decimal uint, roundType RoundType) (*BigFloat, error) {
 	newDecimalPart := decimalPart[:decimal]
 	lastDecimalStr := decimalPart[decimal : decimal+1]
 	lastDecimal, err := strconv.ParseUint(lastDecimalStr, 10, 32)
@@ -286,10 +299,6 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 		return nil, errors.New("unknown roundType")
 	}
 
-	// result.setDecimal(decimal)
-	if err := result.CreateFromString(result.String(), ToNearestEven); err != nil {
-		return nil, err
-	}
 	return result, nil
 }
 
@@ -377,7 +386,7 @@ func (bf *BigFloat) Mul(a BigFloat, b BigFloat) {
 	bf._bf.Mul(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Div(a BigFloat, b BigFloat) {
-	bf.useBiggerDecimal(a, b)
+	bf.mergeDecimal(a, b)
 	bf._bf.Quo(&a._bf, &b._bf)
 }
 func (bf *BigFloat) Abs(a BigFloat) {
