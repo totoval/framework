@@ -224,17 +224,21 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 		return nil, errors.New("cannot parse " + bfCopy.String())
 	}
 
-	// check is greater than 0
-	if bfCopy.Cmp(ZERO) < 0 {
-		return nil, errors.New("currently not support for number smaller than 0")
-	}
-
 	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
 	if int(decimal) >= len(decimalPart) {
 		return &bfCopy, nil
 	}
 
-	result, err := greaterOrEqualThanZero(decimalPart, normalPart, decimal, roundType)
+	result := &BigFloat{}
+	var err error
+	// check is greater than 0
+	if bfCopy.Cmp(ZERO) < 0 {
+		//return nil, errors.New("currently not support for number smaller than 0")
+		//@todo small than 0
+		result, err = smallerThanZero(decimalPart, normalPart, decimal, roundType)
+	} else {
+		result, err = greaterOrEqualThanZero(decimalPart, normalPart, decimal, roundType)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +297,67 @@ func greaterOrEqualThanZero(decimalPart string, normalPart string, decimal uint,
 		break
 	case RoundDown:
 		result = &roundDown
+		break
+
+	default:
+		return nil, errors.New("unknown roundType")
+	}
+
+	return result, nil
+}
+func smallerThanZero(decimalPart string, normalPart string, decimal uint, roundType RoundType) (*BigFloat, error) {
+	//debug.Dump(normalPart, decimalPart, decimal, roundType)
+	// -123.12345
+	// decimal 0
+	newDecimalPart := decimalPart[:decimal]            // ""
+	lastDecimalStr := decimalPart[decimal : decimal+1] // 1
+	//debug.Dump(lastDecimalStr, newDecimalPart)
+	lastDecimal, err := strconv.ParseUint(lastDecimalStr, 10, 32) // 1
+	if err != nil {
+		return nil, err
+	}
+	newDecimalPartPlus := newDecimalPart + lastDecimalStr // 1
+
+	// create roundDownPlus with RoundDown decimal + 1              decimal = 2         1000.1234 => 1000.123
+	roundUpPlusStr := normalPart + "." + newDecimalPartPlus // -123.1
+	var roundUpPlus BigFloat
+	if err := roundUpPlus.CreateFromString(roundUpPlusStr, ToNearestEven); err != nil {
+		return nil, err
+	}
+	//debug.Dump(roundDownPlusStr)
+
+	// create roundUp with RoundUp                                 decimal = 2         1000.123 => 1000.12
+	roundUpStr := normalPart + "." + newDecimalPart // -123.
+	var roundUp BigFloat
+	if err := roundUp.CreateFromString(roundUpStr, ToNearestEven); err != nil {
+		return nil, err
+	}
+	//debug.Dump(roundUp)
+	// create carry
+	carry, err := createCarry(uint(lastDecimal), newDecimalPartPlus)
+	// debug.Dump(lastDecimal, newDecimalPartPlus, carry)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &BigFloat{}
+	switch roundType {
+	case RoundUpAlways:
+		result = &roundUp
+		break
+	case RoundUpAuto:
+		if lastDecimal <= 5 {
+			result = &roundUp
+		} else {
+			result.Sub(roundUpPlus, *carry)
+		}
+		break
+	case RoundDown:
+		if lastDecimal > 0 {
+			result.Sub(roundUpPlus, *carry)
+		} else {
+			result = &roundUp
+		}
 		break
 
 	default:
