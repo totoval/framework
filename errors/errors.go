@@ -14,11 +14,12 @@ func ErrPrintln(err error, startFrom int, fields logs.Field) {
 	}
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
-	if startFrom > len(frameList) {
-		logs.Println(logs.ERROR, err.Error(), fields)
-	}
-
-	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	//if startFrom > len(frameList) {
+	//	logs.Println(logs.ERROR, err.Error(), fields)
+	//}
+	//
+	//traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	traceErr = tracerr.CustomError(err, frameList)
 
 	if fields == nil {
 		fields = logs.Field{}
@@ -33,11 +34,12 @@ func ErrPrint(err error, startFrom int, fields logs.Field) string {
 	}
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
-	if startFrom > len(frameList) {
-		return fmt.Sprint(err.Error(), fields)
-	}
-
-	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	//if startFrom > len(frameList) {
+	//	return fmt.Sprint(err.Error(), fields)
+	//}
+	//
+	//traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	traceErr = tracerr.CustomError(err, frameList)
 
 	if fields == nil {
 		fields = logs.Field{}
