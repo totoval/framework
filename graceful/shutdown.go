@@ -3,6 +3,7 @@ package graceful
 import (
 	"context"
 
+	"github.com/totoval/framework/cache"
 	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/helpers/m"
 	"github.com/totoval/framework/logs"
@@ -39,8 +40,8 @@ func closeDB() {
 }
 func closeCache() {
 	log.Info("Cache closing")
-
-	//@todo close cache
-	
+	if err := cache.Cache().Close(); err != nil {
+		log.Fatal("cache close failed", logs.Field{"error": err})
+	}
 	log.Info("Cache closed")
 }

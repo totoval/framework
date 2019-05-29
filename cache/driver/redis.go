@@ -153,3 +153,6 @@ func (re *redis) Forget(key string) bool {
 	//@todo Event KeyForget
 	return true
 }
+func (re *redis) Close() error {
+	return re.cache.Close()
+}

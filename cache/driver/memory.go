@@ -106,3 +106,7 @@ func (m *memory) Forget(key string) bool {
 	//@todo Event KeyForget
 	return true
 }
+func (m *memory) Close() error {
+	m.cache.Flush()
+	return nil
+}

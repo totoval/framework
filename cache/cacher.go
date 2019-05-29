@@ -16,4 +16,5 @@ type cacher interface {
 	Decrement(key string, value int64) (decremented int64, success bool)
 	Forever(key string, value interface{}) bool
 	Forget(key string) bool
+	Close() error
 }
