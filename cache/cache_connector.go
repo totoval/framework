@@ -24,8 +24,20 @@ func setStore(store string) (cer cacher) {
 	// get driver instance and connect cache store
 	switch _conn {
 	case "memory":
-		cer = driver.NewMemory(config.GetString("cache.stores.memory.prefix"), config.GetUint("cache.stores.memory.default_expiration_minute"), config.GetUint("cache.stores.memory.cleanup_interval_minute"))
-		break
+		cer = driver.NewMemory(
+			config.GetString("cache.stores.memory.prefix"),
+			config.GetUint("cache.stores.memory.default_expiration_minute"),
+			config.GetUint("cache.stores.memory.cleanup_interval_minute"),
+		)
+	case "redis":
+		connection := config.GetString("cache.stores.redis.connection") // cache
+		cer = driver.NewRedis(
+			config.GetString("database.redis."+connection+".host"),
+			config.GetString("database.redis."+connection+".port"),
+			config.GetString("database.redis."+connection+".password"),
+			config.GetInt("database.redis."+connection+".database"),
+			config.GetString("database.redis.options.prefix"),
+		)
 	default:
 		panic("incorrect cache connection provided")
 	}
