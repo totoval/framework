@@ -1,8 +1,6 @@
 package graceful
 
 import (
-	"context"
-
 	"github.com/totoval/framework/cache"
 	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/helpers/m"
@@ -10,18 +8,12 @@ import (
 	"github.com/totoval/framework/queue"
 )
 
-func ShutDown(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			closeQueue()
-			closeDB()
-			closeCache()
-			return
-		default:
-			log.Info("Totoval Running")
-		}
-	}
+func ShutDown() {
+	log.Info("Totoval is shutting down")
+	closeQueue()
+	closeCache()
+	closeDB()
+	log.Info("Totoval is shut down")
 }
 
 func closeQueue() {
