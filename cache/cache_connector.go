@@ -1,7 +1,8 @@
 package cache
 
 import (
-	"github.com/totoval/framework/cache/driver"
+	"github.com/totoval/framework/cache/driver/memory"
+	"github.com/totoval/framework/cache/driver/redis"
 
 	"github.com/totoval/framework/config"
 )
@@ -24,14 +25,14 @@ func setStore(store string) (cer cacher) {
 	// get driver instance and connect cache store
 	switch _conn {
 	case "memory":
-		cer = driver.NewMemory(
+		cer = memory.NewMemory(
 			config.GetString("cache.stores.memory.prefix"),
 			config.GetUint("cache.stores.memory.default_expiration_minute"),
 			config.GetUint("cache.stores.memory.cleanup_interval_minute"),
 		)
 	case "redis":
 		connection := config.GetString("cache.stores.redis.connection") // cache
-		cer = driver.NewRedis(
+		cer = redis.NewRedis(
 			config.GetString("database.redis."+connection+".host"),
 			config.GetString("database.redis."+connection+".port"),
 			config.GetString("database.redis."+connection+".password"),

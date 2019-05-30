@@ -1,8 +1,8 @@
-package driver
+package utils
 
 import "github.com/totoval/framework/helpers/zone"
 
-func durationFromNow(future zone.Time) zone.Duration {
+func DurationFromNow(future zone.Time) zone.Duration {
 	return future.Sub(zone.Now())
 }
 
@@ -11,7 +11,7 @@ type key struct {
 	prefix string
 }
 
-func newKey(raw string, prefix string) *key {
+func NewKey(raw string, prefix string) *key {
 	k := key{}
 	k.prefix = prefix
 	k.raw = raw

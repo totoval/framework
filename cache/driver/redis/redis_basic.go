@@ -1,42 +1,26 @@
-package driver
+package redis
 
 import (
 	r "github.com/go-redis/redis"
 
+	. "github.com/totoval/framework/cache/utils"
 	"github.com/totoval/framework/helpers/zone"
 )
 
-func NewRedis(host string, port string, password string, dbIndex int, prefix string) *redis {
-	client := r.NewClient(&r.Options{
-		Addr:     host + ":" + port,
-		Password: password,
-		DB:       dbIndex,
-	})
-
-	//pong, err := client.Ping().Result()
-	//fmt.Println(pong, err)
-	//// Output: PONG <nil>
-
-	return &redis{
-		cache:  client,
-		prefix: prefix,
-	}
-}
-
-type redis struct {
+type redisBasic struct {
 	cache  *r.Client
 	prefix string
 }
 
-func (re *redis) Cache() *r.Client {
+func (re *redisBasic) Cache() *r.Client {
 	return re.cache
 }
 
-func (re *redis) Prefix() string {
+func (re *redisBasic) Prefix() string {
 	return re.prefix
 }
-func (re *redis) Has(key string) bool {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Has(key string) bool {
+	k := NewKey(key, re.Prefix())
 
 	exists, err := re.cache.Exists(k.Prefixed()).Result()
 	if err != nil {
@@ -48,11 +32,14 @@ func (re *redis) Has(key string) bool {
 
 	return true
 }
-func (re *redis) Get(key string, defaultValue ...interface{}) interface{} {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Get(key string, defaultValue ...interface{}) interface{} {
+	k := NewKey(key, re.Prefix())
 
 	if !re.Has(k.Raw()) {
 		//@todo Event CacheMissed
+		if len(defaultValue) > 0 {
+			return defaultValue[0]
+		}
 		return nil
 	}
 	valStr, err := re.cache.Get(k.Prefixed()).Result()
@@ -63,8 +50,8 @@ func (re *redis) Get(key string, defaultValue ...interface{}) interface{} {
 	//@todo Event CacheHit
 	return valStr
 }
-func (re *redis) Pull(key string, defaultValue ...interface{}) interface{} {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Pull(key string, defaultValue ...interface{}) interface{} {
+	k := NewKey(key, re.Prefix())
 
 	val := re.Get(k.Raw(), defaultValue...)
 	if val == nil {
@@ -75,10 +62,10 @@ func (re *redis) Pull(key string, defaultValue ...interface{}) interface{} {
 
 	return val
 }
-func (re *redis) Put(key string, value interface{}, future zone.Time) bool {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Put(key string, value interface{}, future zone.Time) bool {
+	k := NewKey(key, re.Prefix())
 
-	_, err := re.cache.Set(k.Prefixed(), value, durationFromNow(future)).Result()
+	_, err := re.cache.Set(k.Prefixed(), value, DurationFromNow(future)).Result()
 	if err != nil {
 		return false
 	}
@@ -87,8 +74,8 @@ func (re *redis) Put(key string, value interface{}, future zone.Time) bool {
 
 	//@todo Event KeyWritten
 }
-func (re *redis) Add(key string, value interface{}, future zone.Time) bool {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Add(key string, value interface{}, future zone.Time) bool {
+	k := NewKey(key, re.Prefix())
 
 	// if expired return false
 	ttl, err := re.cache.TTL(k.Prefixed()).Result()
@@ -109,8 +96,8 @@ func (re *redis) Add(key string, value interface{}, future zone.Time) bool {
 	//@todo Event KeyWritten
 	return result
 }
-func (re *redis) Increment(key string, value int64) (incremented int64, success bool) {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Increment(key string, value int64) (incremented int64, success bool) {
+	k := NewKey(key, re.Prefix())
 
 	incremented, err := re.cache.IncrBy(k.Prefixed(), value).Result()
 	if err != nil {
@@ -119,8 +106,8 @@ func (re *redis) Increment(key string, value int64) (incremented int64, success 
 
 	return incremented, true
 }
-func (re *redis) Decrement(key string, value int64) (decremented int64, success bool) {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Decrement(key string, value int64) (decremented int64, success bool) {
+	k := NewKey(key, re.Prefix())
 
 	decremented, err := re.cache.DecrBy(k.Prefixed(), value).Result()
 	if err != nil {
@@ -129,8 +116,8 @@ func (re *redis) Decrement(key string, value int64) (decremented int64, success 
 
 	return decremented, true
 }
-func (re *redis) Forever(key string, value interface{}) bool {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Forever(key string, value interface{}) bool {
+	k := NewKey(key, re.Prefix())
 
 	_, err := re.cache.Set(k.Prefixed(), value, 0).Result()
 	if err != nil {
@@ -140,8 +127,8 @@ func (re *redis) Forever(key string, value interface{}) bool {
 	//@todo Event KeyWritten
 	return true
 }
-func (re *redis) Forget(key string) bool {
-	k := newKey(key, re.Prefix())
+func (re *redisBasic) Forget(key string) bool {
+	k := NewKey(key, re.Prefix())
 
 	result, err := re.cache.Del(k.Prefixed()).Result()
 	if err != nil {
@@ -154,6 +141,6 @@ func (re *redis) Forget(key string) bool {
 	//@todo Event KeyForget
 	return true
 }
-func (re *redis) Close() error {
+func (re *redisBasic) Close() error {
 	return re.cache.Close()
 }
