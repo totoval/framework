@@ -3,6 +3,7 @@ package ptr
 import (
 	"math/big"
 
+	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/helpers/zone"
 	"github.com/totoval/framework/model/types/bigfloat"
 	"github.com/totoval/framework/model/types/bigint"
@@ -61,7 +62,7 @@ func Uint8(value uint8) *uint8 {
 
 func BigInt(value *big.Int) *bigint.BigInt {
 	v := bigint.BigInt{}
-	v.Convert(value)
+	_ = log.Error(v.Convert(value))
 	return &v
 }
 func BigFloat(value string) (*bigfloat.BigFloat, error) {
