@@ -49,18 +49,17 @@ func (re *redis) Has(key string) bool {
 func (re *redis) Get(key string, defaultValue ...interface{}) interface{} {
 	k := newKey(key, re.Prefix())
 
-	var val interface{}
-	err := re.cache.Get(k.Prefixed()).Scan(&val)
-	if err != nil {
-		return err
-	}
-	if val == nil {
+	if !re.Has(k.Raw()) {
 		//@todo Event CacheMissed
 		return nil
 	}
+	valStr, err := re.cache.Get(k.Prefixed()).Result()
+	if err != nil {
+		return err
+	}
 
 	//@todo Event CacheHit
-	return val
+	return valStr
 }
 func (re *redis) Pull(key string, defaultValue ...interface{}) interface{} {
 	k := newKey(key, re.Prefix())
