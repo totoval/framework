@@ -28,6 +28,10 @@ type redis struct {
 	prefix string
 }
 
+func (re *redis) Cache() *r.Client {
+	return re.cache
+}
+
 func (re *redis) Prefix() string {
 	return re.prefix
 }
