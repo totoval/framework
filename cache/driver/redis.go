@@ -1,8 +1,6 @@
 package driver
 
 import (
-	"fmt"
-
 	r "github.com/go-redis/redis"
 
 	"github.com/totoval/framework/helpers/zone"
@@ -15,9 +13,9 @@ func NewRedis(host string, port string, password string, dbIndex int, prefix str
 		DB:       dbIndex,
 	})
 
-	pong, err := client.Ping().Result()
-	fmt.Println(pong, err)
-	// Output: PONG <nil>
+	//pong, err := client.Ping().Result()
+	//fmt.Println(pong, err)
+	//// Output: PONG <nil>
 
 	return &redis{
 		cache:  client,
