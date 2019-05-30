@@ -7,8 +7,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/jinzhu/copier"
 
-	"github.com/totoval/framework/cache/driver/common"
 	. "github.com/totoval/framework/cache/utils"
+	"github.com/totoval/framework/helpers/zone"
 )
 
 func NewRedis(host string, port string, password string, dbIndex int, prefix string) *redis {
@@ -23,7 +23,7 @@ func NewRedis(host string, port string, password string, dbIndex int, prefix str
 	//// Output: PONG <nil>
 
 	return &redis{
-		redisBasic: redisBasic{
+		redisBasic{
 			cache:  client,
 			prefix: prefix,
 		},
@@ -32,7 +32,6 @@ func NewRedis(host string, port string, password string, dbIndex int, prefix str
 
 type redis struct {
 	redisBasic
-	common.Common
 }
 
 func (re *redis) Pget(key string, valuePtr proto.Message, defaultValuePtr ...proto.Message) error {
@@ -57,4 +56,42 @@ func (re *redis) Pget(key string, valuePtr proto.Message, defaultValuePtr ...pro
 		return err
 	}
 	return nil
+}
+
+// ------------------------------------------------------------------------------
+// the same
+// ------------------------------------------------------------------------------
+
+func (re *redis) Ppull(key string, valuePtr proto.Message, defaultValuePtr ...proto.Message) error {
+	k := NewKey(key, re.Prefix())
+
+	err := re.Pget(k.Raw(), valuePtr, defaultValuePtr...)
+	if err != nil {
+		return err
+	}
+
+	re.Forget(k.Raw())
+
+	return nil
+}
+func (re *redis) Pput(key string, valuePtr proto.Message, future zone.Time) bool {
+	valueBytes, err := proto.Marshal(valuePtr)
+	if err != nil {
+		return false
+	}
+	return re.Put(key, valueBytes, future)
+}
+func (re *redis) Padd(key string, valuePtr proto.Message, future zone.Time) bool {
+	valueBytes, err := proto.Marshal(valuePtr)
+	if err != nil {
+		return false
+	}
+	return re.Add(key, valueBytes, future)
+}
+func (re *redis) Pforever(key string, valuePtr proto.Message) bool {
+	valueBytes, err := proto.Marshal(valuePtr)
+	if err != nil {
+		return false
+	}
+	return re.Forever(key, valueBytes)
 }
