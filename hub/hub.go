@@ -2,15 +2,19 @@ package hub
 
 var hub map[EventerName][]Listener
 var listenerMap map[ListenerName]Listener
+var eventerMap map[EventerName]Eventer
 
 func init() {
 	hub = make(map[EventerName][]Listener)
 	listenerMap = make(map[ListenerName]Listener)
+	eventerMap = make(map[EventerName]Eventer)
 }
 
 func Make(e Eventer) {
 	e.SetParam(e.ParamProto()) // for init
 	hub[EventName(e)] = nil
+
+	eventerMap[EventName(e)] = e
 }
 
 // register Listener to hub
@@ -30,6 +34,9 @@ func Register(l Listener) {
 
 func eventListener(e Eventer) []Listener {
 	return hub[EventName(e)]
+}
+func event(en EventerName) Eventer {
+	return eventerMap[en]
 }
 
 func registerListenerToEvent(e Eventer, l Listener) bool {
