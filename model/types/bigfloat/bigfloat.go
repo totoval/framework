@@ -421,6 +421,10 @@ func (bf *BigFloat) MarshalJSON() ([]byte, error) {
 	return []byte(bf.String()), nil
 }
 
+func (bf *BigFloat) UnmarshalJSON(src []byte) error {
+	return bf.scanBytes(src)
+}
+
 func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 	if a.decimalCount > b.decimalCount {
 		bf.decimalCount = a.decimalCount

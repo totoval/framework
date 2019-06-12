@@ -67,6 +67,9 @@ func (bi *BigInt) CreateFromString(s string, base int) error {
 func (bi *BigInt) MarshalJSON() ([]byte, error) {
 	return []byte(bi._bi.String()), nil
 }
+func (bi *BigInt) UnmarshalJSON(src []byte) error {
+	return bi.scanBytes(src)
+}
 
 func (bi *BigInt) SetUint64(i uint64) *BigInt {
 	bi._bi.SetUint64(i)
