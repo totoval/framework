@@ -418,6 +418,7 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 
 // @todo xml protobuf ...
 func (bf BigFloat) MarshalJSON() ([]byte, error) {
+	// fix https://github.com/golang/go/issues/20651
 	return []byte(`"` + bf.String() + `"`), nil
 }
 

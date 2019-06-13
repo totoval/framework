@@ -65,6 +65,7 @@ func (bi *BigInt) CreateFromString(s string, base int) error {
 
 // @todo xml protobuf ...
 func (bi BigInt) MarshalJSON() ([]byte, error) {
+	// fix https://github.com/golang/go/issues/20651
 	return []byte(`"` + bi._bi.String() + `"`), nil
 }
 func (bi *BigInt) UnmarshalJSON(src []byte) error {

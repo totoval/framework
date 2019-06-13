@@ -276,7 +276,7 @@ func TestBigFloat_MarshalJSON(t *testing.T) {
 
 		js, _ := json.Marshal(test)
 
-		fmt.Println(js)
+		fmt.Println(string(js))
 
 		if string(js) != te.output {
 			t.Errorf("marshalJSON expected %s, got %s a:%v", te.output, string(js), te.a)
