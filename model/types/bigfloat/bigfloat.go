@@ -417,8 +417,8 @@ func (bf *BigFloat) CreateFromString(s string, mode big.RoundingMode) error {
 }
 
 // @todo xml protobuf ...
-func (bf *BigFloat) MarshalJSON() ([]byte, error) {
-	return []byte(bf.String()), nil
+func (bf BigFloat) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + bf.String() + `"`), nil
 }
 
 func (bf *BigFloat) UnmarshalJSON(src []byte) error {

@@ -64,8 +64,8 @@ func (bi *BigInt) CreateFromString(s string, base int) error {
 }
 
 // @todo xml protobuf ...
-func (bi *BigInt) MarshalJSON() ([]byte, error) {
-	return []byte(bi._bi.String()), nil
+func (bi BigInt) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + bi._bi.String() + `"`), nil
 }
 func (bi *BigInt) UnmarshalJSON(src []byte) error {
 	return bi.scanBytes(src)

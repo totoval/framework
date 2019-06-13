@@ -1,6 +1,7 @@
 package bigfloat
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"strings"
@@ -31,6 +32,10 @@ type testRound struct {
 	decimal   uint
 	roundType RoundType
 	output    string
+}
+type testMarshalJSON struct {
+	a      string
+	output string
 }
 
 var testAddTable = []*testAdd{
@@ -116,6 +121,9 @@ var testRoundTable = []*testRound{
 	// {"123123123.123456", 5, "123123124.123456"},
 	// {"-123123.123", 2, "-123122.123"},
 	// {"1", 1, "2"},
+}
+var testMarshalJSONTable = []*testMarshalJSON{
+	{a: "100.123", output: `{"str1":"\"test\"","bf1":"100.123","bi1":"100"}`},
 }
 
 func TestBigFloat_Add(t *testing.T) {
@@ -247,4 +255,32 @@ func TestBigFloat_Floor(t *testing.T) {
 	}
 
 	fmt.Println(d.String() == "10", err)
+}
+func TestBigFloat_MarshalJSON(t *testing.T) {
+
+	type testMarshalJSONStruct struct {
+		Str string        `json:"str1,string"`
+		Bf  BigFloat      `json:"bf1,string"`
+		Bi  bigint.BigInt `json:"bi1,string"`
+	}
+
+	for _, te := range testMarshalJSONTable {
+		var test testMarshalJSONStruct
+		test.Str = "test"
+		var bf BigFloat
+		bf.CreateFromString(te.a, ToNearestEven)
+		test.Bf = bf
+		var bi bigint.BigInt
+		bi.CreateFromString(te.a, 10)
+		test.Bi = bi
+
+		js, _ := json.Marshal(test)
+
+		fmt.Println(js)
+
+		if string(js) != te.output {
+			t.Errorf("marshalJSON expected %s, got %s a:%v", te.output, string(js), te.a)
+		}
+
+	}
 }
