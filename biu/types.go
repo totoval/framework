@@ -56,12 +56,6 @@ func (body Body) form() (reader io.Reader, err error) {
 	form := url.Values{}
 
 	for k, v := range body {
-
-		//_v, ok := v.(fmt.Stringer)
-		//if !ok {
-		//	return nil, errors.New("form value's type must implement fmt.Stringer")
-		//}
-		//form.Add(k, _v.String())
 		form.Add(k, fmt.Sprintf("%v", v))
 	}
 

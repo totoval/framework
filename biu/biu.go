@@ -54,7 +54,7 @@ func (b *biu) request() (ahh *ahh) {
 	b.constructHeader()
 
 	client := http.Client{
-		//Jar: b.constructedCookieJar,
+		Jar: b.constructedCookieJar,
 	}
 
 	dd, _ := httputil.DumpRequest(b.constructedRequest, true)
@@ -112,15 +112,16 @@ func (b *biu) constructRequest() (err error) {
 	return err
 }
 func (b *biu) constructCookieJar() (err error) {
-	if b.options.Cookies == nil {
-		b.constructedCookieJar = nil
-		return nil
-	}
-
 	jarPtr, err := cookiejar.New(nil)
 	if err != nil {
 		return err
 	}
+
+	if b.options.Cookies == nil {
+		b.constructedCookieJar = jarPtr
+		return nil
+	}
+
 	urlPtr, err := url.Parse(b.url)
 	if err != nil {
 		return err
