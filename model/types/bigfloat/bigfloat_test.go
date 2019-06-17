@@ -3,13 +3,10 @@ package bigfloat
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 	"testing"
-
-	"github.com/totoval/framework/helpers/log"
-
-	"github.com/totoval/framework/model/types/bigint"
 )
 
 type testAdd struct {
@@ -209,7 +206,7 @@ func TestBigFloat_Round(t *testing.T) {
 		result, err := a.Round(te.decimal, te.roundType)
 
 		if err != nil {
-			log.Info(err.Error())
+			log.Println(err.Error())
 			continue
 		}
 
@@ -223,10 +220,10 @@ func TestBigFloat_Convert(t *testing.T) {
 	//a := big.Float{}
 	a, _, _ := big.ParseFloat("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.12345678901234567890123456789012345678901234567890123456789012345678901234567890", 10, AutoPrec, big.ToNearestEven)
 
-	log.Info(string(a.Prec()))
-	log.Info(a.Text('f', 1024))
+	log.Println(string(a.Prec()))
+	log.Println(a.Text('f', 1024))
 	b := BigFloat{}
-	log.Info(string(a.Prec()))
+	log.Println(string(a.Prec()))
 	b.Convert(a)
 	fmt.Println(b.String())
 	e, _ := b.Round(2, RoundUpAlways)
@@ -234,9 +231,9 @@ func TestBigFloat_Convert(t *testing.T) {
 
 	c := big.Int{}
 	c.SetString("312343532485823940580923458934", 10)
-	d := bigint.BigInt{}
-	d.Convert(&c)
-	fmt.Println(d.String())
+	//d := bigint.BigInt{}
+	//d.Convert(&c)
+	//fmt.Println(d.String())
 }
 
 func TestBigFloat_Floor(t *testing.T) {
@@ -259,9 +256,9 @@ func TestBigFloat_Floor(t *testing.T) {
 func TestBigFloat_MarshalJSON(t *testing.T) {
 
 	type testMarshalJSONStruct struct {
-		Str string        `json:"str1,string"`
-		Bf  BigFloat      `json:"bf1,string"`
-		Bi  bigint.BigInt `json:"bi1,string"`
+		Str string   `json:"str1,string"`
+		Bf  BigFloat `json:"bf1,string"`
+		//Bi  bigint.BigInt `json:"bi1,string"`
 	}
 
 	for _, te := range testMarshalJSONTable {
@@ -270,9 +267,9 @@ func TestBigFloat_MarshalJSON(t *testing.T) {
 		var bf BigFloat
 		bf.CreateFromString(te.a, ToNearestEven)
 		test.Bf = bf
-		var bi bigint.BigInt
-		bi.CreateFromString(te.a, 10)
-		test.Bi = bi
+		//var bi bigint.BigInt
+		//bi.CreateFromString(te.a, 10)
+		//test.Bi = bi
 
 		js, _ := json.Marshal(test)
 
