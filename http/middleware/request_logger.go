@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/helpers/zone"
 	"github.com/totoval/framework/logs"
 )
 
@@ -15,6 +16,7 @@ func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// before request
+		startedAt := zone.Now()
 
 		// collect request data
 		requestHeader := c.Request.Header
@@ -22,7 +24,7 @@ func RequestLogger() gin.HandlerFunc {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // 关键点
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // key point
 
 		// collect response data
 		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
@@ -32,15 +34,18 @@ func RequestLogger() gin.HandlerFunc {
 
 		// after request
 
-		// print request data
-		log.Trace("totoval request trace", logs.Field{
-			"header": requestHeader,
-			"body":   string(requestData),
-		})
-		// print response data
-		log.Trace("totoval response trace", logs.Field{
-			"header": responseWriter.Header(),
-			"body":   responseWriter.body.String(),
+		// print request
+		log.Info(c.ClientIP(), logs.Field{
+			"Method":         c.Request.Method,
+			"Path":           c.Request.RequestURI,
+			"Proto":          c.Request.Proto,
+			"Status":         responseWriter.Status(),
+			"UA":             c.Request.UserAgent(),
+			"Latency":        zone.Now().Sub(startedAt),
+			"RequestHeader":  requestHeader,
+			"RequestBody":    string(requestData),
+			"ResponseHeader": responseWriter.Header(),
+			"ResponseBody":   responseWriter.body.String(),
 		})
 
 		// access the status we are sending
