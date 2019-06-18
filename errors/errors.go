@@ -8,23 +8,24 @@ import (
 	"github.com/totoval/framework/logs"
 )
 
-func ErrPrintln(err error, startFrom int, fields logs.Field) {
+func ErrPrintln(err error, fields logs.Field) {
+	startFrom := 2
 	if err == nil {
 		return
 	}
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
-	//if startFrom > len(frameList) {
-	//	logs.Println(logs.ERROR, err.Error(), fields)
-	//}
-	//
-	//traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
+	if startFrom > len(frameList) || len(frameList)-2 <= 0 {
+		logs.Println(logs.ERROR, err.Error(), fields)
+	}
+
+	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
 	traceErr = tracerr.CustomError(err, frameList)
 
 	if fields == nil {
 		fields = logs.Field{}
 	}
-	fields["totoval_trace"] = tracerr.SprintSource(traceErr)
+	fields["totoval_trace"] = tracerr.SprintSource(traceErr, 0)
 	logs.Println(logs.ERROR, err.Error(), fields)
 }
 

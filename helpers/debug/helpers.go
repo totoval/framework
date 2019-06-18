@@ -13,7 +13,7 @@ import (
 
 func Dump(v ...interface{}) {
 	console.Println(console.CODE_ERROR, spew.Sdump(v...))
-	debugPrint(errors.New("====== Totoval Debug ======"), 2)
+	debugPrint(errors.New("====== Totoval Debug ======"))
 }
 
 func DD(v ...interface{}) {
@@ -21,12 +21,13 @@ func DD(v ...interface{}) {
 	os.Exit(1)
 }
 
-func debugPrint(err error, startFrom int) {
+func debugPrint(err error) {
+	startFrom := 2
 	traceErr := tracerr.Wrap(err)
 	frameList := tracerr.StackTrace(traceErr)
-	if startFrom > len(frameList) {
+	if startFrom > len(frameList) || len(frameList)-2 <= 0 {
 		_ = log.Error(err)
 	}
 	traceErr = tracerr.CustomError(err, frameList[startFrom:len(frameList)-2])
-	tracerr.PrintSourceColor(traceErr)
+	tracerr.PrintSourceColor(traceErr, 0)
 }

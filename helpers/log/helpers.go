@@ -10,7 +10,7 @@ func Error(err error, v ...logs.Field) error {
 	if len(v) > 0 {
 		fields = v[0]
 	}
-	errors.ErrPrintln(err, 2, fields)
+	errors.ErrPrintln(err, fields)
 	return err
 }
 
