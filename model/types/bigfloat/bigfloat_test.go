@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -33,6 +34,10 @@ type testRound struct {
 type testMarshalJSON struct {
 	a      string
 	output string
+}
+type testSort struct {
+	a      []string
+	output []string
 }
 
 var testAddTable = []*testAdd{
@@ -121,6 +126,9 @@ var testRoundTable = []*testRound{
 }
 var testMarshalJSONTable = []*testMarshalJSON{
 	{a: "100.123", output: `{"str1":"\"test\"","bf1":"100.123","bi1":"100"}`},
+}
+var testSortTable = []*testSort{
+	{a: []string{"2.1234567890123", "3.1234567890123", "-1.1234567890123", "3.1234567890125"}, output: []string{"-1.1234567890123", "2.1234567890123", "3.1234567890123", "3.1234567890125"},},
 }
 
 func TestBigFloat_Add(t *testing.T) {
@@ -279,5 +287,31 @@ func TestBigFloat_MarshalJSON(t *testing.T) {
 			t.Errorf("marshalJSON expected %s, got %s a:%v", te.output, string(js), te.a)
 		}
 
+	}
+}
+func TestBigFloat_Sort(t *testing.T) {
+	var teaBF []*BigFloat
+	var teoBF []*BigFloat
+
+	for _, te := range testSortTable {
+		for _, tea := range te.a {
+			var bf BigFloat
+			_ = bf.CreateFromString(tea, ToNearestEven)
+			teaBF = append(teaBF, &bf)
+		}
+		for _, teo := range te.output {
+			var bf BigFloat
+			_ = bf.CreateFromString(teo, ToNearestEven)
+			teoBF = append(teoBF, &bf)
+		}
+	}
+
+	sort.Sort(Slice(teaBF))
+
+	for i, tea := range teaBF {
+		log.Println(tea.String(), teoBF[i].String())
+		if tea.Cmp(*teoBF[i]) != 0 {
+			panic("failed")
+		}
 	}
 }
