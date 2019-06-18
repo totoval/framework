@@ -2,11 +2,9 @@ package biu
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
-	"net/http/httputil"
 	"net/url"
 )
 
@@ -57,8 +55,8 @@ func (b *biu) request() (ahh *ahh) {
 		Jar: b.constructedCookieJar,
 	}
 
-	dd, _ := httputil.DumpRequest(b.constructedRequest, true)
-	fmt.Println(string(dd))
+	//dd, _ := httputil.DumpRequest(b.constructedRequest, true)
+	//fmt.Println(string(dd))
 
 	response, err := client.Do(b.constructedRequest)
 	if err != nil {
