@@ -2,6 +2,9 @@ package cache
 
 import (
 	"fmt"
+	"strconv"
+
+	"github.com/pkg/errors"
 
 	"github.com/totoval/framework/helpers/zone"
 )
@@ -50,7 +53,12 @@ func (rl *RateLimit) Hit(key string, decayMinutes int) int64 {
 	return hits
 }
 func (rl *RateLimit) Attempts(key string) int64 {
-	return rl.cache.Get(rateLimitCacheKey(key), int64(0)).(int64)
+	attempts, err := parseInt64(rl.cache.Get(rateLimitCacheKey(key), int64(0)))
+	if err != nil {
+		return -1
+	}
+
+	return attempts
 }
 func (rl *RateLimit) ResetAttempts(key string) bool {
 	return rl.cache.Forget(rateLimitCacheKey(key))
@@ -64,7 +72,28 @@ func (rl *RateLimit) Clear(key string) {
 	rl.cache.Forget(rateLimitTimerCacheKey(key))
 }
 func (rl *RateLimit) AvailableIn(key string) zone.Duration {
-	expiredAtUnix := rl.cache.Get(rateLimitTimerCacheKey(key)).(int64)
+	expiredAtUnix, err := parseInt64(rl.cache.Get(rateLimitTimerCacheKey(key)))
+	if err != nil {
+		expiredAtUnix = 0
+	}
 	expiredAt := zone.Unix(expiredAtUnix, 0)
 	return expiredAt.Sub(zone.Now())
+}
+func parseInt64(val interface{}) (int64, error) {
+	switch val.(type) {
+	case int64:
+		return val.(int64), nil
+	case int32:
+		return int64(val.(int32)), nil
+	case int:
+		return int64(val.(int)), nil
+	case string:
+		_int64, err := strconv.ParseInt(val.(string), 10, 64)
+		if err != nil {
+			return -1, err
+		}
+		return _int64, nil
+	default:
+		return -1, errors.New("unrecognized value")
+	}
 }
