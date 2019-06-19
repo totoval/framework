@@ -443,6 +443,7 @@ func (bf *BigFloat) mergeDecimalDiv(a BigFloat, b BigFloat) {
 	return
 }
 
+//@todo calc pointer param
 func (bf *BigFloat) Add(a BigFloat, b BigFloat) {
 	bf.useBiggerDecimal(a, b)
 	bf._bf.Add(&a._bf, &b._bf)

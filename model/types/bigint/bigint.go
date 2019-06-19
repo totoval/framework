@@ -89,6 +89,7 @@ func (bi *BigInt) SetInt64(i int64) *BigInt {
 	return bi
 }
 
+//@todo calc pointer param
 func (bi *BigInt) Add(a BigInt, b BigInt) {
 	bi._bi.Add(&a._bi, &b._bi)
 }

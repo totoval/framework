@@ -1,6 +1,8 @@
 package memory
 
 import (
+	"encoding"
+
 	c "github.com/patrickmn/go-cache"
 
 	. "github.com/totoval/framework/cache/utils"
@@ -47,10 +49,40 @@ func (m *memoryBasic) Pull(key string, defaultValue ...interface{}) interface{} 
 	m.Forget(k.Raw())
 	return val
 }
+func (m *memoryBasic) parseValue(v interface{}) interface{} {
+	switch v := v.(type) {
+	//case nil:
+	//case string:
+	//case []byte:
+	//case int:
+	//case int8:
+	//case int16:
+	//case int32:
+	//case int64:
+	//case uint:
+	//case uint8:
+	//case uint16:
+	//case uint32:
+	//case uint64:
+	//case float32:
+	//case float64:
+	//case bool:
+	//	return v
+	case encoding.BinaryMarshaler:
+		b, err := v.MarshalBinary()
+		if err != nil {
+			return v
+		}
+		return b
+	default:
+		return v
+	}
+}
+
 func (m *memoryBasic) Put(key string, value interface{}, future zone.Time) bool {
 	k := NewKey(key, m.Prefix())
 
-	m.cache.Set(k.Prefixed(), value, DurationFromNow(future))
+	m.cache.Set(k.Prefixed(), m.parseValue(value), DurationFromNow(future))
 
 	//@todo Event KeyWritten
 	return true
@@ -59,7 +91,7 @@ func (m *memoryBasic) Add(key string, value interface{}, future zone.Time) bool 
 	k := NewKey(key, m.Prefix())
 
 	// if exist or expired return false
-	if err := m.cache.Add(k.Prefixed(), value, DurationFromNow(future)); err != nil {
+	if err := m.cache.Add(k.Prefixed(), m.parseValue(value), DurationFromNow(future)); err != nil {
 		return false
 	}
 
@@ -69,7 +101,7 @@ func (m *memoryBasic) Add(key string, value interface{}, future zone.Time) bool 
 func (m *memoryBasic) Increment(key string, value int64) (incremented int64, success bool) {
 	k := NewKey(key, m.Prefix())
 
-	incremented, err := m.cache.IncrementInt64(k.Prefixed(), value)
+	incremented, err := m.cache.IncrementInt64(k.Prefixed(), m.parseValue(value).(int64))
 	if err != nil {
 		return 0, false
 	}
@@ -78,7 +110,7 @@ func (m *memoryBasic) Increment(key string, value int64) (incremented int64, suc
 func (m *memoryBasic) Decrement(key string, value int64) (decremented int64, success bool) {
 	k := NewKey(key, m.Prefix())
 
-	decremented, err := m.cache.DecrementInt64(k.Prefixed(), value)
+	decremented, err := m.cache.DecrementInt64(k.Prefixed(), m.parseValue(value).(int64))
 	if err != nil {
 		return 0, false
 	}
@@ -87,7 +119,7 @@ func (m *memoryBasic) Decrement(key string, value int64) (decremented int64, suc
 func (m *memoryBasic) Forever(key string, value interface{}) bool {
 	k := NewKey(key, m.Prefix())
 
-	m.cache.Set(k.Prefixed(), value, -1)
+	m.cache.Set(k.Prefixed(), m.parseValue(value), -1)
 
 	//@todo Event KeyWritten
 	return true
