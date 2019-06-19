@@ -49,7 +49,10 @@ func (a *ahh) Map(mapPtr *map[string]interface{}) (statusCode int, err error) {
 		return a.statusCode, _err
 	}
 
-	err = json.NewDecoder(bytes.NewReader(a.body)).Decode(mapPtr)
+	decoder := json.NewDecoder(bytes.NewReader(a.body))
+	decoder.UseNumber()
+
+	err = decoder.Decode(mapPtr)
 	return a.statusCode, err
 }
 
@@ -58,6 +61,10 @@ func (a *ahh) Object(objectPtr interface{}) (statusCode int, err error) {
 		return a.statusCode, _err
 	}
 
-	err = json.Unmarshal(a.body, objectPtr)
+	decoder := json.NewDecoder(bytes.NewReader(a.body))
+	decoder.UseNumber()
+	err = decoder.Decode(objectPtr)
+
+	//err = json.Unmarshal(a.body, objectPtr)
 	return a.statusCode, err
 }
