@@ -178,33 +178,6 @@ func createCarry(lastDecimal uint, newDecimalPartPlusStr string) (*BigFloat, err
 	return &carry, nil
 }
 
-// func (bf *BigFloat) roundDown(decimal uint) (*BigFloat, error) {
-// 	var tmp BigFloat
-// 	if err := bf.Copy(&tmp); err != nil {
-// 		return nil, err
-// 	}
-// 	parts := strings.Split(tmp.String(), ".")
-// 	normalPart := parts[0]
-// 	decimalPart := parts[1]
-//
-// 	// if provide decimal is greater than the real decimal, then there isn't any precision problem, so directly return
-// 	if int(decimal) > len(decimalPart) {
-// 		return bf, nil
-// 	}
-//
-// 	newDecimalPart := decimalPart[:decimal]
-// 	lastDecimal, err := strconv.ParseUint(decimalPart[decimal:decimal+1], 10, 32)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-//
-// 	// create roundDown with RoundDown
-// 	roundDownStr := normalPart + "." + newDecimalPart
-// 	var roundDown BigFloat
-// 	if err := roundDown.CreateFromString(roundDownStr, ToNearestEven); err != nil {
-// 		return nil, err
-// 	}
-// }
 func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) {
 	var bfCopy BigFloat
 	if err := bf.Copy(&bfCopy); err != nil {
@@ -426,6 +399,13 @@ func (bf *BigFloat) UnmarshalJSON(src []byte) error {
 	return bf.scanBytes(src)
 }
 
+func (bf *BigFloat) UnmarshalBinary(data []byte) error {
+	return bf.scanBytes(data)
+}
+
+func (bf BigFloat) MarshalBinary() (data []byte, err error) {
+	return []byte(bf.String()), nil
+}
 func (bf *BigFloat) useBiggerDecimal(a BigFloat, b BigFloat) {
 	if a.decimalCount > b.decimalCount {
 		bf.decimalCount = a.decimalCount

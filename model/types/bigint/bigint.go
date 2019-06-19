@@ -72,6 +72,14 @@ func (bi *BigInt) UnmarshalJSON(src []byte) error {
 	return bi.scanBytes(src)
 }
 
+func (bi *BigInt) UnmarshalBinary(data []byte) error {
+	return bi.scanBytes(data)
+}
+
+func (bi BigInt) MarshalBinary() (data []byte, err error) {
+	return []byte(bi.String()), nil
+}
+
 func (bi *BigInt) SetUint64(i uint64) *BigInt {
 	bi._bi.SetUint64(i)
 	return bi
