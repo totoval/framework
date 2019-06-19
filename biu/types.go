@@ -41,13 +41,18 @@ const (
 	ProtocolHttps Protocol = "https"
 )
 
-type Proxy string
+type proxy = *url.URL
 
-const (
-	ProxyHttp  Proxy = "http"
-	ProxyHttps Proxy = "https"
-	ProxyNo    Proxy = "no"
-)
+func newProxy(proxyUrl string) proxy {
+	if proxyUrl == "" {
+		return nil
+	}
+	proxyUrlPtr, err := url.Parse(proxyUrl)
+	if err != nil {
+		return nil
+	}
+	return proxyUrlPtr
+}
 
 type Body map[string]interface{}
 

@@ -10,7 +10,7 @@ import (
 type ahh struct {
 	statusCode int
 	body       []byte
-	error      error
+	err        error
 }
 
 func newAhh(response *http.Response) *ahh {
@@ -27,12 +27,12 @@ func newAhh(response *http.Response) *ahh {
 
 func newErrAhh(err error) *ahh {
 	return &ahh{
-		error: err,
+		err: err,
 	}
 }
 
 func (a *ahh) Status() (statusCode int, err error) {
-	return a.statusCode, a.error
+	return a.statusCode, a.err
 }
 
 func (a *ahh) String(strPtr *string) (statusCode int, err error) {

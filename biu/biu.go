@@ -2,63 +2,107 @@ package biu
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
 )
 
 type biu struct {
 	method  Method
-	url     string
+	url     *url.URL
 	options *Options
 
-	constructedUrl       string
-	constructedRequest   *http.Request
-	constructedCookieJar *cookiejar.Jar
+	err error
+
+	client             *client
+	constructedUrl     *url.URL
+	constructedRequest *http.Request
 }
 
-func Ready(method Method, url string, options *Options) *biu {
-	if options.Headers == nil {
-		options.Headers = make(map[string]string)
+func Ready(method Method, requestUrl string, options *Options) *biu {
+	if options != nil {
+		if options.Headers == nil {
+			options.Headers = make(map[string]string)
+		}
+	}
+
+	requestUrlPtr, err := url.Parse(requestUrl)
+	if err != nil {
+		return &biu{
+			method:  method,
+			url:     nil,
+			options: nil,
+			err:     err,
+		}
 	}
 
 	return &biu{
 		method:  method,
-		url:     url,
+		url:     requestUrlPtr,
 		options: options,
 	}
 }
 func (b *biu) Biu() (ahh *ahh) {
+	if err := b.construct(); err != nil {
+		return newErrAhh(err)
+	}
 	return b.request()
 }
 
-func (b *biu) request() (ahh *ahh) {
-
-	// set cookie
-	if err := b.constructCookieJar(); err != nil {
-		return newErrAhh(err)
+func (b *biu) construct() error {
+	// ready is error
+	if b.err != nil {
+		return b.err
 	}
 
 	// construct url params
-	b.constructUrl()
+	if err := b.constructUrl(); err != nil {
+		return err
+	}
 
 	// construct request
 	if err := b.constructRequest(); err != nil {
-		return newErrAhh(err)
+		return err
 	}
 
 	// set header
 	b.constructHeader()
 
-	client := http.Client{
-		Jar: b.constructedCookieJar,
+	b.client = newClient(b.constructedUrl, b.method, b.options)
+
+	// set cookie
+	if err := b.client.setCookie(); err != nil {
+		return err
 	}
+
+	// set proxy
+	b.client.setProxy()
+
+	// set timeout
+	b.client.setTimeout()
+
+	//@todo set checkRedirect func
+
+	return nil
+}
+
+func (b *biu) request() (ahh *ahh) {
 
 	//dd, _ := httputil.DumpRequest(b.constructedRequest, true)
 	//fmt.Println(string(dd))
 
-	response, err := client.Do(b.constructedRequest)
+	defer func() {
+		if err := recover(); err != nil {
+			if _err, ok := err.(error); ok {
+				ahh = newErrAhh(_err)
+				return
+			}
+			ahh = newErrAhh(errors.New(fmt.Sprint(err)))
+			return
+		}
+	}()
+	response, err := b.client.Do(b.constructedRequest)
 	if err != nil {
 		return newErrAhh(err)
 	}
@@ -83,16 +127,23 @@ func (b *biu) constructRequestBody() (reader io.Reader, err error) {
 	}
 }
 
-func (b *biu) constructUrl() {
-	b.constructedUrl = b.url
-	if b.options.UrlParam != nil {
-		b.constructedUrl = b.constructedUrl + "?" + b.options.UrlParam.string()
+func (b *biu) constructUrl() (err error) {
+	constructedUrl := b.url.String()
+	if b.options == nil {
+		b.constructedUrl = b.url
+		return nil
 	}
+	if b.options.UrlParam != nil {
+		constructedUrl = constructedUrl + "?" + b.options.UrlParam.string()
+	}
+
+	b.constructedUrl, err = url.Parse(constructedUrl)
+	return err
 }
 func (b *biu) constructRequest() (err error) {
 	switch b.method {
 	case MethodGet:
-		b.constructedRequest, err = http.NewRequest(string(b.method), b.constructedUrl, nil)
+		b.constructedRequest, err = http.NewRequest(string(b.method), b.constructedUrl.String(), nil)
 		break
 	case MethodPost, MethodPut, MethodPatch, MethodDelete:
 		b.setDefaultContentType()
@@ -101,7 +152,7 @@ func (b *biu) constructRequest() (err error) {
 		if err != nil {
 			break
 		}
-		b.constructedRequest, err = http.NewRequest(string(b.method), b.constructedUrl, reqBodyBuff)
+		b.constructedRequest, err = http.NewRequest(string(b.method), b.constructedUrl.String(), reqBodyBuff)
 		break
 	default:
 		err = errors.New("wrong method provided")
@@ -109,41 +160,23 @@ func (b *biu) constructRequest() (err error) {
 
 	return err
 }
-func (b *biu) constructCookieJar() (err error) {
-	jarPtr, err := cookiejar.New(nil)
-	if err != nil {
-		return err
-	}
 
-	if b.options.Cookies == nil {
-		b.constructedCookieJar = jarPtr
-		return nil
-	}
-
-	urlPtr, err := url.Parse(b.url)
-	if err != nil {
-		return err
-	}
-
-	jarPtr.SetCookies(urlPtr, b.options.Cookies)
-
-	b.constructedCookieJar = jarPtr
-	return nil
-}
 func (b *biu) constructHeader() {
+	if b.options == nil {
+		return
+	}
 	for k, v := range b.options.Headers {
 		b.constructedRequest.Header.Set(k, v)
 	}
 }
-func (b *biu) baseUrl() (baseUrl string, err error) {
-	urlPtr, err := url.Parse(b.url)
-	if err != nil {
-		return "", err
-	}
-	return urlPtr.Scheme + "://" + urlPtr.Host, nil
+func (b *biu) baseUrl() (baseUrl string) {
+	return b.url.Scheme + "://" + b.url.Host
 }
 
 func (b *biu) setDefaultContentType() {
+	if b.options == nil {
+		return
+	}
 	if _, ok := b.options.Headers["Content-Type"]; !ok {
 		b.options.Headers["Content-Type"] = "application/x-www-form-urlencoded"
 	}
