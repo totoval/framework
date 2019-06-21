@@ -107,6 +107,7 @@ func (bi *BigInt) Pow(a BigInt, b BigInt) error {
 		return errors.New("b cannot be smaller than 0")
 	}
 	bi._bi.Exp(&a._bi, &b._bi, nil)
+	return nil
 }
 func (bi *BigInt) Abs(a BigInt) {
 	bi._bi.Abs(&a._bi)
