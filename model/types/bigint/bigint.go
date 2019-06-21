@@ -102,6 +102,12 @@ func (bi *BigInt) Mul(a BigInt, b BigInt) {
 func (bi *BigInt) Div(a BigInt, b BigInt) {
 	bi._bi.Quo(&a._bi, &b._bi)
 }
+func (bi *BigInt) Pow(a BigInt, b BigInt) error {
+	if b.Cmp(ZERO) < 0 {
+		return errors.New("b cannot be smaller than 0")
+	}
+	bi._bi.Exp(&a._bi, &b._bi, nil)
+}
 func (bi *BigInt) Abs(a BigInt) {
 	bi._bi.Abs(&a._bi)
 }
