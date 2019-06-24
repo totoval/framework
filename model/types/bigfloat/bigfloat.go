@@ -29,6 +29,12 @@ type BigFloat struct {
 
 const AutoPrec = 512 // 256 -> decimal 32   512 -> decimal 78
 
+func Zero() *BigFloat {
+	zero := &BigFloat{}
+	_ = zero.CreateFromString("0", ToNearestEven)
+	return zero
+}
+
 func (bf *BigFloat) Convert(f *big.Float) error {
 	// int(f.Prec()) uint to int may cause precision loss
 	prec := f.Prec()
@@ -43,14 +49,6 @@ func (bf *BigFloat) Float() *big.Float {
 
 func (bf *BigFloat) BF() big.Float {
 	return bf._bf
-}
-
-var ZERO BigFloat
-
-func init() {
-	if err := ZERO.CreateFromString("0", ToNearestEven); err != nil {
-		panic(err)
-	}
 }
 
 func (bf BigFloat) Value() (driver.Value, error) {
@@ -205,7 +203,7 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 	result := &BigFloat{}
 	var err error
 	// check is greater than 0
-	if bfCopy.Cmp(ZERO) < 0 {
+	if bfCopy.Cmp(*Zero()) < 0 {
 		//return nil, errors.New("currently not support for number smaller than 0")
 		//@todo small than 0
 		result, err = smallerThanZero(decimalPart, normalPart, decimal, roundType)

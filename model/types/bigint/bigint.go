@@ -15,13 +15,12 @@ func (bi *BigInt) BI() big.Int {
 	return bi._bi
 }
 
-var ZERO BigInt
-
-func init() {
-	if err := ZERO.CreateFromString("0", 10); err != nil {
-		panic(err)
-	}
+func Zero() *BigInt {
+	zero := &BigInt{}
+	_ = zero.CreateFromString("0", 10)
+	return zero
 }
+
 func (bi *BigInt) Convert(i *big.Int) error {
 	return bi.CreateFromString(i.Text(10), 10)
 }
@@ -103,7 +102,7 @@ func (bi *BigInt) Div(a BigInt, b BigInt) {
 	bi._bi.Quo(&a._bi, &b._bi)
 }
 func (bi *BigInt) Pow(a BigInt, b BigInt) error {
-	if b.Cmp(ZERO) < 0 {
+	if b.Cmp(*Zero()) < 0 {
 		return errors.New("b cannot be smaller than 0")
 	}
 	bi._bi.Exp(&a._bi, &b._bi, nil)
