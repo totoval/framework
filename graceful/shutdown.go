@@ -8,41 +8,52 @@ import (
 	"github.com/totoval/framework/queue"
 )
 
-func ShutDown() {
-	log.Info("Totoval is shutting down")
-	closeQueue()
-	closeCache()
-	closeDB()
-	log.Info("Totoval is shut down")
+func ShutDown(quietly bool) {
+	logInfo(quietly, "Totoval is shutting down")
+	closeQueue(quietly)
+	closeCache(quietly)
+	closeDB(quietly)
+	logInfo(quietly, "Totoval is shut down")
 }
 
-func closeQueue() {
-	defer panicRecover()
-	log.Info("Queue closing")
+func closeQueue(quietly bool) {
+	defer panicRecover(quietly)
+	logInfo(quietly, "Queue closing")
 	if err := queue.Queue().Close(); err != nil {
-		log.Fatal("queue close failed", logs.Field{"error": err})
+		logFatal(quietly, "queue close failed", logs.Field{"error": err})
 	}
-	log.Info("Queue closed")
+	logInfo(quietly, "Queue closed")
 }
-func closeDB() {
-	defer panicRecover()
-	log.Info("Database closing")
+func closeDB(quietly bool) {
+	defer panicRecover(quietly)
+	logInfo(quietly, "Database closing")
 	if err := m.H().DB().Close(); err != nil {
-		log.Fatal("database close failed", logs.Field{"error": err})
+		logFatal(quietly, "database close failed", logs.Field{"error": err})
 	}
-	log.Info("Database closed")
+	logInfo(quietly, "Database closed")
 }
-func closeCache() {
-	defer panicRecover()
-	log.Info("Cache closing")
+func closeCache(quietly bool) {
+	defer panicRecover(quietly)
+	logInfo(quietly, "Cache closing")
 	if err := cache.Cache().Close(); err != nil {
-		log.Fatal("cache close failed", logs.Field{"error": err})
+		logFatal(quietly, "cache close failed", logs.Field{"error": err})
 	}
-	log.Info("Cache closed")
+	logInfo(quietly, "Cache closed")
 }
 
-func panicRecover() {
+func panicRecover(quietly bool) {
 	if err := recover(); err != nil {
-		log.Fatal("Totoval shutting down failed", logs.Field{"error": err})
+		logFatal(quietly, "Totoval shutting down failed", logs.Field{"error": err})
+	}
+}
+
+func logInfo(quietly bool, msg string, v ...logs.Field) {
+	if !quietly {
+		log.Info(msg, v...)
+	}
+}
+func logFatal(quietly bool, msg string, v ...logs.Field) {
+	if !quietly {
+		log.Fatal(msg, v...)
 	}
 }
