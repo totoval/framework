@@ -38,6 +38,14 @@ func CaptureError(err error) {
 	}
 }
 
+func CaptureMsg(msg string, field map[string]interface{}) {
+	if config.GetBool("sentry.enable") {
+		raven.CaptureMessage(fmt.Sprintf("%s - %v", msg, field), map[string]string{
+			"env": config.GetString("app.env"),
+		})
+	}
+}
+
 func CapturePanic(handler func()) {
 	if config.GetBool("sentry.enable") {
 		raven.CapturePanic(handler, map[string]string{

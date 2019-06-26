@@ -6,9 +6,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/sentry"
 )
 
 var log *logrus.Logger
+var logLevel Level
 
 func init() {
 	log = logrus.New()
@@ -24,12 +26,18 @@ func Initialize() {
 	if err != nil {
 		panic(err)
 	}
-	log.SetLevel(level)
+
+	logLevel = level
+	log.SetLevel(logLevel)
 }
 
 type Field = map[string]interface{}
 
 func Println(level Level, msg string, fields Field) {
+	if level >= logLevel {
+		sentry.CaptureMsg(msg, fields)
+	}
+
 	if fields == nil {
 		log.Log(level, msg)
 	} else {
