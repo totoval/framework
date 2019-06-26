@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
 
 	"github.com/totoval/framework/config"
@@ -36,8 +37,14 @@ type Field = map[string]interface{}
 
 func Println(level Level, msg string, fields Field) {
 	if level <= logLevel {
-		var _fields map[string]interface{}
-		_fields = fields
+		_fields := make(map[string]interface{})
+		if fields != nil {
+			//_fields = fields
+			err := copier.Copy(_fields, fields)
+			if err != nil {
+				log.Log(ERROR, err.Error())
+			}
+		}
 
 		switch level {
 		case PANIC:
@@ -60,7 +67,7 @@ func Println(level Level, msg string, fields Field) {
 			sentry.CaptureMsg(msg, _fields)
 		}
 	}
-
+	
 	if fields == nil {
 		log.Log(level, msg)
 	} else {
