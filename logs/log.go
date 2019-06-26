@@ -2,6 +2,7 @@ package logs
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -50,11 +51,11 @@ func Println(level Level, msg string, fields Field) {
 
 		switch level {
 		case PANIC:
-			sentry.CaptureError(errors.New(msg))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
 		case FATAL:
-			sentry.CaptureError(errors.New(msg))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
 		case ERROR:
-			sentry.CaptureError(errors.New(msg))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
 		case WARN:
 			_fields["level"] = "WARN"
 			sentry.CaptureMsg(msg, _fields)
