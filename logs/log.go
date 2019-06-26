@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 
-	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
 
 	"github.com/totoval/framework/config"
@@ -36,14 +35,17 @@ func Initialize() {
 type Field = map[string]interface{}
 
 func Println(level Level, msg string, fields Field) {
+
+	if fields == nil {
+		log.Log(level, msg)
+	} else {
+		log.WithFields(logrus.Fields(fields)).Log(level, msg)
+	}
+
 	if level <= logLevel {
 		_fields := make(map[string]interface{})
 		if fields != nil {
-			//_fields = fields
-			err := copier.Copy(_fields, fields)
-			if err != nil {
-				log.Log(ERROR, err.Error())
-			}
+			_fields = fields
 		}
 
 		switch level {
@@ -66,11 +68,5 @@ func Println(level Level, msg string, fields Field) {
 			//	_fields["level"] = "TRAC"
 			//	sentry.CaptureMsg(msg, _fields)
 		}
-	}
-
-	if fields == nil {
-		log.Log(level, msg)
-	} else {
-		log.WithFields(logrus.Fields(fields)).Log(level, msg)
 	}
 }
