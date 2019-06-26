@@ -32,12 +32,16 @@ func Use(r *gin.Engine, onlySendOnCrash bool) {
 
 func CaptureError(err error) {
 	if config.GetBool("sentry.enable") {
-		raven.CaptureErrorAndWait(err, map[string]string{})
+		raven.CaptureErrorAndWait(err, map[string]string{
+			"env": config.GetString("app.env"),
+		})
 	}
 }
 
 func CapturePanic(handler func()) {
 	if config.GetBool("sentry.enable") {
-		raven.CapturePanic(handler, map[string]string{})
+		raven.CapturePanic(handler, map[string]string{
+			"env": config.GetString("app.env"),
+		})
 	}
 }
