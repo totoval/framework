@@ -56,18 +56,18 @@ func Println(level Level, msg string, fields Field) {
 		case WARN:
 			_fields["level"] = "WARN"
 			sentry.CaptureMsg(msg, _fields)
-		case INFO:
-			_fields["level"] = "INFO"
-			sentry.CaptureMsg(msg, _fields)
-		case DEBUG:
-			_fields["level"] = "DEBU"
-			sentry.CaptureMsg(msg, _fields)
-		case TRACE:
-			_fields["level"] = "TRAC"
-			sentry.CaptureMsg(msg, _fields)
+			//case INFO:
+			//	_fields["level"] = "INFO"
+			//	sentry.CaptureMsg(msg, _fields)
+			//case DEBUG:
+			//	_fields["level"] = "DEBU"
+			//	sentry.CaptureMsg(msg, _fields)
+			//case TRACE:
+			//	_fields["level"] = "TRAC"
+			//	sentry.CaptureMsg(msg, _fields)
 		}
 	}
-	
+
 	if fields == nil {
 		log.Log(level, msg)
 	} else {
