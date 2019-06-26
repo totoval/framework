@@ -24,7 +24,7 @@ func (s *Schedule) Description() string {
 
 func (s *Schedule) Handler(arg *cmd.Arg) error {
 	c := cron.NewWithLocation(zone.GetLocation())
-	for _, scheduleCommand := range *cmd.ScheduleCommandMap() {
+	for _, scheduleCommand := range *cmd.ScheduleCommandList() {
 		if err := c.AddJob(scheduleCommand.When(), cmd.NewJob(scheduleCommand)); err != nil {
 			panic(err)
 		}

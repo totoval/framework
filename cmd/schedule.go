@@ -1,17 +1,18 @@
 package cmd
 
 type Schedule struct {
-	commandMap map[commandName]*scheduleCommand
+	commandList []*scheduleCommand
 }
 
 var scheduleHub *Schedule
 
-func ScheduleCommandMap() *map[commandName]*scheduleCommand {
-	return &scheduleHub.commandMap
+func ScheduleCommandList() *[]*scheduleCommand {
+	return &scheduleHub.commandList
 }
 
 func NewSchedule() *Schedule {
-	scheduleHub = &Schedule{commandMap: make(map[commandName]*scheduleCommand)}
+	var cmdList []*scheduleCommand
+	scheduleHub = &Schedule{commandList: cmdList}
 	return scheduleHub
 }
 
@@ -24,11 +25,13 @@ func (s *Schedule) Command(commandWithArgData string) *scheduleCommand {
 	}
 
 	if len(argDataList) <= 0 {
-		s.commandMap[name] = newScheduleCommand(c.Handler, newArg(nil))
-		return s.commandMap[name]
+		_cmd := newScheduleCommand(c.Handler, newArg(nil))
+		s.commandList = append(s.commandList, _cmd)
+		return _cmd
 	}
 
 	argMap := c.mapArg(argDataList)
-	s.commandMap[name] = newScheduleCommand(c.Handler, newArg(&argMap))
-	return s.commandMap[name]
+	_cmd := newScheduleCommand(c.Handler, newArg(&argMap))
+	s.commandList = append(s.commandList, _cmd)
+	return _cmd
 }
