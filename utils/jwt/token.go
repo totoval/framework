@@ -12,7 +12,7 @@ import (
 	"github.com/totoval/framework/helpers/zone"
 )
 
-const ExpiredTime zone.Duration = 4 * zone.Hour //@todo move to configration
+const ExpiredTime zone.Duration = 4 * zone.Hour //@todo move to configuration
 const RefreshExpiredTime zone.Duration = 10 * zone.Minute
 const MaxRefreshTimes uint = 1
 
