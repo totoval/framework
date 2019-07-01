@@ -1,12 +1,14 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/totoval/framework/config"
-	"github.com/totoval/framework/utils/jwt"
 	"net/http"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/utils/jwt"
 )
 
 const (
@@ -43,7 +45,7 @@ func AuthRequired() gin.HandlerFunc {
 		claims, err := j.ParseToken(token)
 		if err != nil {
 			if err == jwt.TokenExpired {
-				if token, err = j.RefreshTokenUnverified(token); err == nil {
+				if token, _err := j.RefreshTokenUnverified(token); _err == nil {
 					if claims, err := j.ParseToken(token); err == nil {
 						c.Set(CLAIM_KEY, claims)
 						c.Header("Authorization", "Bear "+token)
