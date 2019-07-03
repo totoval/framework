@@ -17,6 +17,10 @@ func MapStringInterface(value map[string]interface{}) *map[string]interface{} {
 	return &value
 }
 
+func Bool(value bool) *bool {
+	return &value
+}
+
 func Byte(value byte) *byte {
 	return &value
 }
