@@ -2,12 +2,13 @@ module github.com/totoval/framework
 
 require (
 	cloud.google.com/go v0.36.0 // indirect
+	github.com/casbin/casbin v1.8.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/denisenkom/go-mssqldb v0.0.0-20190204142019-df6d76eb9289 // indirect
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/getsentry/raven-go v0.2.0
-	github.com/gin-contrib/sentry v0.0.0-20190528141903-48a399dfd39f // indirect
+	github.com/gin-contrib/sentry v0.0.0-20190528141903-48a399dfd39f
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-playground/locales v0.12.1
 	github.com/go-playground/universal-translator v0.16.0
