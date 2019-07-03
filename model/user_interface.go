@@ -1,5 +1,5 @@
 package model
 
-type UserIF interface {
+type IUser interface {
 	Scan(userId uint) error
 }
