@@ -40,7 +40,7 @@ func initEnforcer() *casbin.Enforcer {
 		user := args[0].(model.IUser)
 		resource := args[1].(Policier)
 		operation := args[2].(Action)
-		
+
 		if beforeResult := resource.Before(); beforeResult != nil {
 			return *beforeResult, nil
 		}

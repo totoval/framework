@@ -19,7 +19,7 @@ func NewVersion(engine *gin.Engine, prefix string) *version {
 }
 
 func (v *version) Auth(relativePath string, groupFunc func(grp Grouper), handlers ...gin.HandlerFunc) {
-	ginGroup := v.group.Group(relativePath, append([]gin.HandlerFunc{middleware.AuthRequired(),}, handlers...)...)
+	ginGroup := v.group.Group(relativePath, append([]gin.HandlerFunc{middleware.AuthRequired()}, handlers...)...)
 	groupFunc(&group{ginGroup})
 }
 

@@ -18,7 +18,7 @@ func newRoute(bindFunc func(handlers ...gin.HandlerFunc), handlers ...gin.Handle
 }
 
 func (rp *route) Can(policy policy_package.Policier, action policy_package.Action) {
-	rp.handlers = append([]gin.HandlerFunc{policy_package.Middleware(policy, action),}, rp.handlers...)
+	rp.handlers = append([]gin.HandlerFunc{policy_package.Middleware(policy, action)}, rp.handlers...)
 }
 
 var theList []*route
