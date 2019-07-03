@@ -7,9 +7,9 @@ import (
 )
 
 func NewUser() interface{} {
-
-	ptr := reflect.New(reflect.TypeOf(config.GetInterface("auth.model_ptr"))).Elem()
-	val := reflect.New(reflect.TypeOf(config.GetInterface("auth.model_ptr")).Elem())
+	typeof := reflect.TypeOf(config.GetInterface("auth.model_ptr"))
+	ptr := reflect.New(typeof).Elem()
+	val := reflect.New(typeof.Elem())
 	ptr.Set(val)
 	return ptr.Interface()
 }
