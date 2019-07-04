@@ -54,7 +54,7 @@ func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAf
 }
 
 func requestSignature(c *gin.Context) string {
-	userId, exist := authClaimID(c)
+	userId, exist := AuthClaimID(c)
 
 	sha1 := crypto.SHA1.New()
 	if exist {

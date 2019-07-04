@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/auth"
-	"github.com/totoval/framework/http/middleware"
-	"github.com/totoval/framework/model"
 )
 
 type UserNotPermitError struct{}
@@ -26,18 +24,23 @@ func Middleware(policy Policier, action Action) gin.HandlerFunc {
 		}
 
 		// get user
-		user := auth.NewUser().(model.IUser)
-		if middleware.AuthUser(c, user) {
+		authUser := &auth.AuthUser{}
+		if authUser.Scan(c) {
 			c.Abort()
 			return
 		}
 
 		// validate policy
-		if !policyValidate(user, policy, action, routeParamMap) {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": UserNotPermitError{}.Error()})
+		if !policyValidate(authUser.User(), policy, action, routeParamMap) {
+			forbid(c)
+			c.Abort()
 			return
 		}
 
 		c.Next()
 	}
+}
+
+func forbid(c *gin.Context) {
+	c.JSON(http.StatusForbidden, gin.H{"error": UserNotPermitError{}.Error()})
 }

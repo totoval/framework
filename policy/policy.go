@@ -1,6 +1,9 @@
 package policy
 
 import (
+	"github.com/gin-gonic/gin"
+
+	"github.com/totoval/framework/auth"
 	"github.com/totoval/framework/model"
 )
 
@@ -27,24 +30,49 @@ const (
 	ActionRestore
 )
 
-func policyValidate(user model.IUser, polices Policier, action Action, routeParamMap map[key]value) bool {
-	if beforeResult := polices.Before(); beforeResult != nil {
+type Authorization struct {
+	auth.AuthUser
+}
+
+func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Action) (isAbort bool, user model.IUser) {
+	if a.AuthUser.Scan(c) {
+		return true, nil
+	}
+
+	rpm := make(map[key]value)
+	if !policyValidate(user, policies, action, rpm) {
+		forbid(c)
+		return true, a.AuthUser.User()
+	}
+
+	return false, a.AuthUser.User()
+}
+
+func policyValidate(user model.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {
+	if user == nil {
+		return true
+	}
+	if policies == nil {
+		return true
+	}
+
+	if beforeResult := policies.Before(); beforeResult != nil {
 		return *beforeResult
 	}
 
 	switch action {
 	case ActionCreate:
-		return polices.Create(user, routeParamMap)
+		return policies.Create(user, routeParamMap)
 	case ActionUpdate:
-		return polices.Update(user, routeParamMap)
+		return policies.Update(user, routeParamMap)
 	case ActionDelete:
-		return polices.Delete(user, routeParamMap)
+		return policies.Delete(user, routeParamMap)
 	case ActionForceDelete:
-		return polices.ForceDelete(user, routeParamMap)
+		return policies.ForceDelete(user, routeParamMap)
 	case ActionView:
-		return polices.View(user, routeParamMap)
+		return policies.View(user, routeParamMap)
 	case ActionRestore:
-		return polices.Restore(user, routeParamMap)
+		return policies.Restore(user, routeParamMap)
 	default:
 		return false
 	}

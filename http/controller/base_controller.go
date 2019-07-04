@@ -1,42 +1,26 @@
 package controller
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"gopkg.in/go-playground/validator.v9"
 
-	"github.com/totoval/framework/helpers/locale"
-	"github.com/totoval/framework/helpers/trans"
+	"github.com/totoval/framework/auth"
+	"github.com/totoval/framework/model"
+	"github.com/totoval/framework/policy"
+	"github.com/totoval/framework/validator"
 )
 
 type Controller interface {
-	Validate(c *gin.Context, _validator interface{}) bool
+	Validate(c *gin.Context, _validator interface{}, onlyFirstError bool) (isAbort bool)
+
+	Authorize(c *gin.Context, policies policy.Policier, action policy.Action) (isAbort bool, user model.IUser)
+	
+	Scan(c *gin.Context) (isAbort bool)
+	User() model.IUser
+	UserId(c *gin.Context) (userId uint, isAbort bool)
 }
 
-type BaseController struct{}
-
-func (bc *BaseController) Validate(c *gin.Context, _validator interface{}, onlyFirstError bool) bool {
-	if err := c.ShouldBindBodyWith(_validator, binding.JSON); err != nil {
-
-		_err, ok := err.(validator.ValidationErrors)
-		if !ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
-			return false
-		}
-
-		v := binding.Validator.Engine().(*validator.Validate) // important, should be a new one for each request error
-
-		errorResult := trans.ValidationTranslate(v, locale.Locale(c), _err)
-		if onlyFirstError {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult.First()})
-		} else {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult})
-		}
-
-		return false
-	}
-
-	return true
+type BaseController struct {
+	policy.Authorization
+	auth.AuthUser
+	validator.Validation
 }

@@ -3,7 +3,7 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 
-	policy_package "github.com/totoval/framework/policy"
+	"github.com/totoval/framework/policy"
 )
 
 type route struct {
@@ -22,8 +22,8 @@ func newRoute(relativePath string, bindFunc func(handlers ...gin.HandlerFunc), h
 	return &r
 }
 
-func (rp *route) Can(policy policy_package.Policier, action policy_package.Action) {
-	rp.handlers = append([]gin.HandlerFunc{policy_package.Middleware(policy, action)}, rp.handlers...)
+func (rp *route) Can(policies policy.Policier, action policy.Action) {
+	rp.handlers = append([]gin.HandlerFunc{policy.Middleware(policies, action)}, rp.handlers...)
 }
 
 var theList []*route

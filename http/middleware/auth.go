@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/config"
-	"github.com/totoval/framework/model"
 	"github.com/totoval/framework/utils/jwt"
 )
 
@@ -21,18 +20,6 @@ type TokenRevokeError struct{}
 
 func (e TokenRevokeError) Error() string {
 	return "token revoke failed"
-}
-
-type UserNotLoginError struct{}
-
-func (e UserNotLoginError) Error() string {
-	return "user not login"
-}
-
-type UserNotExistError struct{}
-
-func (e UserNotExistError) Error() string {
-	return "user not exist"
 }
 
 func AuthRequired() gin.HandlerFunc {
@@ -68,36 +55,13 @@ func AuthRequired() gin.HandlerFunc {
 	}
 }
 
-func authClaimID(c *gin.Context) (ID uint, exist bool) {
+func AuthClaimID(c *gin.Context) (ID uint, exist bool) {
 	claims, exist := c.Get(CLAIM_KEY)
 	if !exist {
 		return 0, false
 	}
 	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
 	return uint(r), true
-}
-
-func AuthUser(c *gin.Context, userPtr model.IUser) (isAbort bool) {
-	userId, exist := authClaimID(c)
-	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotLoginError{}.Error()})
-		return true
-	}
-	if err := userPtr.Scan(userId); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotExistError{}.Error()})
-		return true
-	}
-	return false
-}
-
-func AuthUserId(c *gin.Context) (userId uint, isAbort bool) {
-	exist := false
-	userId, exist = authClaimID(c)
-	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotLoginError{}.Error()})
-		return 0, true
-	}
-	return userId, false
 }
 
 func Revoke(c *gin.Context) error {
