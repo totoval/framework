@@ -43,9 +43,9 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 - [x] Logo
 - [x] Http Request Package `biu`
 - [x] Error Notifier `sentry`
+- [x] User Authorization
 - [ ] Model Getter/Setter
 - [ ] File Storage
-- [ ] User Authorization
 - [ ] Database Seeder
 - [ ] More Unit Test
 - [ ] Websocket Support
@@ -68,3 +68,4 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 * ztrue/tracerr
 * go-redis/redis
 * getsentry/raven-go
+* casbin/casbin
