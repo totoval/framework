@@ -68,4 +68,3 @@ Totoval is an API web framework that helps Golang engineers build a performance-
 * ztrue/tracerr
 * go-redis/redis
 * getsentry/raven-go
-* casbin/casbin
