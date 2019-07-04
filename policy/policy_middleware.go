@@ -19,18 +19,22 @@ func (e UserNotPermitError) Error() string {
 func Middleware(policy Policier, action Action) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		// get route url param
+		routeParamMap := make(map[string]string)
+		for _, param := range c.Params {
+			routeParamMap[param.Key] = param.Value
+		}
+
+		// get user
 		user := auth.NewUser().(model.IUser)
 		if middleware.AuthUser(c, user) {
 			c.Abort()
 			return
 		}
 
-		sub := user   // the user that wants to access a resource.
-		obj := policy // the resource that is going to be accessed.
-		act := action // the operation that the user performs on the resource.
-		if !enfc.Enforce(sub, obj, act) {
-			c.JSON(http.StatusForbidden, gin.H{"error": UserNotPermitError{}.Error()})
-			c.Abort()
+		// validate policy
+		if !policyValidate(user, policy, action, routeParamMap) {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": UserNotPermitError{}.Error()})
 			return
 		}
 

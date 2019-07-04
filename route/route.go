@@ -7,12 +7,17 @@ import (
 )
 
 type route struct {
-	bindFunc func(handlers ...gin.HandlerFunc)
-	handlers []gin.HandlerFunc
+	bindFunc     func(handlers ...gin.HandlerFunc)
+	handlers     []gin.HandlerFunc
+	relativePath string
 }
 
-func newRoute(bindFunc func(handlers ...gin.HandlerFunc), handlers ...gin.HandlerFunc) *route {
-	r := route{bindFunc: bindFunc, handlers: handlers}
+func parseParamKey(relativePath string) {
+
+}
+
+func newRoute(relativePath string, bindFunc func(handlers ...gin.HandlerFunc), handlers ...gin.HandlerFunc) *route {
+	r := route{relativePath: relativePath, bindFunc: bindFunc, handlers: handlers}
 	theList = append(theList, &r)
 	return &r
 }
