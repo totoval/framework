@@ -36,6 +36,10 @@ type AuthUser struct {
 }
 
 func (au *AuthUser) Scan(c *gin.Context) (isAbort bool) {
+	if au.user != nil {
+		return false
+	}
+
 	user := newUser().(model.IUser)
 	userId, exist := middleware.AuthClaimID(c)
 	if !exist {
