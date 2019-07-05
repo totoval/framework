@@ -40,8 +40,8 @@ func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Acti
 	}
 	user = a.RequestUser.User()
 
-	rpm := make(map[key]value)
-	return policyValidate(user, policies, action, rpm), user
+	// if use Authorize func, routeParamMap is nil
+	return policyValidate(user, policies, action, nil), user
 }
 
 func policyValidate(user model.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {
