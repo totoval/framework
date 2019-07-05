@@ -34,18 +34,13 @@ type Authorization struct {
 	auth.AuthUser
 }
 
-func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Action) (isAbort bool, user model.IUser) {
+func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Action) (permit bool, user model.IUser) {
 	if a.AuthUser.Scan(c) {
-		return true, nil
+		return false, nil
 	}
 
 	rpm := make(map[key]value)
-	if !policyValidate(user, policies, action, rpm) {
-		forbid(c)
-		return true, a.AuthUser.User()
-	}
-
-	return false, a.AuthUser.User()
+	return policyValidate(user, policies, action, rpm), a.AuthUser.User()
 }
 
 func policyValidate(user model.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {

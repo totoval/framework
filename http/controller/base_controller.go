@@ -12,8 +12,8 @@ import (
 type Controller interface {
 	Validate(c *gin.Context, _validator interface{}, onlyFirstError bool) (isAbort bool)
 
-	Authorize(c *gin.Context, policies policy.Policier, action policy.Action) (isAbort bool, user model.IUser)
-	
+	Authorize(c *gin.Context, policies policy.Policier, action policy.Action) (permit bool, user model.IUser)
+
 	Scan(c *gin.Context) (isAbort bool)
 	User() model.IUser
 	UserId(c *gin.Context) (userId uint, isAbort bool)
