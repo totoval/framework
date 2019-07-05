@@ -10,13 +10,13 @@ import (
 type key = string
 type value = string
 type Policier interface {
-	Before() *bool
-	Create(userIF model.IUser, routeParamMap map[key]value) bool
-	Update(userIF model.IUser, routeParamMap map[key]value) bool
-	Delete(userIF model.IUser, routeParamMap map[key]value) bool
-	ForceDelete(userIF model.IUser, routeParamMap map[key]value) bool
-	View(userIF model.IUser, routeParamMap map[key]value) bool
-	Restore(userIF model.IUser, routeParamMap map[key]value) bool
+	Before(IUser model.IUser, routeParamMap map[key]value) *bool
+	Create(IUser model.IUser, routeParamMap map[key]value) bool
+	Update(IUser model.IUser, routeParamMap map[key]value) bool
+	Delete(IUser model.IUser, routeParamMap map[key]value) bool
+	ForceDelete(IUser model.IUser, routeParamMap map[key]value) bool
+	View(IUser model.IUser, routeParamMap map[key]value) bool
+	Restore(IUser model.IUser, routeParamMap map[key]value) bool
 }
 
 type Action byte
