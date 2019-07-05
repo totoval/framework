@@ -24,14 +24,14 @@ func Middleware(policy Policier, action Action) gin.HandlerFunc {
 		}
 
 		// get user
-		authUser := &auth.AuthUser{}
-		if authUser.Scan(c) {
+		requestUser := &auth.RequestUser{}
+		if requestUser.Scan(c) {
 			c.Abort()
 			return
 		}
 
 		// validate policy
-		if !policyValidate(authUser.User(), policy, action, routeParamMap) {
+		if !policyValidate(requestUser.User(), policy, action, routeParamMap) {
 			forbid(c)
 			c.Abort()
 			return

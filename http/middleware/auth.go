@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	CLAIM_KEY = "CLAIM"
-	TOKEN_KEY = "TOKEN"
+	CONTEXT_CLAIM_KEY = "TOTOVAL_CONTEXT_CLAIM"
+	CONTEXT_TOKEN_KEY = "TOTOVAL_CONTEXT_TOKEN"
 )
 
 type TokenRevokeError struct{}
@@ -33,7 +33,7 @@ func AuthRequired() gin.HandlerFunc {
 		}
 
 		// set token
-		c.Set(TOKEN_KEY, token)
+		c.Set(CONTEXT_TOKEN_KEY, token)
 
 		j := jwt.NewJWT(config.GetString("auth.sign_key"))
 		claims, err := j.ParseToken(token)
@@ -41,7 +41,7 @@ func AuthRequired() gin.HandlerFunc {
 			if err == jwt.TokenExpired {
 				if token, _err := j.RefreshTokenUnverified(token); _err == nil {
 					if claims, err := j.ParseToken(token); err == nil {
-						c.Set(CLAIM_KEY, claims)
+						c.Set(CONTEXT_CLAIM_KEY, claims)
 						c.Header("Authorization", "Bear "+token)
 						//c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
 						return
@@ -51,12 +51,12 @@ func AuthRequired() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
-		c.Set(CLAIM_KEY, claims)
+		c.Set(CONTEXT_CLAIM_KEY, claims)
 	}
 }
 
 func AuthClaimID(c *gin.Context) (ID uint, exist bool) {
-	claims, exist := c.Get(CLAIM_KEY)
+	claims, exist := c.Get(CONTEXT_CLAIM_KEY)
 	if !exist {
 		return 0, false
 	}
@@ -66,7 +66,7 @@ func AuthClaimID(c *gin.Context) (ID uint, exist bool) {
 
 func Revoke(c *gin.Context) error {
 	j := jwt.NewJWT(config.GetString("auth.sign_key"))
-	if tokenString, exist := c.Get(TOKEN_KEY); exist {
+	if tokenString, exist := c.Get(CONTEXT_TOKEN_KEY); exist {
 		if token, ok := tokenString.(string); ok {
 			if err := j.RevokeToken(token); err == nil {
 				c.Header("Authorization", "")

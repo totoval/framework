@@ -21,6 +21,6 @@ type Controller interface {
 
 type BaseController struct {
 	policy.Authorization
-	auth.AuthUser
+	auth.RequestUser
 	validator.Validation
 }

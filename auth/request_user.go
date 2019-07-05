@@ -11,6 +11,8 @@ import (
 	"github.com/totoval/framework/model"
 )
 
+const CONTEXT_REQUEST_USER_KEY = "TOTOVAL_CONTEXT_REQUEST_USER"
+
 func newUser() interface{} {
 	typeof := reflect.TypeOf(config.GetInterface("auth.model_ptr"))
 	ptr := reflect.New(typeof).Elem()
@@ -31,13 +33,22 @@ func (e UserNotExistError) Error() string {
 	return "user not exist"
 }
 
-type AuthUser struct {
+type RequestUser struct {
 	user model.IUser
 }
 
-func (au *AuthUser) Scan(c *gin.Context) (isAbort bool) {
+func (au *RequestUser) Scan(c *gin.Context) (isAbort bool) {
+	// if already scanned
 	if au.user != nil {
 		return false
+	}
+
+	// get cached user
+	if _requestUser, exists := c.Get(CONTEXT_REQUEST_USER_KEY); exists {
+		if requestUser, ok := _requestUser.(model.IUser); ok {
+			au.user = requestUser
+			return false
+		}
 	}
 
 	user := newUser().(model.IUser)
@@ -50,17 +61,20 @@ func (au *AuthUser) Scan(c *gin.Context) (isAbort bool) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotExistError{}.Error()})
 		return true
 	}
-	
+
 	au.user = user
+
+	// set cache
+	c.Set(CONTEXT_REQUEST_USER_KEY, user)
 
 	return false
 }
 
-func (au *AuthUser) User() model.IUser {
+func (au *RequestUser) User() model.IUser {
 	return au.user
 }
 
-func (au *AuthUser) UserId(c *gin.Context) (userId uint, isAbort bool) {
+func (au *RequestUser) UserId(c *gin.Context) (userId uint, isAbort bool) {
 	exist := false
 	userId, exist = middleware.AuthClaimID(c)
 	if !exist {

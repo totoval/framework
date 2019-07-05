@@ -31,14 +31,14 @@ const (
 )
 
 type Authorization struct {
-	auth.AuthUser
+	auth.RequestUser
 }
 
 func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Action) (permit bool, user model.IUser) {
-	if a.AuthUser.Scan(c) {
+	if a.RequestUser.Scan(c) {
 		return false, nil
 	}
-	user = a.AuthUser.User()
+	user = a.RequestUser.User()
 
 	rpm := make(map[key]value)
 	return policyValidate(user, policies, action, rpm), user
