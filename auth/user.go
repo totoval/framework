@@ -50,7 +50,7 @@ func (au *AuthUser) Scan(c *gin.Context) (isAbort bool) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotExistError{}.Error()})
 		return true
 	}
-
+	
 	au.user = user
 
 	return false

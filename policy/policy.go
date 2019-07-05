@@ -38,9 +38,10 @@ func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Acti
 	if a.AuthUser.Scan(c) {
 		return false, nil
 	}
+	user = a.AuthUser.User()
 
 	rpm := make(map[key]value)
-	return policyValidate(user, policies, action, rpm), a.AuthUser.User()
+	return policyValidate(user, policies, action, rpm), user
 }
 
 func policyValidate(user model.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {
@@ -51,7 +52,7 @@ func policyValidate(user model.IUser, policies Policier, action Action, routePar
 		return true
 	}
 
-	if beforeResult := policies.Before(); beforeResult != nil {
+	if beforeResult := policies.Before(user, routeParamMap); beforeResult != nil {
 		return *beforeResult
 	}
 
