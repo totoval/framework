@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/policy"
+	"github.com/totoval/framework/request"
 )
 
 type RouteGrouper interface {
@@ -13,21 +14,21 @@ type RouteGrouper interface {
 }
 
 type Grouper interface {
-	AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...gin.HandlerFunc)
+	AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...request.HandlerFunc)
 	iRoutes
 }
 type iRoutes interface {
-	//Use(...gin.HandlerFunc) gin.IRoutes
+	//Use(...request.HandlerFunc) gin.IRoutes
 
-	Handle(httpMethod, relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	Any(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	GET(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	POST(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	DELETE(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	PATCH(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	PUT(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	OPTIONS(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
-	HEAD(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier
+	Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	Any(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	GET(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	POST(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	DELETE(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	PATCH(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	PUT(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	OPTIONS(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	HEAD(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
 
 	StaticFile(relativePath, filepath string) gin.IRoutes
 	Static(relativePath, root string) gin.IRoutes
@@ -38,40 +39,40 @@ type group struct {
 	*gin.RouterGroup
 }
 
-func (g *group) Handle(httpMethod, relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.Handle(httpMethod, relativePath, handlers...) }, handlers...)
+func (g *group) Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute(httpMethod, len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Handle(httpMethod, relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) Any(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.Any(relativePath, handlers...) }, handlers...)
+func (g *group) Any(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("Any", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Any(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) GET(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.GET(relativePath, handlers...) }, handlers...)
+func (g *group) GET(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("POST", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) POST(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.POST(relativePath, handlers...) }, handlers...)
+func (g *group) POST(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("GET", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) DELETE(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.DELETE(relativePath, handlers...) }, handlers...)
+func (g *group) DELETE(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("DELETE", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.DELETE(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) PATCH(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.PATCH(relativePath, handlers...) }, handlers...)
+func (g *group) PATCH(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("PATCH", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PATCH(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) PUT(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.PUT(relativePath, handlers...) }, handlers...)
+func (g *group) PUT(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("PUT", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PUT(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) OPTIONS(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.OPTIONS(relativePath, handlers...) }, handlers...)
+func (g *group) OPTIONS(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("OPTIONS", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.OPTIONS(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) HEAD(relativePath string, handlers ...gin.HandlerFunc) policy.RoutePolicier {
-	return newRoute(relativePath, func(handlers ...gin.HandlerFunc) { g.RouterGroup.HEAD(relativePath, handlers...) }, handlers...)
+func (g *group) HEAD(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	return newRoute("HEAD", len(g.Handlers), g.BasePath(), relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.HEAD(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
 //func (g *group) StaticFile(relativePath, filepath string) gin.IRoutes {
@@ -86,7 +87,7 @@ func (g *group) HEAD(relativePath string, handlers ...gin.HandlerFunc) policy.Ro
 //	return g.RouterGroup.StaticFS(relativePath, fs)
 //}
 
-func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...gin.HandlerFunc) {
-	ginGroup := g.Group(relativePath, handlers...)
+func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...request.HandlerFunc) {
+	ginGroup := g.Group(relativePath, request.ConvertHandlers(handlers)...)
 	routeGrouper.Group(&group{ginGroup})
 }

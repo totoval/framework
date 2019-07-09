@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/http/middleware"
 	"github.com/totoval/framework/model"
+	"github.com/totoval/framework/request"
 )
 
 const CONTEXT_REQUEST_USER_KEY = "TOTOVAL_CONTEXT_REQUEST_USER"
@@ -37,7 +37,7 @@ type RequestUser struct {
 	user model.IUser
 }
 
-func (au *RequestUser) Scan(c *gin.Context) (isAbort bool) {
+func (au *RequestUser) Scan(c *request.Context) (isAbort bool) {
 	// if already scanned
 	if au.user != nil {
 		return false
@@ -54,11 +54,11 @@ func (au *RequestUser) Scan(c *gin.Context) (isAbort bool) {
 	user := newUser().(model.IUser)
 	userId, exist := middleware.AuthClaimID(c)
 	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotLoginError{}.Error()})
+		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotLoginError{}.Error()})
 		return true
 	}
 	if err := user.Scan(userId); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotExistError{}.Error()})
+		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotExistError{}.Error()})
 		return true
 	}
 
@@ -74,11 +74,11 @@ func (au *RequestUser) User() model.IUser {
 	return au.user
 }
 
-func (au *RequestUser) UserId(c *gin.Context) (userId uint, isAbort bool) {
+func (au *RequestUser) UserId(c *request.Context) (userId uint, isAbort bool) {
 	exist := false
 	userId, exist = middleware.AuthClaimID(c)
 	if !exist {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": UserNotLoginError{}.Error()})
+		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotLoginError{}.Error()})
 		return 0, true
 	}
 	return userId, false

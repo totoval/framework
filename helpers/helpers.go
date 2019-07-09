@@ -1,14 +1,13 @@
 package helpers
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/helpers/trans"
+	"github.com/totoval/framework/request"
 
 	"github.com/totoval/framework/helpers/locale"
 )
 
-func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
+func L(c *request.Context, messageID string, dataNlocale ...interface{}) string {
 	l := locale.Locale(c)
 	data := make(map[string]interface{})
 	switch len(dataNlocale) {
@@ -24,10 +23,10 @@ func L(c *gin.Context, messageID string, dataNlocale ...interface{}) string {
 	return trans.CustomTranslate(messageID, data, l)
 }
 
-func Encrypt(secret string) {
-	//@todo
-}
-
-func Decrypt() {
-	//@todo
-}
+//func Encrypt(secret string) {
+//	//@todo
+//}
+//
+//func Decrypt() {
+//	//@todo
+//}

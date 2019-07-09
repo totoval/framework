@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/sentry"
 )
 
@@ -33,7 +34,7 @@ func Initialize() {
 	log.SetLevel(logLevel)
 }
 
-type Field = map[string]interface{}
+type Field = toto.V
 
 func Println(level Level, msg string, fields Field) {
 

@@ -8,12 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/helpers/zone"
-	"github.com/totoval/framework/logs"
+	"github.com/totoval/framework/request"
 )
 
-func RequestLogger() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func RequestLogger() request.HandlerFunc {
+	return func(c *request.Context) {
 
 		// before request
 		startedAt := zone.Now()
@@ -35,7 +36,7 @@ func RequestLogger() gin.HandlerFunc {
 		// after request
 
 		// print request
-		log.Info(c.ClientIP(), logs.Field{
+		log.Info(c.ClientIP(), toto.V{
 			"Method":         c.Request.Method,
 			"Path":           c.Request.RequestURI,
 			"Proto":          c.Request.Proto,

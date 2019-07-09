@@ -3,24 +3,25 @@ package validator
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/totoval/framework/helpers/locale"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/helpers/trans"
+	"github.com/totoval/framework/request"
 )
 
 type Validation struct {
 }
 
-func (v *Validation) Validate(c *gin.Context, _validator interface{}, onlyFirstError bool) (isAbort bool) {
+func (v *Validation) Validate(c *request.Context, _validator interface{}, onlyFirstError bool) (isAbort bool) {
 	if err := c.ShouldBindBodyWith(_validator, binding.JSON); err != nil {
 
 		_err, ok := err.(validator.ValidationErrors)
 		if !ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			c.JSON(http.StatusUnprocessableEntity, toto.V{"error": err.Error()})
 			return false
 		}
 
@@ -28,9 +29,9 @@ func (v *Validation) Validate(c *gin.Context, _validator interface{}, onlyFirstE
 
 		errorResult := trans.ValidationTranslate(v, locale.Locale(c), _err)
 		if onlyFirstError {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult.First()})
+			c.JSON(http.StatusUnprocessableEntity, toto.V{"error": errorResult.First()})
 		} else {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": errorResult})
+			c.JSON(http.StatusUnprocessableEntity, toto.V{"error": errorResult})
 		}
 
 		return false

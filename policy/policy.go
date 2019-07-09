@@ -1,10 +1,9 @@
 package policy
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/auth"
 	"github.com/totoval/framework/model"
+	"github.com/totoval/framework/request"
 )
 
 type key = string
@@ -34,7 +33,7 @@ type Authorization struct {
 	auth.RequestUser
 }
 
-func (a *Authorization) Authorize(c *gin.Context, policies Policier, action Action) (permit bool, user model.IUser) {
+func (a *Authorization) Authorize(c *request.Context, policies Policier, action Action) (permit bool, user model.IUser) {
 	if a.RequestUser.Scan(c) {
 		return false, nil
 	}

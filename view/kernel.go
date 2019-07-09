@@ -3,12 +3,12 @@ package view
 import (
 	"html/template"
 
-	"github.com/gin-gonic/gin"
+	"github.com/totoval/framework/request"
 )
 
 var templateList []*template.Template
 
-func Initialize(r *gin.Engine) {
+func Initialize(r *request.Engine) {
 	for _, tmpl := range templateList {
 		r.SetHTMLTemplate(tmpl)
 	}

@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/totoval/framework/request"
 	"github.com/totoval/framework/resources/lang"
 
 	"github.com/totoval/framework/config"
@@ -13,10 +13,10 @@ func AddLocale(langName string, customTranslation *lang.CustomTranslation, valid
 	internal.AddLocale(langName, customTranslation, validationTranslation)
 }
 
-func SetLocale(c *gin.Context, langName string) {
+func SetLocale(c *request.Context, langName string) {
 	c.Set("locale", langName)
 }
-func Locale(c *gin.Context) string {
+func Locale(c *request.Context) string {
 	if contextLocale, exist := c.Get("locale"); exist {
 		l := contextLocale.(string)
 		return fallbackLocale(l)

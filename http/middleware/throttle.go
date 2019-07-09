@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/cache"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/helpers/zone"
+	"github.com/totoval/framework/request"
 
 	"github.com/totoval/framework/helpers/bytes"
 )
 
 var limiter *cache.RateLimit
 
-func Throttle(maxAttempts uint, decayMinutes uint) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Throttle(maxAttempts uint, decayMinutes uint) request.HandlerFunc {
+	return func(c *request.Context) {
 		if limiter == nil {
 			limiter = cache.NewRateLimit(cache.Cache())
 		}
@@ -24,7 +24,7 @@ func Throttle(maxAttempts uint, decayMinutes uint) gin.HandlerFunc {
 		key := requestSignature(c)
 
 		if limiter.TooManyAttempts(key, int64(maxAttempts)) {
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Too Many Attempts"})
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, toto.V{"error": "Too Many Attempts"})
 			return
 		}
 
@@ -43,7 +43,7 @@ func calculateRemainingAttempts(key string, maxAttempts uint, retryAfter zone.Du
 	return 0
 }
 
-func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAfter zone.Duration) {
+func setHeader(c *request.Context, maxAttempts uint, remainingAttempts uint, retryAfter zone.Duration) {
 	c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", maxAttempts))
 	c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remainingAttempts))
 
@@ -53,7 +53,7 @@ func setHeader(c *gin.Context, maxAttempts uint, remainingAttempts uint, retryAf
 	}
 }
 
-func requestSignature(c *gin.Context) string {
+func requestSignature(c *request.Context) string {
 	userId, exist := AuthClaimID(c)
 
 	sha1 := crypto.SHA1.New()

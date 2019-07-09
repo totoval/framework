@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-
 	l "github.com/totoval/framework/helpers/locale"
+	"github.com/totoval/framework/request"
 
 	"github.com/totoval/framework/config"
 )
 
-func Locale() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func Locale() request.HandlerFunc {
+	return func(c *request.Context) {
 		locale := c.Request.Header.Get("locale")
 		if locale == "" {
 			locale = c.DefaultQuery("locale", config.GetString("app.locale"))

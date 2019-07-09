@@ -2,12 +2,14 @@ package model
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	"gopkg.in/go-playground/validator.v9"
 	"math"
 	"reflect"
 	"strconv"
+
+	"github.com/jinzhu/gorm"
+	"gopkg.in/go-playground/validator.v9"
+
+	"github.com/totoval/framework/request"
 )
 
 type Model gorm.DB
@@ -53,7 +55,7 @@ func (p *Pagination) PerPage() uint {
 }
 
 // Model(*Q(&User{}, data, []Sort{}, 1, false)).Paginate(c, perPage)
-func (bm *Model) Paginate(model interface{}, c *gin.Context, perPage uint) (pagination Pagination, err error) {
+func (bm *Model) Paginate(model interface{}, c *request.Context, perPage uint) (pagination Pagination, err error) {
 	// validate paginate params
 	p := c.DefaultQuery("page", "1")
 	if err := validator.New().Var(p, "numeric,gt=0"); err != nil {

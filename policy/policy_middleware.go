@@ -3,9 +3,9 @@ package policy
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/auth"
+	"github.com/totoval/framework/helpers/toto"
+	"github.com/totoval/framework/request"
 )
 
 type UserNotPermitError struct{}
@@ -14,9 +14,9 @@ func (e UserNotPermitError) Error() string {
 	return "user has no permission"
 }
 
-func Middleware(policy Policier, action Action) gin.HandlerFunc {
+func Middleware(policy Policier, action Action) request.HandlerFunc {
 
-	return func(c *gin.Context) {
+	return func(c *request.Context) {
 		// get route url param
 		routeParamMap := make(map[string]string)
 		for _, param := range c.Params {
@@ -41,6 +41,6 @@ func Middleware(policy Policier, action Action) gin.HandlerFunc {
 	}
 }
 
-func forbid(c *gin.Context) {
-	c.JSON(http.StatusForbidden, gin.H{"error": UserNotPermitError{}.Error()})
+func forbid(c *request.Context) {
+	c.JSON(http.StatusForbidden, toto.V{"error": UserNotPermitError{}.Error()})
 }

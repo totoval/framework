@@ -5,9 +5,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/totoval/framework/config"
+	"github.com/totoval/framework/helpers/toto"
+	"github.com/totoval/framework/request"
 	"github.com/totoval/framework/utils/jwt"
 )
 
@@ -22,8 +22,8 @@ func (e TokenRevokeError) Error() string {
 	return "token revoke failed"
 }
 
-func AuthRequired() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func AuthRequired() request.HandlerFunc {
+	return func(c *request.Context) {
 		token := c.DefaultQuery("token", "")
 		if token == "" {
 			token = c.Request.Header.Get("Authorization")
@@ -43,19 +43,19 @@ func AuthRequired() gin.HandlerFunc {
 					if claims, err := j.ParseToken(token); err == nil {
 						c.Set(CONTEXT_CLAIM_KEY, claims)
 						c.Header("Authorization", "Bear "+token)
-						//c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
+						//c.JSON(http.StatusOK, toto.V{"data": toto.V{"token": token}})
 						return
 					}
 				}
 			}
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, toto.V{"error": err.Error()})
 			return
 		}
 		c.Set(CONTEXT_CLAIM_KEY, claims)
 	}
 }
 
-func AuthClaimID(c *gin.Context) (ID uint, exist bool) {
+func AuthClaimID(c *request.Context) (ID uint, exist bool) {
 	claims, exist := c.Get(CONTEXT_CLAIM_KEY)
 	if !exist {
 		return 0, false
@@ -64,7 +64,7 @@ func AuthClaimID(c *gin.Context) (ID uint, exist bool) {
 	return uint(r), true
 }
 
-func Revoke(c *gin.Context) error {
+func Revoke(c *request.Context) error {
 	j := jwt.NewJWT(config.GetString("auth.sign_key"))
 	if tokenString, exist := c.Get(CONTEXT_TOKEN_KEY); exist {
 		if token, ok := tokenString.(string); ok {
