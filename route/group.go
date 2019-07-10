@@ -105,6 +105,10 @@ func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handler
 }
 
 func (g *group) clearPath(relativePath string) string {
+	if relativePath == "" {
+		return relativePath
+	}
+
 	basePath := g.RouterGroup.BasePath()
 	if basePath[len(basePath)-1:] == "/" && relativePath[:1] == "/" {
 		return relativePath[1:]
