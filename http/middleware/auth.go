@@ -3,7 +3,6 @@ package middleware
 import (
 	"net/http"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/toto"
@@ -12,7 +11,6 @@ import (
 )
 
 const (
-	CONTEXT_CLAIM_KEY = "TOTOVAL_CONTEXT_CLAIM"
 	CONTEXT_TOKEN_KEY = "TOTOVAL_CONTEXT_TOKEN"
 )
 
@@ -41,7 +39,7 @@ func AuthRequired() request.HandlerFunc {
 			if err == jwt.TokenExpired {
 				if token, _err := j.RefreshTokenUnverified(token); _err == nil {
 					if claims, err := j.ParseToken(token); err == nil {
-						c.Set(CONTEXT_CLAIM_KEY, claims)
+						c.SetAuthClaim(claims)
 						c.Header("Authorization", "Bear "+token)
 						//c.JSON(http.StatusOK, toto.V{"data": toto.V{"token": token}})
 						return
@@ -51,17 +49,8 @@ func AuthRequired() request.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, toto.V{"error": err.Error()})
 			return
 		}
-		c.Set(CONTEXT_CLAIM_KEY, claims)
+		c.SetAuthClaim(claims)
 	}
-}
-
-func AuthClaimID(c *request.Context) (ID uint, exist bool) {
-	claims, exist := c.Get(CONTEXT_CLAIM_KEY)
-	if !exist {
-		return 0, false
-	}
-	r, _ := utf8.DecodeRune([]byte(claims.(*jwt.UserClaims).ID))
-	return uint(r), true
 }
 
 func Revoke(c *request.Context) error {

@@ -6,9 +6,6 @@ import (
 
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/toto"
-	"github.com/totoval/framework/http/middleware"
-	"github.com/totoval/framework/model"
-	"github.com/totoval/framework/request"
 )
 
 const CONTEXT_REQUEST_USER_KEY = "TOTOVAL_CONTEXT_REQUEST_USER"
@@ -34,10 +31,10 @@ func (e UserNotExistError) Error() string {
 }
 
 type RequestUser struct {
-	user model.IUser
+	user IUser
 }
 
-func (au *RequestUser) Scan(c *request.Context) (isAbort bool) {
+func (au *RequestUser) Scan(c Context) (isAbort bool) {
 	// if already scanned
 	if au.user != nil {
 		return false
@@ -45,14 +42,14 @@ func (au *RequestUser) Scan(c *request.Context) (isAbort bool) {
 
 	// get cached user
 	if _requestUser, exists := c.Get(CONTEXT_REQUEST_USER_KEY); exists {
-		if requestUser, ok := _requestUser.(model.IUser); ok {
+		if requestUser, ok := _requestUser.(IUser); ok {
 			au.user = requestUser
 			return false
 		}
 	}
 
-	user := newUser().(model.IUser)
-	userId, exist := middleware.AuthClaimID(c)
+	user := newUser().(IUser)
+	userId, exist := c.AuthClaimID()
 	if !exist {
 		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotLoginError{}.Error()})
 		return true
@@ -70,13 +67,13 @@ func (au *RequestUser) Scan(c *request.Context) (isAbort bool) {
 	return false
 }
 
-func (au *RequestUser) User() model.IUser {
+func (au *RequestUser) User() IUser {
 	return au.user
 }
 
-func (au *RequestUser) UserId(c *request.Context) (userId uint, isAbort bool) {
+func (au *RequestUser) UserId(c Context) (userId uint, isAbort bool) {
 	exist := false
-	userId, exist = middleware.AuthClaimID(c)
+	userId, exist = c.AuthClaimID()
 	if !exist {
 		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotLoginError{}.Error()})
 		return 0, true

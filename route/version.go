@@ -21,10 +21,10 @@ func NewVersion(engine *request.Engine, prefix string) *version {
 
 func (v *version) Auth(relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
 	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(append([]request.HandlerFunc{middleware.AuthRequired()}, handlers...))...)
-	groupFunc(&group{ginGroup})
+	groupFunc(&group{RouterGroup: ginGroup})
 }
 
 func (v *version) NoAuth(relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
 	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(handlers)...)
-	groupFunc(&group{ginGroup})
+	groupFunc(&group{RouterGroup: ginGroup})
 }

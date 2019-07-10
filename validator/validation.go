@@ -10,13 +10,12 @@ import (
 	"github.com/totoval/framework/helpers/locale"
 	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/helpers/trans"
-	"github.com/totoval/framework/request"
 )
 
 type Validation struct {
 }
 
-func (v *Validation) Validate(c *request.Context, _validator interface{}, onlyFirstError bool) (isAbort bool) {
+func (v *Validation) Validate(c Context, _validator interface{}, onlyFirstError bool) (isAbort bool) {
 	if err := c.ShouldBindBodyWith(_validator, binding.JSON); err != nil {
 
 		_err, ok := err.(validator.ValidationErrors)

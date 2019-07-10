@@ -2,20 +2,18 @@ package policy
 
 import (
 	"github.com/totoval/framework/auth"
-	"github.com/totoval/framework/model"
-	"github.com/totoval/framework/request"
 )
 
 type key = string
 type value = string
 type Policier interface {
-	Before(IUser model.IUser, routeParamMap map[key]value) *bool
-	Create(IUser model.IUser, routeParamMap map[key]value) bool
-	Update(IUser model.IUser, routeParamMap map[key]value) bool
-	Delete(IUser model.IUser, routeParamMap map[key]value) bool
-	ForceDelete(IUser model.IUser, routeParamMap map[key]value) bool
-	View(IUser model.IUser, routeParamMap map[key]value) bool
-	Restore(IUser model.IUser, routeParamMap map[key]value) bool
+	Before(IUser auth.IUser, routeParamMap map[key]value) *bool
+	Create(IUser auth.IUser, routeParamMap map[key]value) bool
+	Update(IUser auth.IUser, routeParamMap map[key]value) bool
+	Delete(IUser auth.IUser, routeParamMap map[key]value) bool
+	ForceDelete(IUser auth.IUser, routeParamMap map[key]value) bool
+	View(IUser auth.IUser, routeParamMap map[key]value) bool
+	Restore(IUser auth.IUser, routeParamMap map[key]value) bool
 }
 
 type Action byte
@@ -33,7 +31,7 @@ type Authorization struct {
 	auth.RequestUser
 }
 
-func (a *Authorization) Authorize(c *request.Context, policies Policier, action Action) (permit bool, user model.IUser) {
+func (a *Authorization) Authorize(c auth.Context, policies Policier, action Action) (permit bool, user auth.IUser) {
 	if a.RequestUser.Scan(c) {
 		return false, nil
 	}
@@ -43,7 +41,7 @@ func (a *Authorization) Authorize(c *request.Context, policies Policier, action 
 	return policyValidate(user, policies, action, nil), user
 }
 
-func policyValidate(user model.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {
+func policyValidate(user auth.IUser, policies Policier, action Action, routeParamMap map[key]value) bool {
 	if user == nil {
 		return true
 	}

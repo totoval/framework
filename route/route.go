@@ -7,6 +7,7 @@ import (
 
 	"github.com/totoval/framework/app"
 	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/http/middleware"
 	"github.com/totoval/framework/policy"
 	"github.com/totoval/framework/request"
 )
@@ -20,14 +21,14 @@ type route struct {
 	prefixHandlersNum int
 }
 
-func newRoute(httpMethod string, prefixHandlersNum int, basicPath string, relativePath string, bindFunc func(ginHandlers ...request.HandlerFunc), handlers ...request.HandlerFunc) *route {
-	r := route{httpMethod: httpMethod, prefixHandlersNum: prefixHandlersNum, basicPath: basicPath, relativePath: relativePath, bindFunc: bindFunc, handlers: handlers}
+func newRoute(httpMethod string, g *group, relativePath string, bindFunc func(ginHandlers ...request.HandlerFunc), handlers ...request.HandlerFunc) *route {
+	r := route{httpMethod: httpMethod, prefixHandlersNum: len(g.RouterGroup.Handlers), basicPath: g.RouterGroup.BasePath(), relativePath: relativePath, bindFunc: bindFunc, handlers: handlers}
 	theList = append(theList, &r)
 	return &r
 }
 
 func (r *route) Can(policies policy.Policier, action policy.Action) {
-	r.handlers = append([]request.HandlerFunc{policy.Middleware(policies, action)}, r.handlers...)
+	r.handlers = append([]request.HandlerFunc{middleware.Policy(policies, action)}, r.handlers...)
 }
 func (r *route) handlerNum() int {
 	return r.prefixHandlersNum + len(r.handlers)

@@ -17,13 +17,11 @@ func NewJob(scmd *scheduleCommand) *job {
 func (j *job) Run() {
 	defer func(command *scheduleCommand) {
 		if err := recover(); err != nil {
-			var __err error
-			if _err, ok := err.(error); ok {
-				__err = _err
-			} else {
-				__err = errors.New(command.When() + "schedule panic") //@todo err.(string) may be down when `panic(123)`
+			_err := errors.New(command.When() + "schedule panic")
+			if __err, ok := err.(error); ok {
+				_err = __err
 			}
-			_ = log.Error(__err)
+			_ = log.Error(_err)
 		}
 	}(j.scmd)
 
