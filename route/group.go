@@ -48,11 +48,11 @@ func (g *group) Any(relativePath string, handlers ...request.HandlerFunc) policy
 }
 
 func (g *group) GET(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
-	return newRoute("POST", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("GET", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
 func (g *group) POST(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
-	return newRoute("GET", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("POST", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
 func (g *group) DELETE(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
