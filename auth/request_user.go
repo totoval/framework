@@ -2,21 +2,11 @@ package auth
 
 import (
 	"net/http"
-	"reflect"
 
-	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/toto"
 )
 
 const CONTEXT_REQUEST_USER_KEY = "TOTOVAL_CONTEXT_REQUEST_USER"
-
-func newUser() interface{} {
-	typeof := reflect.TypeOf(config.GetInterface("auth.model_ptr"))
-	ptr := reflect.New(typeof).Elem()
-	val := reflect.New(typeof.Elem())
-	ptr.Set(val)
-	return ptr.Interface()
-}
 
 type UserNotLoginError struct{}
 
@@ -48,7 +38,7 @@ func (au *RequestUser) Scan(c Context) (isAbort bool) {
 		}
 	}
 
-	user := newUser().(IUser)
+	user := c.IUserModel()
 	userId, exist := c.AuthClaimID()
 	if !exist {
 		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": UserNotLoginError{}.Error()})
