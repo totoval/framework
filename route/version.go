@@ -19,8 +19,8 @@ func NewVersion(engine *request.Engine, prefix string) *version {
 	return ver
 }
 
-func (v *version) Auth(relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
-	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(append([]request.HandlerFunc{middleware.AuthRequired()}, handlers...))...)
+func (v *version) Auth(signKey string, relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
+	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(append([]request.HandlerFunc{middleware.AuthRequired(signKey)}, handlers...))...)
 	groupFunc(&group{RouterGroup: ginGroup})
 }
 

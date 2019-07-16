@@ -20,7 +20,7 @@ func (e TokenRevokeError) Error() string {
 	return "token revoke failed"
 }
 
-func AuthRequired() request.HandlerFunc {
+func AuthRequired(signKey string) request.HandlerFunc {
 	return func(c *request.Context) {
 		token := c.DefaultQuery("token", "")
 		if token == "" {
@@ -33,7 +33,7 @@ func AuthRequired() request.HandlerFunc {
 		// set token
 		c.Set(CONTEXT_TOKEN_KEY, token)
 
-		j := jwt.NewJWT(config.GetString("auth.sign_key"))
+		j := jwt.NewJWT(signKey)
 		claims, err := j.ParseToken(token)
 		if err != nil {
 			if err == jwt.TokenExpired {
