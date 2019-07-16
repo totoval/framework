@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 
 	"github.com/totoval/framework/helpers/cache"
+	"github.com/totoval/framework/helpers/debug"
 	"github.com/totoval/framework/helpers/zone"
 )
 
@@ -118,12 +118,15 @@ func (j *JWT) ParseToken(tokenString string) (*UserClaims, error) {
 			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
 				return nil, TokenNotValidYet
 			} else {
-				spew.Dump(ve)
+				debug.Dump(ve)
 				return nil, TokenInvalid
 			}
 		}
 	}
 
+	if token == nil { // In case of token is nil
+		return nil, TokenInvalid
+	}
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid && !claims.Revoked {
 		return claims, nil
 	}
