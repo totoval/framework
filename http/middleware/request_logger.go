@@ -24,6 +24,7 @@ func RequestLogger() request.HandlerFunc {
 		requestData, err := c.GetRawData()
 		if err != nil {
 			fmt.Println(err.Error())
+			c.Next()
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // key point
 

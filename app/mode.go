@@ -26,7 +26,7 @@ func SetMode(m Mode) {
 	case ModeTest:
 		//.SetMode(gin.TestMode)
 	case ModeDevelop:
-		//gin.SetMode(gin.DebugMode)
+		// gin.SetMode(gin.DebugMode)
 	default:
 		fallthrough
 	case ModeProduction:
