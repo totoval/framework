@@ -46,12 +46,12 @@ Refer to [https://totoval.com](https://totoval.com/docs/introduction/introductio
 - [x] Error Notifier `sentry`
 - [x] User Authorization
 - [x] Multi Ports Serving
-- [ ] Model Getter/Setter
+- [ ] Model Getter/Setter ***PLANNED***
+- [ ] Database Seeder ***PLANNED***
+- [ ] More Unit Test ***PLANNED***
+- [ ] Websocket Support ***PLANNED***
+- [ ] Website && Document ***WIP***
 - [ ] File Storage
-- [ ] Database Seeder
-- [ ] More Unit Test
-- [ ] Websocket Support
-- [ ] Website && Document
 - [ ] CI
 
 ## Thanks
@@ -70,3 +70,13 @@ Refer to [https://totoval.com](https://totoval.com/docs/introduction/introductio
 * ztrue/tracerr
 * go-redis/redis
 * getsentry/raven-go
+
+## License
+This project is licensed under the [MIT license](https://github.com/totoval/totoval/blob/master/LICENSE).
+
+## Contact
+If you have any issues or feature requests, please contact us. PR is welcomed.
+
+* https://github.com/totoval/framework/issues  
+* Slack: https://totoval.slack.com
+* totoval@tobyan.com
