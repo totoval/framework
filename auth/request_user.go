@@ -25,10 +25,6 @@ type RequestUser struct {
 }
 
 func (au *RequestUser) Scan(c Context) (isAbort bool) {
-	// if already scanned
-	if au.user != nil {
-		return false
-	}
 
 	// get cached user
 	if _requestUser, exists := c.Get(CONTEXT_REQUEST_USER_KEY); exists {
