@@ -2,6 +2,8 @@ package helper
 
 import (
 	"errors"
+	"fmt"
+
 	"github.com/totoval/framework/database"
 )
 
@@ -21,7 +23,7 @@ func Transaction(tf transactionFunc, attempts uint) {
 			if _err, ok := err.(error); ok {
 				__err = _err
 			} else {
-				__err = errors.New(err.(string)) //@todo err.(string) may be down when `panic(123)`
+				__err = errors.New(fmt.Sprint(err))
 			}
 			handleTransactionException(_h, tf, __err, currentAttempt, attempts)
 		}

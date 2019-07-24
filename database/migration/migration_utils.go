@@ -1,6 +1,8 @@
 package migration
 
 import (
+	"fmt"
+
 	"github.com/totoval/framework/console"
 	"github.com/totoval/framework/helpers/m"
 	"github.com/totoval/framework/model"
@@ -74,7 +76,7 @@ func (mu *MigrationUtils) errorRollback() {
 		if _err, ok := err.(error); ok {
 			console.Println(console.CODE_WARNING, "error:"+_err.Error())
 		} else {
-			console.Println(console.CODE_WARNING, "error:"+err.(string)) //@todo err.(string) may be down when `panic(123)`
+			console.Println(console.CODE_WARNING, "error:"+fmt.Sprint(err))
 		}
 	}
 }
