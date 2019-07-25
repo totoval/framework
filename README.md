@@ -1,6 +1,6 @@
 <p align="center"><img src="https://raw.githubusercontent.com/totoval/art/master/repo_use/logo-with-words-landscape.png?s=200&v=4"></p>
 
-![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/totoval/framework.svg)
+![GitHub release](https://img.shields.io/github/release/totoval/framework.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/totoval/framework.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/totoval/framework)](https://goreportcard.com/report/github.com/totoval/framework)
 ![GitHub top language](https://img.shields.io/github/languages/top/totoval/framework.svg)
