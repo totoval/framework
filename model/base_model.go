@@ -98,6 +98,22 @@ func callMutator(scope *gorm.Scope, isGetter bool) {
 		reflectValue = reflectValue.Addr()
 	}
 
+	switch reflectValue.Type().Elem().Kind() {
+	case reflect.Struct:
+		structReflect(&reflectValue, isGetter)
+	case reflect.Slice:
+		for i := 0; i < reflectValue.Elem().Len(); i++ {
+			rv := reflectValue.Elem().Index(i)
+			structReflect(&rv, isGetter)
+		}
+	default:
+		panic("cannot use mutator in type:" + reflectValue.Type().Elem().Kind().String())
+	}
+
+}
+func structReflect(reflectValue *reflect.Value, isGetter bool) {
+	//debug.Dump(reflectValue.Type().Elem().Kind().String(), reflectValue.Type(), reflectValue.Type().Elem())
+
 	wg := &sync.WaitGroup{}
 	for i := 0; i < reflectValue.Type().Elem().NumField(); i++ {
 		wg.Add(1)
@@ -106,9 +122,9 @@ func callMutator(scope *gorm.Scope, isGetter bool) {
 			fieldValue := reflectValue.Elem().Field(index).Interface()
 
 			if isGetter {
-				getter(&reflectValue, fieldName, fieldValue)
+				getter(reflectValue, fieldName, fieldValue)
 			} else {
-				setter(reflectValue, fieldName, fieldValue)
+				setter(*reflectValue, fieldName, fieldValue)
 			}
 			wg.Done()
 		}(wg, i)
