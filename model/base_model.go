@@ -115,6 +115,15 @@ func structReflect(reflectValue *reflect.Value, isGetter bool) {
 	//debug.Dump(reflectValue.Type().Elem().Kind().String(), reflectValue.Type(), reflectValue.Type().Elem())
 
 	wg := &sync.WaitGroup{}
+
+	//debug.Dump(reflectValue.Type(), reflectValue.CanAddr())
+
+	// change value to ptr
+	if reflectValue.CanAddr() && reflectValue.Kind() != reflect.Ptr {
+		tmp := reflectValue.Addr()
+		reflectValue = &tmp
+	}
+
 	for i := 0; i < reflectValue.Type().Elem().NumField(); i++ {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, index int) {
