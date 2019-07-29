@@ -21,9 +21,22 @@ type route struct {
 	prefixHandlersNum int
 }
 
+const maxRouteMapLength = 1000
+
+var engineRouteMap map[versionHash]chan *route
+
+func init() {
+	engineRouteMap = make(map[versionHash]chan *route)
+}
+
 func newRoute(httpMethod string, g *group, relativePath string, bindFunc func(ginHandlers ...request.HandlerFunc), handlers ...request.HandlerFunc) *route {
 	r := route{httpMethod: httpMethod, prefixHandlersNum: len(g.RouterGroup.Handlers), basicPath: g.RouterGroup.BasePath(), relativePath: relativePath, bindFunc: bindFunc, handlers: handlers}
-	theList = append(theList, &r)
+
+	if engineRouteMap[g.versionHash] == nil {
+		engineRouteMap[g.versionHash] = make(chan *route, maxRouteMapLength)
+	}
+	engineRouteMap[g.versionHash] <- &r
+
 	return &r
 }
 
@@ -43,14 +56,19 @@ func (r *route) lastHandlerName() string {
 	return "nil"
 }
 
-var theList []*route
+func Bind(engine *request.Engine) {
+	hash := engineHash(engine)
+	defer close(engineRouteMap[hash])
 
-func Bind() {
-	for _, r := range theList {
+	for r := range engineRouteMap[hash] {
 		r.bindFunc(r.handlers...)
 
 		if app.GetMode() != app.ModeProduction {
 			log.Info(fmt.Sprintf("%-6s %-30s --> %s (%d handlers)\n", r.httpMethod, r.absolutePath(), r.lastHandlerName(), r.handlerNum()))
+		}
+
+		if len(engineRouteMap[hash]) <= 0 {
+			break
 		}
 	}
 }

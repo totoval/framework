@@ -36,6 +36,7 @@ type iRoutes interface {
 }
 
 type group struct {
+	versionHash versionHash
 	*gin.RouterGroup
 }
 
@@ -101,7 +102,7 @@ func (g *group) StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes {
 
 func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...request.HandlerFunc) {
 	ginGroup := g.RouterGroup.Group(relativePath, request.ConvertHandlers(handlers)...)
-	routeGrouper.Group(&group{RouterGroup: ginGroup})
+	routeGrouper.Group(&group{versionHash: g.versionHash, RouterGroup: ginGroup})
 }
 
 func (g *group) clearPath(relativePath string) string {
