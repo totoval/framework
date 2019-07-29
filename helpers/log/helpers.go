@@ -15,42 +15,42 @@ func Error(err error, v ...toto.V) error {
 	return err
 }
 
-func Info(msg string, v ...toto.V) {
+func Info(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]
 	}
 	logs.Println(logs.INFO, msg, fields)
 }
-func Warn(msg string, v ...toto.V) {
+func Warn(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]
 	}
 	logs.Println(logs.WARN, msg, fields)
 }
-func Fatal(msg string, v ...toto.V) {
+func Fatal(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]
 	}
 	logs.Println(logs.FATAL, msg, fields)
 }
-func Debug(msg string, v ...toto.V) {
+func Debug(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]
 	}
 	logs.Println(logs.DEBUG, msg, fields)
 }
-func Panic(msg string, v ...toto.V) {
+func Panic(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]
 	}
 	logs.Println(logs.PANIC, msg, fields)
 }
-func Trace(msg string, v ...toto.V) {
+func Trace(msg interface{}, v ...toto.V) {
 	var fields toto.V
 	if len(v) > 0 {
 		fields = v[0]

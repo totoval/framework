@@ -36,7 +36,7 @@ func Initialize() {
 
 type Field = toto.V
 
-func Println(level Level, msg string, fields Field) {
+func Println(level Level, msg interface{}, fields Field) {
 
 	if fields == nil {
 		log.Log(level, msg)
@@ -52,14 +52,14 @@ func Println(level Level, msg string, fields Field) {
 
 		switch level {
 		case PANIC:
-			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%v - %v", msg, fields)))
 		case FATAL:
-			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%v - %v", msg, fields)))
 		case ERROR:
-			sentry.CaptureError(errors.New(fmt.Sprintf("%s - %v", msg, fields)))
+			sentry.CaptureError(errors.New(fmt.Sprintf("%v - %v", msg, fields)))
 		case WARN:
 			_fields["level"] = "WARN"
-			sentry.CaptureMsg(msg, _fields)
+			sentry.CaptureMsg(fmt.Sprintf("%v", msg), _fields)
 			//case INFO:
 			//	_fields["level"] = "INFO"
 			//	sentry.CaptureMsg(msg, _fields)
