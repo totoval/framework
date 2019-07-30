@@ -14,23 +14,25 @@ import (
 )
 
 func RequestLogger() request.HandlerFunc {
-	return func(c *request.Context) {
+	return func(c request.Context) {
 
 		// before request
 		startedAt := zone.Now()
 
 		// collect request data
-		requestHeader := c.Request.Header
+		requestHeader := c.Request().Header
 		requestData, err := c.GetRawData()
 		if err != nil {
 			fmt.Println(err.Error())
 			c.Next()
 		}
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // key point
+		r := c.Request()
+		r.Body = ioutil.NopCloser(bytes.NewBuffer(requestData)) // key point
+		c.SetRequest(r)
 
 		// collect response data
-		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
-		c.Writer = responseWriter
+		responseWriter := &responseWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer()}
+		c.SetWriter(responseWriter)
 
 		c.Next()
 
@@ -38,11 +40,11 @@ func RequestLogger() request.HandlerFunc {
 
 		// print request
 		log.Info(c.ClientIP(), toto.V{
-			"Method":         c.Request.Method,
-			"Path":           c.Request.RequestURI,
-			"Proto":          c.Request.Proto,
+			"Method":         c.Request().Method,
+			"Path":           c.Request().RequestURI,
+			"Proto":          c.Request().Proto,
 			"Status":         responseWriter.Status(),
-			"UA":             c.Request.UserAgent(),
+			"UA":             c.Request().UserAgent(),
 			"Latency":        zone.Now().Sub(startedAt),
 			"RequestHeader":  requestHeader,
 			"RequestBody":    string(requestData),

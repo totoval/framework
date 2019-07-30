@@ -21,10 +21,10 @@ func (e TokenRevokeError) Error() string {
 }
 
 func AuthRequired(signKey string) request.HandlerFunc {
-	return func(c *request.Context) {
+	return func(c request.Context) {
 		token := c.DefaultQuery("token", "")
 		if token == "" {
-			token = c.Request.Header.Get("Authorization")
+			token = c.Request().Header.Get("Authorization")
 			if s := strings.Split(token, " "); len(s) == 2 {
 				token = s[1]
 			}
@@ -53,7 +53,7 @@ func AuthRequired(signKey string) request.HandlerFunc {
 	}
 }
 
-func Revoke(c *request.Context) error {
+func Revoke(c request.Context) error {
 	j := jwt.NewJWT(config.GetString("auth.sign_key"))
 	if tokenString, exist := c.Get(CONTEXT_TOKEN_KEY); exist {
 		if token, ok := tokenString.(string); ok {

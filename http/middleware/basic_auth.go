@@ -7,7 +7,7 @@ import (
 )
 
 func BasicAuth(accounts map[string]string) request.HandlerFunc {
-	return func(c *request.Context) {
-		gin.BasicAuth(accounts)(c.Context)
+	return func(c request.Context) {
+		gin.BasicAuth(accounts)(c.GinContext())
 	}
 }

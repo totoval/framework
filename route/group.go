@@ -33,6 +33,8 @@ type iRoutes interface {
 	StaticFile(relativePath, filepath string) gin.IRoutes
 	Static(relativePath, root string) gin.IRoutes
 	StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes
+
+	Websocket(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
 }
 
 type group struct {
@@ -98,6 +100,14 @@ func (g *group) Static(relativePath, root string) gin.IRoutes {
 func (g *group) StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes {
 	relativePath = g.clearPath(relativePath)
 	return g.RouterGroup.StaticFS(relativePath, fs)
+}
+
+func (g *group) Websocket(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	relativePath = g.clearPath(relativePath)
+	return newRoute("Websocket", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.GET(relativePath, request.ConvertWsHandlers(innerHandlers)...)
+
+	}, handlers...)
 }
 
 func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...request.HandlerFunc) {

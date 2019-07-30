@@ -6,7 +6,7 @@ import (
 )
 
 func IUser(userModelPtr auth.IUser) request.HandlerFunc {
-	return func(c *request.Context) {
+	return func(c request.Context) {
 		c.SetIUserModel(userModelPtr)
 
 		c.Next()

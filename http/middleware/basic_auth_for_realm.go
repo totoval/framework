@@ -7,7 +7,7 @@ import (
 )
 
 func BasicAuthWithRealm(accounts map[string]string, realm string) request.HandlerFunc {
-	return func(c *request.Context) {
-		gin.BasicAuthForRealm(accounts, realm)(c.Context)
+	return func(c request.Context) {
+		gin.BasicAuthForRealm(accounts, realm)(c.GinContext())
 	}
 }

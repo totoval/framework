@@ -7,7 +7,7 @@ import (
 )
 
 func Logger() request.HandlerFunc {
-	return func(c *request.Context) {
-		gin.Logger()(c.Context)
+	return func(c request.Context) {
+		gin.Logger()(c.GinContext())
 	}
 }

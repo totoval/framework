@@ -6,7 +6,7 @@ import (
 )
 
 func Policy(_policy policy.Policier, action policy.Action) request.HandlerFunc {
-	return func(c *request.Context) {
-		policy.Middleware(_policy, action, c, c.Params)
+	return func(c request.Context) {
+		policy.Middleware(_policy, action, c, c.Params())
 	}
 }
