@@ -9,6 +9,8 @@ type Dashboard struct {
 	controller.BaseController
 }
 
-func (d *Dashboard) Index(c *request.Context) {
+func (d *Dashboard) Index(c request.Context) {
+
+}
 
 }
