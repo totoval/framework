@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"sync"
 
 	"github.com/totoval/framework/app"
 	"github.com/totoval/framework/helpers/log"
@@ -23,19 +24,46 @@ type route struct {
 
 const maxRouteMapLength = 1000
 
-var engineRouteMap map[versionHash]chan *route
+type engineRoute struct {
+	Lock sync.RWMutex
+	data map[versionHash]chan *route
+}
+
+func newEngineRoute() *engineRoute {
+	return &engineRoute{
+		data: make(map[versionHash]chan *route),
+	}
+}
+func (erm *engineRoute) init(vh versionHash) {
+	if erm.data[vh] == nil {
+		erm.data[vh] = make(chan *route, maxRouteMapLength)
+	}
+}
+func (erm *engineRoute) Get(vh versionHash) chan *route {
+	erm.Lock.RLock()
+	defer erm.Lock.RUnlock()
+	return erm.data[vh]
+}
+func (erm *engineRoute) Set(vh versionHash, r *route) {
+	erm.Lock.Lock()
+	defer erm.Lock.Unlock()
+	erm.init(vh)
+	erm.data[vh] <- r
+}
+func (erm *engineRoute) Close(vh versionHash) {
+	close(erm.data[vh])
+}
+
+var engineRouteMap *engineRoute
 
 func init() {
-	engineRouteMap = make(map[versionHash]chan *route)
+	engineRouteMap = newEngineRoute()
 }
 
 func newRoute(httpMethod string, g *group, relativePath string, bindFunc func(ginHandlers ...request.HandlerFunc), handlers ...request.HandlerFunc) *route {
 	r := route{httpMethod: httpMethod, prefixHandlersNum: len(g.RouterGroup.Handlers), basicPath: g.RouterGroup.BasePath(), relativePath: relativePath, bindFunc: bindFunc, handlers: handlers}
 
-	if engineRouteMap[g.versionHash] == nil {
-		engineRouteMap[g.versionHash] = make(chan *route, maxRouteMapLength)
-	}
-	engineRouteMap[g.versionHash] <- &r
+	engineRouteMap.Set(g.versionHash, &r)
 
 	return &r
 }
@@ -58,16 +86,16 @@ func (r *route) lastHandlerName() string {
 
 func Bind(engine *request.Engine) {
 	hash := engineHash(engine)
-	defer close(engineRouteMap[hash])
+	defer engineRouteMap.Close(hash)
 
-	for r := range engineRouteMap[hash] {
+	for r := range engineRouteMap.Get(hash) {
 		r.bindFunc(r.handlers...)
 
 		if app.GetMode() != app.ModeProduction {
 			log.Info(fmt.Sprintf("%-6s %-30s --> %s (%d handlers)\n", r.httpMethod, r.absolutePath(), r.lastHandlerName(), r.handlerNum()))
 		}
 
-		if len(engineRouteMap[hash]) <= 0 {
+		if len(engineRouteMap.Get(hash)) <= 0 {
 			break
 		}
 	}
