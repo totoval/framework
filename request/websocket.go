@@ -32,6 +32,7 @@ func ConvertWsHandlers(handlers []HandlerFunc) (ginHandlers []gin.HandlerFunc) {
 					c.JSON(http.StatusUnprocessableEntity, toto.V{"error": err})
 					return
 				}
+				defer ws.Close()
 				totovalContext := websocketContext{Context: c, CommonContext: &CommonContext{c}, ws: ws}
 				handler(&totovalContext)
 			})
