@@ -21,17 +21,13 @@ func (e UserNotExistError) Error() string {
 }
 
 type RequestUser struct {
-	user IUser
 }
 
 func (au *RequestUser) Scan(c Context) (isAbort bool) {
 
 	// get cached user
-	if _requestUser, exists := c.Get(CONTEXT_REQUEST_USER_KEY); exists {
-		if requestUser, ok := _requestUser.(IUser); ok {
-			au.user = requestUser
-			return false
-		}
+	if au.User(c) != nil {
+		return false
 	}
 
 	user := c.IUserModel()
@@ -45,16 +41,19 @@ func (au *RequestUser) Scan(c Context) (isAbort bool) {
 		return true
 	}
 
-	au.user = user
-
 	// set cache
 	c.Set(CONTEXT_REQUEST_USER_KEY, user)
 
 	return false
 }
 
-func (au *RequestUser) User() IUser {
-	return au.user
+func (au *RequestUser) User(c Context) IUser {
+	if _requestUser, exists := c.Get(CONTEXT_REQUEST_USER_KEY); exists {
+		if requestUser, ok := _requestUser.(IUser); ok {
+			return requestUser
+		}
+	}
+	return nil
 }
 
 func (au *RequestUser) UserId(c Context) (userId uint, isAbort bool) {

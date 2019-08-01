@@ -35,7 +35,7 @@ func (a *Authorization) Authorize(c auth.Context, policies Policier, action Acti
 	if a.RequestUser.Scan(c) {
 		return false, nil
 	}
-	user = a.RequestUser.User()
+	user = a.RequestUser.User(c)
 
 	// if use Authorize func, routeParamMap is nil
 	return policyValidate(user, policies, action, nil), user

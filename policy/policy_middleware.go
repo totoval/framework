@@ -31,7 +31,7 @@ func Middleware(policy Policier, action Action, c Context, params []gin.Param) {
 	}
 
 	// validate policy
-	if !policyValidate(requestUser.User(), policy, action, routeParamMap) {
+	if !policyValidate(requestUser.User(c), policy, action, routeParamMap) {
 		forbid(c)
 		c.Abort()
 		return
