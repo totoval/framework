@@ -2,6 +2,6 @@ package auth
 
 type RequestIUser interface {
 	Scan(c Context) (isAbort bool)
-	User() IUser
+	User(c Context) IUser
 	UserId(c Context) (userId uint, isAbort bool)
 }
