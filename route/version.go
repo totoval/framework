@@ -1,8 +1,6 @@
 package route
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/totoval/framework/http/middleware"
@@ -21,22 +19,12 @@ func NewVersion(engine *request.Engine, prefix string) *version {
 	return ver
 }
 
-func engineHash(engine *request.Engine) versionHash {
-	return fmt.Sprintf("%x", engine)
-}
-
-type versionHash = string
-
-func (v *version) hash() versionHash {
-	return engineHash(v.engine)
-}
-
 func (v *version) Auth(signKey string, relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
 	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(append([]request.HandlerFunc{middleware.AuthRequired(signKey)}, handlers...))...)
-	groupFunc(&group{versionHash: v.hash(), RouterGroup: ginGroup})
+	groupFunc(&group{engineHash: v.engine.Hash(), RouterGroup: ginGroup})
 }
 
 func (v *version) NoAuth(relativePath string, groupFunc func(grp Grouper), handlers ...request.HandlerFunc) {
 	ginGroup := v.group.Group(relativePath, request.ConvertHandlers(handlers)...)
-	groupFunc(&group{versionHash: v.hash(), RouterGroup: ginGroup})
+	groupFunc(&group{engineHash: v.engine.Hash(), RouterGroup: ginGroup})
 }

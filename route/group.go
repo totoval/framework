@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/totoval/framework/request/websocket"
+
 	"github.com/totoval/framework/policy"
 	"github.com/totoval/framework/request"
 )
@@ -34,11 +36,11 @@ type iRoutes interface {
 	Static(relativePath, root string) gin.IRoutes
 	StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes
 
-	Websocket(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) policy.RoutePolicier
 }
 
 type group struct {
-	versionHash versionHash
+	engineHash request.EngineHash
 	*gin.RouterGroup
 }
 
@@ -102,17 +104,19 @@ func (g *group) StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes {
 	return g.RouterGroup.StaticFS(relativePath, fs)
 }
 
-func (g *group) Websocket(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
-	relativePath = g.clearPath(relativePath)
-	return newRoute("Websocket", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
-		g.RouterGroup.GET(relativePath, request.ConvertWsHandlers(innerHandlers)...)
+const httpMethodWebsocket = "WS"
 
-	}, handlers...)
+func (g *group) Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) policy.RoutePolicier {
+	relativePath = g.clearPath(relativePath)
+	return newWsRoute(httpMethodWebsocket, g, relativePath, func(wsHandler websocket.Handler, innerHandlers ...request.HandlerFunc) {
+		innerGinHandlers := append(request.ConvertHandlers(innerHandlers), websocket.ConvertHandler(wsHandler))
+		g.RouterGroup.GET(relativePath, innerGinHandlers...)
+	}, wsHandler, handlers...)
 }
 
 func (g *group) AddGroup(relativePath string, routeGrouper RouteGrouper, handlers ...request.HandlerFunc) {
 	ginGroup := g.RouterGroup.Group(relativePath, request.ConvertHandlers(handlers)...)
-	routeGrouper.Group(&group{versionHash: g.versionHash, RouterGroup: ginGroup})
+	routeGrouper.Group(&group{engineHash: g.engineHash, RouterGroup: ginGroup})
 }
 
 func (g *group) clearPath(relativePath string) string {

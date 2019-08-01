@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/totoval/framework/monitor/resources/views"
+
 	c "github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/helpers/toto"
@@ -18,22 +20,11 @@ func HttpMonitorServe(parentCtx context.Context, wg *sync.WaitGroup) {
 
 	//sentry.Use(r.GinEngine(), false)
 
-	//if c.GetBool("app.debug") {
-	//	r.Use(middleware.RequestLogger())
-	//}
-
-	//if c.GetString("app.env") == "production" {
-	//	r.Use(middleware.Logger())
-	//	r.Use(middleware.Recovery())
-	//}
-
-	//r.Use(middleware.Locale())
-
 	//r.Use(middleware.IUser(&models.YourUserModel{})) // set default auth user model, or use config auth.model_ptr
 
 	routes.Register(r)
 
-	//views.Initialize(r)
+	views.Initialize(r)
 
 	s := &http.Server{
 		Addr:           ":" + c.GetString("monitor.port"),

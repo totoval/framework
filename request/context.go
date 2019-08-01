@@ -14,9 +14,8 @@ type Context interface {
 
 	GinContext() *gin.Context
 
-	SetAuthClaim(claims *jwt.UserClaims)
-
-	SetIUserModel(iUser auth.IUser)
+	SetAuthClaim(claims *jwt.UserClaims) //@todo move into a new interface
+	SetIUserModel(iUser auth.IUser)      //@todo move into a new interface
 
 	auth.Context
 	auth.RequestIUser
