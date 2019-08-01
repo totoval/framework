@@ -1,4 +1,4 @@
-package request
+package http
 
 import (
 	"net/http"
@@ -7,17 +7,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/totoval/framework/auth"
+	"github.com/totoval/framework/helpers/toto"
+	"github.com/totoval/framework/request/http/auth"
+
 	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/utils/jwt"
 )
 
 const CONTEXT_CLAIM_KEY = "TOTOVAL_CONTEXT_CLAIM"
-const CONTEXT_IUSER_KEY = "TOTOVAL_CONTEXT_IUSER"
+const CONTEXT_IUSER_MODEL_KEY = "TOTOVAL_CONTEXT_IUSER_MODEL"
 
 type httpContext struct {
-	*CommonContext
 	*gin.Context
+	*auth.RequestUser
 }
 
 func (c *httpContext) GinContext() *gin.Context {
@@ -60,10 +62,10 @@ func (c *httpContext) AuthClaimID() (ID uint, exist bool) {
 	return uint(r), true
 }
 func (c *httpContext) SetIUserModel(iuser auth.IUser) {
-	c.Set(CONTEXT_IUSER_KEY, iuser)
+	c.Set(CONTEXT_IUSER_MODEL_KEY, iuser)
 }
 func (c *httpContext) IUserModel() auth.IUser {
-	iuser, exist := c.Get(CONTEXT_IUSER_KEY)
+	iuser, exist := c.Get(CONTEXT_IUSER_MODEL_KEY)
 
 	var typeof reflect.Type
 	if !exist {
@@ -80,16 +82,17 @@ func (c *httpContext) IUserModel() auth.IUser {
 	return ptr.Interface().(auth.IUser)
 }
 
-type HandlerFunc func(Context)
-
-func ConvertHandlers(handlers []HandlerFunc) (ginHandlers []gin.HandlerFunc) {
-	for _, h := range handlers {
-		handler := h // must new a variable for `range's val`, or the `val` in anonymous funcs will be overwrited in every loop
-
-		ginHandlers = append(ginHandlers, func(c *gin.Context) {
-			totovalContext := httpContext{Context: c, CommonContext: &CommonContext{c}}
-			handler(&totovalContext)
-		})
+func (c *httpContext) ScanUserWithJSON() (isAbort bool) {
+	if err := c.ScanUser(); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": err})
+		return true
 	}
-	return
+	return false
+}
+func ConvertContext(c *gin.Context) *httpContext {
+	cc := &httpContext{Context: c, RequestUser: &auth.RequestUser{}}
+
+	cc.RequestUser.SetContext(cc)
+
+	return cc
 }

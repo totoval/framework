@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/totoval/framework/auth"
 	"github.com/totoval/framework/helpers/toto"
 )
 
@@ -24,14 +23,14 @@ func Middleware(policy Policier, action Action, c Context, params []gin.Param) {
 	}
 
 	// get user
-	requestUser := &auth.RequestUser{}
-	if requestUser.Scan(c) {
+	if err := c.ScanUser(); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, toto.V{"error": err})
 		c.Abort()
 		return
 	}
 
 	// validate policy
-	if !policyValidate(requestUser.User(c), policy, action, routeParamMap) {
+	if !policyValidate(c.User(), policy, action, routeParamMap) {
 		forbid(c)
 		c.Abort()
 		return

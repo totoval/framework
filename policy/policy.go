@@ -1,7 +1,7 @@
 package policy
 
 import (
-	"github.com/totoval/framework/auth"
+	"github.com/totoval/framework/request/http/auth"
 )
 
 type key = string
@@ -31,11 +31,11 @@ type Authorization struct {
 	auth.RequestUser
 }
 
-func (a *Authorization) Authorize(c auth.Context, policies Policier, action Action) (permit bool, user auth.IUser) {
-	if a.RequestUser.Scan(c) {
+func (a *Authorization) Authorize(c Context, policies Policier, action Action) (permit bool, user auth.IUser) {
+	if c.ScanUser() != nil {
 		return false, nil
 	}
-	user = a.RequestUser.User(c)
+	user = c.User()
 
 	// if use Authorize func, routeParamMap is nil
 	return policyValidate(user, policies, action, nil), user
