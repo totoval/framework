@@ -4,38 +4,44 @@ import (
 	"html/template"
 	"sync"
 
-	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/request"
 )
 
 func Initialize(r *request.Engine) {
+	t := template.New("")
 	for _, tmpl := range engineTemplateMap.Get() {
-		r.SetHTMLTemplate(tmpl)
+		t, _ = t.New(tmpl.name).Parse(tmpl.content)
 	}
-	log.Info(r)
+	r.SetHTMLTemplate(t)
 }
 
 func AddView(name string, content string) {
-	tmpl := template.Must(template.New(name).Parse(content))
-	engineTemplateMap.Set(tmpl)
+	engineTemplateMap.Set(&tmpl{
+		name:    name,
+		content: content,
+	})
 }
 
+type tmpl struct {
+	name    string
+	content string
+}
 type engineTemplate struct {
 	Lock sync.RWMutex
-	data []*template.Template
+	data []*tmpl
 }
 
 func newEngineTemplate() *engineTemplate {
 	return &engineTemplate{
-		data: []*template.Template{},
+		data: []*tmpl{},
 	}
 }
-func (et *engineTemplate) Get() []*template.Template {
+func (et *engineTemplate) Get() []*tmpl {
 	et.Lock.RLock()
 	defer et.Lock.RUnlock()
 	return et.data
 }
-func (et *engineTemplate) Set(tmpl *template.Template) {
+func (et *engineTemplate) Set(tmpl *tmpl) {
 	et.Lock.Lock()
 	defer et.Lock.Unlock()
 	et.data = append(et.data, tmpl)
