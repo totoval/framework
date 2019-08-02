@@ -2,19 +2,53 @@ package view
 
 import (
 	"html/template"
+	"sync"
 
 	"github.com/totoval/framework/request"
 )
 
-var templateList []*template.Template
-
 func Initialize(r *request.Engine) {
-	for _, tmpl := range templateList {
-		r.SetHTMLTemplate(tmpl)
+	t := template.New("")
+	for _, tmpl := range engineTemplateMap.Get() {
+		t, _ = t.New(tmpl.name).Parse(tmpl.content)
 	}
+	r.SetHTMLTemplate(t)
 }
 
 func AddView(name string, content string) {
-	tmpl := template.Must(template.New(name).Parse(content))
-	templateList = append(templateList, tmpl)
+	engineTemplateMap.Set(&tmpl{
+		name:    name,
+		content: content,
+	})
+}
+
+type tmpl struct {
+	name    string
+	content string
+}
+type engineTemplate struct {
+	lock sync.RWMutex
+	data []*tmpl
+}
+
+func newEngineTemplate() *engineTemplate {
+	return &engineTemplate{
+		data: []*tmpl{},
+	}
+}
+func (et *engineTemplate) Get() []*tmpl {
+	et.lock.RLock()
+	defer et.lock.RUnlock()
+	return et.data
+}
+func (et *engineTemplate) Set(tmpl *tmpl) {
+	et.lock.Lock()
+	defer et.lock.Unlock()
+	et.data = append(et.data, tmpl)
+}
+
+var engineTemplateMap *engineTemplate
+
+func init() {
+	engineTemplateMap = newEngineTemplate()
 }

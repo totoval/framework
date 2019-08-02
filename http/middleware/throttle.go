@@ -16,7 +16,7 @@ import (
 var limiter *cache.RateLimit
 
 func Throttle(maxAttempts uint, decayMinutes uint) request.HandlerFunc {
-	return func(c *request.Context) {
+	return func(c request.Context) {
 		if limiter == nil {
 			limiter = cache.NewRateLimit(cache.Cache())
 		}
@@ -43,7 +43,7 @@ func calculateRemainingAttempts(key string, maxAttempts uint, retryAfter zone.Du
 	return 0
 }
 
-func setHeader(c *request.Context, maxAttempts uint, remainingAttempts uint, retryAfter zone.Duration) {
+func setHeader(c request.Context, maxAttempts uint, remainingAttempts uint, retryAfter zone.Duration) {
 	c.Header("X-RateLimit-Limit", fmt.Sprintf("%d", maxAttempts))
 	c.Header("X-RateLimit-Remaining", fmt.Sprintf("%d", remainingAttempts))
 
@@ -53,7 +53,7 @@ func setHeader(c *request.Context, maxAttempts uint, remainingAttempts uint, ret
 	}
 }
 
-func requestSignature(c *request.Context) string {
+func requestSignature(c request.Context) string {
 	userId, exist := c.AuthClaimID()
 
 	sha1 := crypto.SHA1.New()
@@ -64,6 +64,6 @@ func requestSignature(c *request.Context) string {
 	}
 
 	// do not has user
-	sha1.Write([]byte(c.Request.Host + "|" + c.ClientIP()))
+	sha1.Write([]byte(c.Request().Host + "|" + c.ClientIP()))
 	return string(sha1.Sum(nil))
 }

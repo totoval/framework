@@ -7,7 +7,7 @@ import (
 )
 
 func Recovery() request.HandlerFunc {
-	return func(c *request.Context) {
-		gin.Recovery()(c.Context)
+	return func(c request.Context) {
+		gin.Recovery()(c.GinContext())
 	}
 }

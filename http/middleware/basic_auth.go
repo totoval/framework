@@ -6,8 +6,8 @@ import (
 	"github.com/totoval/framework/request"
 )
 
-func Logger() request.HandlerFunc {
+func BasicAuth(accounts map[string]string) request.HandlerFunc {
 	return func(c request.Context) {
-		gin.Logger()(c.GinContext())
+		gin.BasicAuth(accounts)(c.GinContext())
 	}
 }

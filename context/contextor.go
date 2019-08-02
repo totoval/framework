@@ -3,6 +3,7 @@ package context
 import (
 	"io"
 	"mime/multipart"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -11,7 +12,7 @@ import (
 	"github.com/totoval/framework/helpers/zone"
 )
 
-type Contextor interface {
+type HttpContextor interface {
 	LifeCycleContextor
 	DataContextor
 
@@ -24,6 +25,15 @@ type Contextor interface {
 	ResponseContextor
 	ResponseFileContextor
 	ResponseStreamContextor
+
+	Request() *http.Request
+	SetRequest(r *http.Request)
+	Writer() gin.ResponseWriter
+	SetWriter(w gin.ResponseWriter)
+	Params() gin.Params
+	Accepted() []string
+	Keys() map[string]interface{}
+	Errors() []*gin.Error
 
 	Deadline() (deadline zone.Time, ok bool)
 	Done() <-chan struct{}

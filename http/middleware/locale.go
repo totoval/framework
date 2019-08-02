@@ -8,8 +8,8 @@ import (
 )
 
 func Locale() request.HandlerFunc {
-	return func(c *request.Context) {
-		locale := c.Request.Header.Get("locale")
+	return func(c request.Context) {
+		locale := c.Request().Header.Get("locale")
 		if locale == "" {
 			locale = c.DefaultQuery("locale", config.GetString("app.locale"))
 		}

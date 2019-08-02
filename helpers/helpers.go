@@ -7,7 +7,7 @@ import (
 	"github.com/totoval/framework/helpers/locale"
 )
 
-func L(c *request.Context, messageID string, dataNlocale ...interface{}) string {
+func L(c request.Context, messageID string, dataNlocale ...interface{}) string {
 	l := locale.Locale(c)
 	data := make(map[string]interface{})
 	switch len(dataNlocale) {
