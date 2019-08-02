@@ -33,6 +33,7 @@ func (ch *connectionHub) getChan() chan *Msg {
 	return ch.msgChan
 }
 func (ch *connectionHub) close() {
+	close(ch.msgChan)
 	ch.isClosed = true
 }
 func (ch *connectionHub) available() bool {
