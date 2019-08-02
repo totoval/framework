@@ -15,8 +15,16 @@ type DashboardWebsocketController struct {
 
 func (d *DashboardWebsocketController) OnMessage(hub websocket.Hub, msg *websocket.Msg) {
 	mm := &websocket.Msg{}
-	mm.SetString("hi")
+	// need login~, just for an example of websocket authentication support
+	if err := hub.ScanUser(); err != nil {
+		mm.SetString(err.Error())
+		hub.Send(mm)
+		return
+	}
+
+	mm.SetJSON(hub.User().Value())
 	hub.Send(mm)
+	return
 }
 
 func (d *DashboardWebsocketController) Loop(hub websocket.Hub) error {
