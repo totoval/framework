@@ -54,10 +54,5 @@ func HttpMonitorServe(parentCtx context.Context, wg *sync.WaitGroup) {
 		log.Fatal("Monitor Server Shutdown: ", toto.V{"error": err})
 	}
 
-	// totoval framework shutdown
-	//graceful.ShutDown(false)
-
-	log.Info("Monitor Server exiting")
-
 	wg.Done()
 }

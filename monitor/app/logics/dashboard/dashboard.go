@@ -48,3 +48,6 @@ func (f *flow) notify() {
 func (f *flow) Current() chan *FlowData {
 	return f.chanData
 }
+func (f *flow) Close() {
+	close(f.chanData)
+}
