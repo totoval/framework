@@ -3,8 +3,7 @@ package views
 import "github.com/totoval/framework/view"
 
 func init() {
-	view.AddView("totoval_dashboard.index", `
-{{define "totoval_dashboard.index"}}
+	view.AddView("totoval_dashboard.index", `{{define "totoval_dashboard.index"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +28,5 @@ func init() {
 
 </body>
 </html>
-{{ end }}
-`)
+{{ end }}`)
 }
