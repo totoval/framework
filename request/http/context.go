@@ -90,9 +90,9 @@ func (c *httpContext) ScanUserWithJSON() (isAbort bool) {
 	return false
 }
 func ConvertContext(c *gin.Context) *httpContext {
-	cc := &httpContext{Context: c, RequestUser: &auth.RequestUser{}}
+	_c := &httpContext{Context: c, RequestUser: &auth.RequestUser{}}
 
-	cc.RequestUser.SetContext(cc)
+	_c.RequestUser.SetContext(_c)
 
-	return cc
+	return _c
 }

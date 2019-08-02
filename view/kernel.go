@@ -27,7 +27,7 @@ type tmpl struct {
 	content string
 }
 type engineTemplate struct {
-	Lock sync.RWMutex
+	lock sync.RWMutex
 	data []*tmpl
 }
 
@@ -37,13 +37,13 @@ func newEngineTemplate() *engineTemplate {
 	}
 }
 func (et *engineTemplate) Get() []*tmpl {
-	et.Lock.RLock()
-	defer et.Lock.RUnlock()
+	et.lock.RLock()
+	defer et.lock.RUnlock()
 	return et.data
 }
 func (et *engineTemplate) Set(tmpl *tmpl) {
-	et.Lock.Lock()
-	defer et.Lock.Unlock()
+	et.lock.Lock()
+	defer et.lock.Unlock()
 	et.data = append(et.data, tmpl)
 }
 

@@ -1,20 +1,61 @@
 package route
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/totoval/framework/app"
 	"github.com/totoval/framework/helpers/log"
+	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/http/middleware"
 	"github.com/totoval/framework/policy"
 	"github.com/totoval/framework/request"
 	"github.com/totoval/framework/request/websocket"
 )
 
+var RouteNameMap *routeNameMap
+
+type routeNameMap struct {
+	lock sync.RWMutex
+	data map[string]string
+}
+
+func newRouteNameMap() *routeNameMap {
+	return &routeNameMap{
+		data: make(map[string]string),
+	}
+}
+
+func (rnm *routeNameMap) set(routeName, routeUrl string) {
+	rnm.lock.Lock()
+	defer rnm.lock.Unlock()
+	rnm.data[routeName] = routeUrl
+}
+func (rnm *routeNameMap) Get(routeName string, param toto.S) (url string, err error) {
+	rnm.lock.RLock()
+	defer rnm.lock.RUnlock()
+	routeUrl, ok := rnm.data[routeName]
+	if !strings.Contains(routeUrl, "/:") {
+		// simple url
+		return routeUrl, nil
+	}
+
+	// param url
+	if !ok {
+		return "", errors.New("Cannot find route by Name " + routeName)
+	}
+	for k, v := range param {
+		routeUrl = strings.Replace(routeUrl, "/:"+k, v, 1)
+	}
+	return routeUrl, nil
+}
+
 type route struct {
+	name              string
 	bindFunc          func(handlers ...request.HandlerFunc)
 	handlers          []request.HandlerFunc
 	relativePath      string
@@ -27,7 +68,7 @@ type route struct {
 const maxRouteMapLength = 1000
 
 type engineRoute struct {
-	Lock sync.RWMutex
+	lock sync.RWMutex
 	data map[request.EngineHash]chan *route
 }
 
@@ -36,20 +77,21 @@ func newEngineRoute() *engineRoute {
 		data: make(map[request.EngineHash]chan *route),
 	}
 }
-func (erm *engineRoute) init(eh request.EngineHash) {
+func (erm *engineRoute) initEngine(eh request.EngineHash) {
 	if erm.data[eh] == nil {
 		erm.data[eh] = make(chan *route, maxRouteMapLength)
 	}
 }
 func (erm *engineRoute) Get(eh request.EngineHash) chan *route {
-	erm.Lock.RLock()
-	defer erm.Lock.RUnlock()
+	erm.lock.RLock()
+	defer erm.lock.RUnlock()
 	return erm.data[eh]
 }
 func (erm *engineRoute) Set(eh request.EngineHash, r *route) {
-	erm.Lock.Lock()
-	defer erm.Lock.Unlock()
-	erm.init(eh)
+	//@todo doesn't process the situation that for multi serve
+	erm.lock.Lock()
+	defer erm.lock.Unlock()
+	erm.initEngine(eh)
 	erm.data[eh] <- r
 }
 func (erm *engineRoute) Close(eh request.EngineHash) {
@@ -60,6 +102,7 @@ var engineRouteMap *engineRoute
 
 func init() {
 	engineRouteMap = newEngineRoute()
+	RouteNameMap = newRouteNameMap()
 }
 
 func newRoute(httpMethod string, g *group, relativePath string, bindFunc func(ginHandlers ...request.HandlerFunc), handlers ...request.HandlerFunc) *route {
@@ -82,7 +125,10 @@ func newWsRoute(httpMethod string, g *group, relativePath string, bindWsFunc fun
 
 	return &r
 }
-
+func (r *route) Name(routeName string) policy.RoutePolicier {
+	r.name = routeName
+	return r
+}
 func (r *route) Can(policies policy.Policier, action policy.Action) {
 	r.handlers = append([]request.HandlerFunc{middleware.Policy(policies, action)}, r.handlers...)
 }
@@ -109,6 +155,9 @@ func Bind(engine *request.Engine) {
 
 	for r := range engineRouteMap.Get(hash) {
 		r.bindFunc(r.handlers...)
+
+		// for Route() function to easy retrieve url by name
+		RouteNameMap.set(r.name, r.absolutePath())
 
 		if app.GetMode() != app.ModeProduction {
 			log.Info(fmt.Sprintf("%-6s %-30s --> %s (%d handlers)\n", r.httpMethod, r.absolutePath(), r.lastHandlerName(), r.handlerNum()))

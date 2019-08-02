@@ -22,69 +22,76 @@ type Grouper interface {
 type iRoutes interface {
 	//Use(...request.HandlerFunc) gin.IRoutes
 
-	Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	Any(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	GET(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	POST(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	DELETE(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	PATCH(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	PUT(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	OPTIONS(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
-	HEAD(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier
+	Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) routeEnder
+	Any(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	GET(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	POST(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	DELETE(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	PATCH(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	PUT(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	OPTIONS(relativePath string, handlers ...request.HandlerFunc) routeEnder
+	HEAD(relativePath string, handlers ...request.HandlerFunc) routeEnder
+
+	Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) routeEnder
 
 	StaticFile(relativePath, filepath string) gin.IRoutes
 	Static(relativePath, root string) gin.IRoutes
 	StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes
-
-	Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) policy.RoutePolicier
 }
 
 type group struct {
 	engineHash request.EngineHash
+
 	*gin.RouterGroup
 }
 
-func (g *group) Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+type routeEnder interface {
+	policy.RoutePolicier
+
+	Name(routeName string) policy.RoutePolicier
+}
+
+func (g *group) Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute(httpMethod, g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Handle(httpMethod, relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) Any(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) Any(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("Any", g, g.clearPath(relativePath), func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Any(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) GET(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) GET(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("GET", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) POST(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) POST(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("POST", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) DELETE(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) DELETE(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("DELETE", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.DELETE(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) PATCH(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) PATCH(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("PATCH", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PATCH(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) PUT(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) PUT(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("PUT", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PUT(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) OPTIONS(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) OPTIONS(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("OPTIONS", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.OPTIONS(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
 
-func (g *group) HEAD(relativePath string, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) HEAD(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newRoute("HEAD", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.HEAD(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
 }
@@ -106,7 +113,7 @@ func (g *group) StaticFS(relativePath string, fs http.FileSystem) gin.IRoutes {
 
 const httpMethodWebsocket = "WS"
 
-func (g *group) Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) policy.RoutePolicier {
+func (g *group) Websocket(relativePath string, wsHandler websocket.Handler, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
 	return newWsRoute(httpMethodWebsocket, g, relativePath, func(wsHandler websocket.Handler, innerHandlers ...request.HandlerFunc) {
 		innerGinHandlers := append(request.ConvertHandlers(innerHandlers), websocket.ConvertHandler(wsHandler))
