@@ -1,15 +1,19 @@
 package websocket
 
+import "github.com/totoval/framework/request"
+
 var hubs []*connectionHub
 
 type connectionHub struct {
 	msgChan  chan *Msg
 	isClosed bool
+	request.Context
 }
 
-func (ch *connectionHub) init() {
+func (ch *connectionHub) init(c request.Context) {
 	ch.msgChan = make(chan *Msg, 256)
 	ch.isClosed = false
+	ch.Context = c
 	hubs = append(hubs, ch)
 }
 func (ch *connectionHub) Send(msg *Msg) {

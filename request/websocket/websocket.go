@@ -28,7 +28,7 @@ func ConvertHandler(wsHandler Handler) gin.HandlerFunc {
 
 		// create connectionHub
 		hub := &connectionHub{} //@todo interface
-		hub.init()
+		hub.init(totovalContext)
 		//@todo add Hub to hub list, for broadcast
 
 		////@todo every handler struct has share'd it's Context

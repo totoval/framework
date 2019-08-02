@@ -5,6 +5,7 @@ import (
 
 	"github.com/totoval/framework/helpers/zone"
 	"github.com/totoval/framework/http/controller"
+	"github.com/totoval/framework/request"
 )
 
 type Handler interface {
@@ -21,6 +22,7 @@ type Handler interface {
 type Hub interface {
 	Send(msg *Msg)
 	Broadcast(msg *Msg)
+	request.Context
 }
 type config interface {
 	ReadBufferSize() int
