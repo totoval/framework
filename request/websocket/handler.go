@@ -19,9 +19,8 @@ type Handler interface {
 	controller.Controller
 }
 type Hub interface {
-	Init()
 	Send(msg *Msg)
-	//BroadCast(msg *Msg) //@todo
+	Broadcast(msg *Msg)
 }
 type config interface {
 	ReadBufferSize() int

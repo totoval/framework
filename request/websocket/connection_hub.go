@@ -1,55 +1,36 @@
 package websocket
 
-import (
-	"net/http"
+var hubs []*connectionHub
 
-	"github.com/totoval/framework/helpers/zone"
-)
-
-type ConnectionHub struct {
-	msgChan chan *Msg
+type connectionHub struct {
+	msgChan  chan *Msg
+	isClosed bool
 }
 
-func (ch *ConnectionHub) Init() {
+func (ch *connectionHub) init() {
 	ch.msgChan = make(chan *Msg, 256)
+	ch.isClosed = false
+	hubs = append(hubs, ch)
 }
-func (ch *ConnectionHub) Send(msg *Msg) {
+func (ch *connectionHub) Send(msg *Msg) {
 	ch.msgChan <- msg
 }
-func (ch *ConnectionHub) getChan() chan *Msg {
+func (ch *connectionHub) Broadcast(msg *Msg) {
+	for i, hub := range hubs {
+		if !hub.available() {
+			hubs = append(hubs[:i], hubs[i+1:]...) // remove hubs[i]
+			continue
+		}
+
+		hub.Send(msg)
+	}
+}
+func (ch *connectionHub) getChan() chan *Msg {
 	return ch.msgChan
 }
-
-type BaseHandler struct {
+func (ch *connectionHub) close() {
+	ch.isClosed = true
 }
-
-func (bh *BaseHandler) OnPing(hub Hub, appData string) {
-
-}
-
-func (bh *BaseHandler) OnPong(hub Hub, appData string) {
-
-}
-
-func (bh *BaseHandler) OnClose(hub Hub, code int, text string) {
-
-}
-
-func (bh *BaseHandler) ReadBufferSize() int {
-	return 1024
-}
-func (bh *BaseHandler) WriteBufferSize() int {
-	return 1024
-}
-func (bh *BaseHandler) CheckOrigin(r *http.Request) bool {
-	return true
-}
-func (bh *BaseHandler) WriteTimeout() zone.Duration {
-	return 10 * zone.Second
-}
-func (bh *BaseHandler) ReadTimeout() zone.Duration {
-	return 60 * zone.Second
-}
-func (bh *BaseHandler) MaxMessageSize() int64 {
-	return 512
+func (ch *connectionHub) available() bool {
+	return !ch.isClosed
 }

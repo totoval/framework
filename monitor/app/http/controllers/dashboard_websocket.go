@@ -27,7 +27,7 @@ func (d *DashboardWebsocketController) Loop(hub websocket.Hub) error {
 		}
 		msg := websocket.Msg{}
 		msg.SetJSON(flow)
-		hub.Send(&msg)
+		hub.Broadcast(&msg)
 	default:
 		return nil
 	}

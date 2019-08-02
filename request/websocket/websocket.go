@@ -27,8 +27,8 @@ func ConvertHandler(wsHandler Handler) gin.HandlerFunc {
 		totovalContext := request_http.ConvertContext(c)
 
 		// create connectionHub
-		hub := &ConnectionHub{} //@todo interface
-		hub.Init()
+		hub := &connectionHub{} //@todo interface
+		hub.init()
 		//@todo add Hub to hub list, for broadcast
 
 		////@todo every handler struct has share'd it's Context
@@ -46,8 +46,15 @@ func ConvertHandler(wsHandler Handler) gin.HandlerFunc {
 			totovalContext.JSON(http.StatusUnprocessableEntity, toto.V{"error": err})
 			return
 		}
-		defer ws.Close()
+		// close ws connection
+		defer func() {
+			if err := ws.Close(); err != nil {
+				_ = log.Error(err)
+			}
+			hub.close()
+		}()
 
+		// handle panic
 		defer func() {
 			if _err := recover(); _err != nil {
 				if __err, ok := _err.(error); ok {
