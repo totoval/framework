@@ -8,6 +8,9 @@
 ![GitHub](https://img.shields.io/github/license/totoval/framework.svg)
 
 ## About Totoval
+
+> Note: This repository contains the core code of the Totoval framework. If you want to build an application using Totoval, visit the [main Totoval repository](https://github.com/totoval/totoval).
+
 Totoval is an API web framework that helps Golang engineers build a performance-boiled project quickly, easily, and securely. It is more like a scaffolding, respecting Golang's programming philosophy, supported by a number of highly acclaimed, high-performance core components, as well as many easy-to-use components to quickly adapt to more business scenarios. We also believe that development must be an enjoyable and creative experience. Totoval frees developers from the painful coding process. Do less, think more.
 
 ## Docs
@@ -47,9 +50,10 @@ Refer to [https://totoval.com](https://totoval.com/docs/introduction/introductio
 - [x] User Authorization
 - [x] Multi Ports Serving
 - [x] Model Mutator Getter/Setter
+- [ ] Websocket Support ***WIP***
+- [ ] Monitor ***WIP***
 - [ ] Database Seeder ***PLANNED***
 - [ ] More Unit Test ***PLANNED***
-- [ ] Websocket Support ***PLANNED***
 - [ ] Website && Document ***WIP***
 - [ ] File Storage ***PLANNED***
 - [ ] CI
@@ -81,4 +85,5 @@ If you have any issues or feature requests, please contact us. PR is welcomed.
 
 * https://github.com/totoval/framework/issues  
 * Slack: https://totoval.slack.com
+* Zulip: https://totoval.zulipchat.com
 * totoval@tobyan.com
