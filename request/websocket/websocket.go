@@ -27,18 +27,8 @@ func ConvertHandler(wsHandler Handler) gin.HandlerFunc {
 		totovalContext := request_http.ConvertContext(c)
 
 		// create connectionHub
-		hub := &connectionHub{} //@todo interface
+		hub := &connectionHub{}
 		hub.init(totovalContext)
-		//@todo add Hub to hub list, for broadcast
-
-		////@todo every handler struct has share'd it's Context
-		//typeof := reflect.TypeOf(wsHandler)
-		//
-		//ptr := reflect.New(typeof).Elem()
-		//val := reflect.New(typeof.Elem())
-		//ptr.Set(val)
-		//newHandler := ptr.Interface().(Handler)
-		//debug.Dump(newHandler)
 
 		ws, err := wsUpgrader.Upgrade(totovalContext.Writer(), totovalContext.Request(), nil)
 		if err != nil {
