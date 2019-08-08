@@ -123,9 +123,9 @@ func (c *consumer) failedToDatabase(topicName string, channelName string, msg *m
 }
 
 func convertInterfaceErr(err interface{}) error {
-	errStr := fmt.Sprint(err)
 	if _err, ok := err.(error); ok {
-		errStr = log.ErrorStr(_err)
+		return _err
 	}
+	errStr := fmt.Sprint(err)
 	return errors.New(errStr)
 }
