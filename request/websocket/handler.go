@@ -9,6 +9,7 @@ import (
 )
 
 type Handler interface {
+	DefaultChannels() []string
 	OnMessage(hub Hub, msg *Msg)
 	Loop(hub Hub) error
 
@@ -16,19 +17,30 @@ type Handler interface {
 	OnPong(hub Hub, appData string)
 	OnClose(hub Hub, code int, text string)
 
-	config
+	configer
 	controller.Controller
 }
 type Hub interface {
 	Send(msg *Msg)
 	Broadcast(msg *Msg)
+	BroadcastTo(channelName string, msg *Msg)
+
+	name() string
+	available() bool
+
+	channeller
 	request.Context
 }
-type config interface {
+type configer interface {
 	ReadBufferSize() int
 	WriteBufferSize() int
 	CheckOrigin(r *http.Request) bool
 	WriteTimeout() zone.Duration
 	ReadTimeout() zone.Duration
 	MaxMessageSize() int64
+}
+
+type channeller interface {
+	JoinChannel(channelName string)
+	LeaveChannel(channelName string)
 }

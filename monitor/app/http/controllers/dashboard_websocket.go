@@ -13,7 +13,21 @@ type DashboardWebsocketController struct {
 	websocket.BaseHandler
 }
 
+func (d *DashboardWebsocketController) DefaultChannels() []string {
+	return []string{"new-test-channel"}
+}
+
 func (d *DashboardWebsocketController) OnMessage(hub websocket.Hub, msg *websocket.Msg) {
+	mm1 := &websocket.Msg{}
+
+	if msg.String() == "join test channel" {
+		hub.JoinChannel("test")
+	}
+	if msg.String() == "broadcast to test" {
+		mm1.SetString("test broadcast")
+		hub.BroadcastTo("test", mm1)
+	}
+
 	mm := &websocket.Msg{}
 	// need login~, just for an example of websocket authentication support
 	if err := hub.ScanUser(); err != nil {
