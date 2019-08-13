@@ -53,47 +53,65 @@ type routeEnder interface {
 
 func (g *group) Handle(httpMethod, relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute(httpMethod, g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Handle(httpMethod, relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute(httpMethod, g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.Handle(httpMethod, relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) Any(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("Any", g, g.clearPath(relativePath), func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.Any(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("Any", g, g.clearPath(relativePath), func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.Any(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) GET(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("GET", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("GET", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.GET(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) POST(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("POST", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("POST", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.POST(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) DELETE(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("DELETE", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.DELETE(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("DELETE", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.DELETE(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) PATCH(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("PATCH", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PATCH(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("PATCH", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.PATCH(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) PUT(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("PUT", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.PUT(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("PUT", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.PUT(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) OPTIONS(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("OPTIONS", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.OPTIONS(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("OPTIONS", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.OPTIONS(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) HEAD(relativePath string, handlers ...request.HandlerFunc) routeEnder {
 	relativePath = g.clearPath(relativePath)
-	return newRoute("HEAD", g, relativePath, func(innerHandlers ...request.HandlerFunc) { g.RouterGroup.HEAD(relativePath, request.ConvertHandlers(innerHandlers)...) }, handlers...)
+	return newRoute("HEAD", g, relativePath, func(innerHandlers ...request.HandlerFunc) {
+		g.RouterGroup.HEAD(relativePath, request.ConvertHandlers(innerHandlers)...)
+	}, handlers...)
 }
 
 func (g *group) StaticFile(relativePath, filepath string) gin.IRoutes {
