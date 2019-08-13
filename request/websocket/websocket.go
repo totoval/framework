@@ -27,8 +27,7 @@ func ConvertHandler(wsHandler Handler) gin.HandlerFunc {
 		totovalContext := request_http.ConvertContext(c)
 
 		// create connectionHub
-		hub := &connectionHub{}
-		hub.init(totovalContext)
+		hub := newConnectionHub(totovalContext, wsHandler)
 
 		ws, err := wsUpgrader.Upgrade(totovalContext.Writer(), totovalContext.Request(), nil)
 		if err != nil {
