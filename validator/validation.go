@@ -9,6 +9,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/totoval/framework/helpers/locale"
+	"github.com/totoval/framework/helpers/log"
 	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/helpers/trans"
 )
@@ -18,6 +19,7 @@ type Validation struct {
 
 //@todo Deprecated, for compatible with v0.10.0
 func (v *Validation) Validate(c Context, requestDataPtr interface{}, onlyFirstError bool) (isAbort bool) {
+	log.Warn("Deprecated, for compatible with v0.10.0, you should use ValidateJSON instead.")
 	return v.ValidateJSON(c, requestDataPtr, onlyFirstError)
 }
 
