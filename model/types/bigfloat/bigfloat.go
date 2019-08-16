@@ -425,8 +425,10 @@ func (bf *BigFloat) mergeDecimalDiv(a BigFloat, b BigFloat, isInf ...bool) {
 	decimalB := b.decimalCount
 
 	if len(isInf) > 0 {
-		bf.decimalCount = AutoPrec / 2
-		return
+		if isInf[0] {
+			bf.decimalCount = AutoPrec / 2
+			return
+		}
 	}
 
 	if decimalA == 0 && decimalB == 0 {
