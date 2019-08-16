@@ -126,7 +126,7 @@ func (bf *BigFloat) setDecimal(d uint) { // @todo 0 is infinity
 }
 
 func (bf *BigFloat) Copy(newBf *BigFloat) error {
-	return newBf.CreateFromString(bf.String(), bf._bf.Mode())
+	return newBf.CreateFromString(bf.String(), bf._bf.Mode()) //@todo accuracy above, may caused by String func()
 }
 
 type RoundType byte
@@ -181,6 +181,13 @@ func (bf *BigFloat) Round(decimal uint, roundType RoundType) (*BigFloat, error) 
 	if err := bf.Copy(&bfCopy); err != nil {
 		return nil, err
 	}
+
+	if decimal <= 64 {
+		bfCopy.decimalCount = 64
+	} else {
+		bfCopy.decimalCount = AutoPrec / 2
+	}
+
 	parts := strings.Split(bfCopy.String(), ".")
 	normalPart := ""
 	decimalPart := ""
@@ -425,8 +432,10 @@ func (bf *BigFloat) mergeDecimalDiv(a BigFloat, b BigFloat, isInf ...bool) {
 	decimalB := b.decimalCount
 
 	if len(isInf) > 0 {
-		bf.decimalCount = AutoPrec / 2
-		return
+		if isInf[0] {
+			bf.decimalCount = AutoPrec / 2
+			return
+		}
 	}
 
 	if decimalA == 0 && decimalB == 0 {

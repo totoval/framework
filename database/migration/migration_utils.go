@@ -13,7 +13,7 @@ type MigrationUtils struct {
 	model.BaseModel
 }
 
-// 项目初始化
+// Project initialize
 func (mu *MigrationUtils) SetUp() {
 
 	console.Println(console.CODE_WARNING, "initializing:migration table")
@@ -23,13 +23,13 @@ func (mu *MigrationUtils) SetUp() {
 	console.Println(console.CODE_SUCCESS, "initialized:migration table")
 }
 
-// 所有migrate过的任务列表
+// all migration list
 func (mu *MigrationUtils) migrationList() (migrationList []Migration) {
 	mu.DB().Find(&migrationList)
 	return
 }
 
-// 计算需要migrate的任务
+// calc need migrate list
 func (mu *MigrationUtils) needMigrateList() (_migratorList []Migrator) {
 	for _, migrator := range migratorList {
 		found := false
