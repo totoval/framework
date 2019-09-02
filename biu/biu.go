@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type biu struct {
@@ -117,12 +118,11 @@ func (b *biu) constructRequestBody() (reader io.Reader, err error) {
 		return nil, nil
 	}
 
-	switch b.options.Headers["Content-Type"] {
-	case "application/x-www-form-urlencoded":
+	if strings.Contains(b.options.Headers["Content-Type"], "application/x-www-form-urlencoded") {
 		return b.options.Body.form()
-	case "application/json":
+	} else if strings.Contains(b.options.Headers["Content-Type"], "application/json") {
 		return b.options.Body.json()
-	default:
+	} else {
 		return b.options.Body.form()
 	}
 }

@@ -6,8 +6,9 @@ import (
 	"github.com/go-playground/locales"
 	"github.com/go-playground/universal-translator"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/totoval/framework/resources/lang"
 	"golang.org/x/text/language"
+
+	"github.com/totoval/framework/resources/lang"
 )
 
 type UnmarshalFunc = i18n.UnmarshalFunc
@@ -41,7 +42,7 @@ func (l *locale) ValidationRegistered() bool {
 // UnmarshalFunc  func(data []byte, v interface{}) error
 
 func (l *locale) SetCustomTranslation(customTranslation *lang.CustomTranslation) *locale {
-	bundle := &i18n.Bundle{DefaultLanguage: language.English}
+	bundle := i18n.NewBundle(language.English)
 
 	for id, value := range *customTranslation {
 		m := i18n.Message{
