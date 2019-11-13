@@ -17,9 +17,13 @@ const RefreshExpiredTime zone.Duration = 10 * zone.Minute
 const MaxRefreshTimes uint = 1
 
 const REFRESH_TOKEN_CACHE_KEY = "TOTOVAL_REFRESH_TOKEN_%s"
+const REVOKED_TOKEN_CACHE_KEY = "TOTOVAL_REVOKED_TOKEN_%s"
 
 func refreshTokenCacheKey(tokenMd5 string) string {
 	return fmt.Sprintf(REFRESH_TOKEN_CACHE_KEY, tokenMd5)
+}
+func revokedTokenCacheKey(tokenMd5 string) string {
+	return fmt.Sprintf(REVOKED_TOKEN_CACHE_KEY, tokenMd5)
 }
 
 type refreshToken struct {
@@ -43,9 +47,6 @@ type UserClaims struct {
 	jwt.StandardClaims
 }
 
-func (c *UserClaims) Revoke() {
-	c.Revoked = true
-}
 func (c UserClaims) Valid() error {
 	vErr := new(jwt.ValidationError)
 	now := jwt.TimeFunc().Unix()
@@ -127,7 +128,7 @@ func (j *JWT) ParseToken(tokenString string) (*UserClaims, error) {
 	if token == nil { // In case of token is nil
 		return nil, TokenInvalid
 	}
-	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid && !claims.Revoked {
+	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid && !j.IsRevoked(tokenString) {
 		return claims, nil
 	}
 	return nil, TokenInvalid
@@ -209,14 +210,22 @@ func (j *JWT) RefreshTokenUnverified(tokenString string) (string, error) {
 	return "", TokenInvalid
 }
 
+func (j *JWT) revokeToken(tokenMd5 string) {
+	cache.Put(revokedTokenCacheKey(tokenMd5), true, zone.Now().Add(ExpiredTime))
+}
+func (j *JWT) IsRevoked(tokenString string) bool {
+	return cache.Has(revokedTokenCacheKey(j.tokenMd5(tokenString)))
+}
 func (j *JWT) RevokeToken(tokenString string) error {
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, &UserClaims{})
+	_, _, err := new(jwt.Parser).ParseUnverified(tokenString, &UserClaims{})
 	if err != nil {
 		return err
 	}
-	if claims, ok := token.Claims.(*UserClaims); ok {
-		claims.Revoke()
-		return nil
-	}
+
+	j.revokeToken(j.tokenMd5(tokenString))
+	//if claims, ok := token.Claims.(*UserClaims); ok {
+	//	claims.Revoke()
+	//	return nil
+	//}
 	return TokenInvalid
 }
