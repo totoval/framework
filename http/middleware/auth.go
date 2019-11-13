@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/totoval/framework/config"
 	"github.com/totoval/framework/helpers/toto"
 	"github.com/totoval/framework/request"
 	"github.com/totoval/framework/utils/jwt"
@@ -53,8 +52,8 @@ func AuthRequired(signKey string) request.HandlerFunc {
 	}
 }
 
-func Revoke(c request.Context) error {
-	j := jwt.NewJWT(config.GetString("auth.sign_key"))
+func Revoke(c request.Context, signKey string) error {
+	j := jwt.NewJWT(signKey)
 	if tokenString, exist := c.Get(CONTEXT_TOKEN_KEY); exist {
 		if token, ok := tokenString.(string); ok {
 			if err := j.RevokeToken(token); err == nil {
