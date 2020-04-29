@@ -18,7 +18,6 @@ func init() {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 
-	v.SetEnvPrefix("totoval")
 	v.AutomaticEnv()
 }
 
