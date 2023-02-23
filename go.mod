@@ -29,8 +29,8 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/urfave/cli v1.21.0
 	github.com/ztrue/tracerr v0.3.0
-	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472
-	golang.org/x/text v0.3.2
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/text v0.3.8
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0
 	gopkg.in/go-playground/validator.v9 v9.29.1
 )
