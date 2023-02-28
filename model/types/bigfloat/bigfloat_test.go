@@ -3,9 +3,11 @@ package bigfloat
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/totoval/framework/model/types/bigint"
 	"log"
 	"math/big"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -86,7 +88,7 @@ var testDivTable = []*testDiv{
 	{"123456.1234", "123456.1234", "1"},
 	{"123456.123400", "123456.1234", "1"},
 	{"1000000000000000", "1000000000000000000", "0.001"},
-	{"100000", "365", "273.97260274...."}, // infinitive
+	{"100000", "365", "273.97260273972602739726027397260273972602739726027397260273972602739726027397260273972602739726027397260273972602739726027397260274"}, // infinitive
 	{"123456789", "1000000000", "0.123456789"},
 	{"1234567890123456789012345678901", "10000000000000000000000000000000", "0.1234567890123456789012345678901"},
 	{"1234567890123456789012345678901", "1000000000000000000000000000", "1234.567890123456789012345678901"},
@@ -229,10 +231,10 @@ func TestBigFloat_Convert(t *testing.T) {
 	//a := big.Float{}
 	a, _, _ := big.ParseFloat("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.12345678901234567890123456789012345678901234567890123456789012345678901234567890", 10, AutoPrec, big.ToNearestEven)
 
-	log.Println(string(a.Prec()))
+	log.Println(strconv.Itoa(int(a.Prec())))
 	log.Println(a.Text('f', 1024))
 	b := BigFloat{}
-	log.Println(string(a.Prec()))
+	log.Println(strconv.Itoa(int(a.Prec())))
 	b.Convert(a)
 	fmt.Println(b.String())
 	e, _ := b.Round(2, RoundUpAlways)
@@ -265,9 +267,9 @@ func TestBigFloat_Floor(t *testing.T) {
 func TestBigFloat_MarshalJSON(t *testing.T) {
 
 	type testMarshalJSONStruct struct {
-		Str string   `json:"str1,string"`
-		Bf  BigFloat `json:"bf1,string"`
-		//Bi  bigint.BigInt `json:"bi1,string"`
+		Str string        `json:"str1,string"`
+		Bf  BigFloat      `json:"bf1,string"`
+		Bi  bigint.BigInt `json:"bi1,string"`
 	}
 
 	for _, te := range testMarshalJSONTable {
@@ -276,9 +278,9 @@ func TestBigFloat_MarshalJSON(t *testing.T) {
 		var bf BigFloat
 		bf.CreateFromString(te.a, ToNearestEven)
 		test.Bf = bf
-		//var bi bigint.BigInt
-		//bi.CreateFromString(te.a, 10)
-		//test.Bi = bi
+		var bi bigint.BigInt
+		bi.CreateFromString(te.a, 10)
+		test.Bi = bi
 
 		js, _ := json.Marshal(test)
 

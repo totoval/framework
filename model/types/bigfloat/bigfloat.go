@@ -401,13 +401,25 @@ func (bf BigFloat) MarshalJSON() ([]byte, error) {
 }
 
 func (bf *BigFloat) UnmarshalJSON(src []byte) error {
-	return bf.scanBytes(src)
+	return bf.scanBytes(bf.removeQuote(src))
 }
 
 func (bf *BigFloat) UnmarshalBinary(data []byte) error {
-	return bf.scanBytes(data)
+	return bf.scanBytes(bf.removeQuote(data))
 }
 
+// remove "
+func (bf *BigFloat) removeQuote(src []byte) []byte {
+	// if src first byte is " then remove it
+	if src[0] == '"' {
+		src = src[1:]
+	}
+	// if src last byte is " then remove it
+	if src[len(src)-1] == '"' {
+		src = src[:len(src)-1]
+	}
+	return src
+}
 func (bf BigFloat) MarshalBinary() (data []byte, err error) {
 	return []byte(bf.String()), nil
 }
@@ -455,7 +467,7 @@ func (bf *BigFloat) mergeDecimalDiv(a BigFloat, b BigFloat, isInf ...bool) {
 	return
 }
 
-//@todo calc pointer param
+// @todo calc pointer param
 func (bf *BigFloat) Add(a BigFloat, b BigFloat) {
 	bf.useBiggerDecimal(a, b)
 	bf._bf.Add(&a._bf, &b._bf)

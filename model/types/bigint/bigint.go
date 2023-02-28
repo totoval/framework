@@ -68,11 +68,24 @@ func (bi BigInt) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + bi._bi.String() + `"`), nil
 }
 func (bi *BigInt) UnmarshalJSON(src []byte) error {
-	return bi.scanBytes(src)
+	return bi.scanBytes(bi.removeQuote(src))
 }
 
 func (bi *BigInt) UnmarshalBinary(data []byte) error {
-	return bi.scanBytes(data)
+	return bi.scanBytes(bi.removeQuote(data))
+}
+
+// remove "
+func (bi *BigInt) removeQuote(src []byte) []byte {
+	// if src first byte is " then remove it
+	if src[0] == '"' {
+		src = src[1:]
+	}
+	// if src last byte is " then remove it
+	if src[len(src)-1] == '"' {
+		src = src[:len(src)-1]
+	}
+	return src
 }
 
 func (bi BigInt) MarshalBinary() (data []byte, err error) {
@@ -88,7 +101,7 @@ func (bi *BigInt) SetInt64(i int64) *BigInt {
 	return bi
 }
 
-//@todo calc pointer param
+// @todo calc pointer param
 func (bi *BigInt) Add(a BigInt, b BigInt) {
 	bi._bi.Add(&a._bi, &b._bi)
 }
